@@ -14,6 +14,10 @@ public class LevelManager : MonoBehaviour {
     TileGenerator tileGenerator;
     Tile[] tiles;
 
+	void OnEnable() {
+		Pickup.OnPickup += AdvanceState;
+	}
+
     // Use this for initialization
     IEnumerator Start () {
         tileGenerator = GetComponent<TileGenerator>();
