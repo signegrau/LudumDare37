@@ -32,7 +32,7 @@ public class PlayerScript : MonoBehaviour {
 	{
 		bool oldIsGrounded = isGrounded;
 
-		isGrounded = Physics2D.OverlapCircle( groundCheck.position, 0.2f, layersToLandOn );
+		isGrounded = Physics2D.OverlapCircle( groundCheck.position, 0.1f, layersToLandOn );
 
 
 		if ( isGrounded )
@@ -64,7 +64,7 @@ public class PlayerScript : MonoBehaviour {
 	void FixedUpdate ()
 	{
 
-		float move = Input.GetAxis("Horizontal") * maxSpeed;
+		float move = Input.GetAxisRaw("Horizontal") * maxSpeed;
 
 		Vector2 v = rigidbody2D.velocity;
 
