@@ -37,7 +37,7 @@ public class PlayerScript : MonoBehaviour {
 
 		if ( isGrounded )
 		{
-			if ( Input.GetKeyDown(KeyCode.UpArrow) )
+			if ( Input.GetButtonDown("Jump") )
 			{
 				isJumping = true;
 				leftGround = false;
