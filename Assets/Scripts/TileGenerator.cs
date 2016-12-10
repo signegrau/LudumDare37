@@ -10,7 +10,13 @@ public class TileGenerator : MonoBehaviour
     public int numColumns = 10;
 
     private GameObject tile;
-	public Tile[] GenerateTiles()
+
+    private void Start()
+    {
+        GenerateTiles();
+    }
+
+    public Tile[] GenerateTiles()
 	{
 	    var tiles = new Tile[numColumns * numRows];
 
@@ -25,5 +31,7 @@ public class TileGenerator : MonoBehaviour
 	            tiles[i * numColumns + j] = tile.GetComponent<Tile>();
 	        }
 	    }
+
+	    return tiles;
 	}
 }
