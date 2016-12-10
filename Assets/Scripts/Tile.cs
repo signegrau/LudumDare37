@@ -1,19 +1,20 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class CubePlatform : MonoBehaviour
+public class Tile : MonoBehaviour
 {
-    private enum CubeState
+    public enum State
     {
-        Background,
-        Forground,
+        Wall,
+        Platform,
         Moving
     }
 
-    private CubeState state = CubeState.Background;
+    private State state = State.Wall;
     private bool movingToForeground;
 
     private float lerpTime;
@@ -48,7 +49,7 @@ public class CubePlatform : MonoBehaviour
 
 	public void Update ()
 	{
-	    if (state != CubeState.Moving) return;
+	    if (state != State.Moving) return;
 
 	    if (movingToForeground)
 	    {
@@ -63,14 +64,14 @@ public class CubePlatform : MonoBehaviour
 	    {
 	        Debug.Log("Hit lower bound");
 	        lerpTime = 0;
-	        state = CubeState.Background;
+	        state = State.Wall;
 	        collider.enabled = false;
 	    }
 	    else if (lerpTime > 1)
 	    {
 	        Debug.Log("Hit upper bound");
 	        lerpTime = 1;
-	        state = CubeState.Forground;
+	        state = State.Platform;
 	        collider.enabled = true;
 	        //_rigidbody.isKinematic = false;
 	    }
@@ -94,13 +95,13 @@ public class CubePlatform : MonoBehaviour
 
     public void MoveToForeground()
     {
-        state = CubeState.Moving;
+        state = State.Moving;
         movingToForeground = true;
     }
 
     public void MoveToBackground()
     {
-        state = CubeState.Moving;
+        state = State.Moving;
         movingToForeground = false;
     }
 
@@ -110,13 +111,30 @@ public class CubePlatform : MonoBehaviour
 
         switch (state)
         {
-            case CubeState.Background:
+            case State.Wall:
                 MoveToForeground();
                 break;
-            case CubeState.Forground:
+            case State.Platform:
                 MoveToBackground();
                 break;
-            case CubeState.Moving:
+            case State.Moving:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public void GotoState(State newState)
+    {
+        switch (newState)
+        {
+            case State.Wall:
+                MoveToBackground();
+                break;
+            case State.Platform:
+                MoveToForeground();
+                break;
+            case State.Moving:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
