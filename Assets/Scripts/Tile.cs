@@ -131,7 +131,7 @@ public class Tile : MonoBehaviour
 	        transisionFinished = false;
 	    }
 
-	    if (state != State.Platform || collider.enabled) return;
+	    if (state != State.Platform && !collider.enabled) return;
 	    if (lerpValue >= 0.5f && !collider.enabled)
 	    {
 	        collider.enabled = true;
@@ -183,6 +183,12 @@ public class Tile : MonoBehaviour
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
+        }
+
+        if (newState != State.Pickup && attachment != null)
+        {
+            Destroy(attachment);
+            attachment = null;
         }
 
         state = newState;

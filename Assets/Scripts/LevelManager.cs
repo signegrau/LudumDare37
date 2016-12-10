@@ -15,9 +15,11 @@ public class LevelManager : MonoBehaviour {
     Tile[] tiles;
 
     // Use this for initialization
-    void Start () {
+    IEnumerator Start () {
         tileGenerator = GetComponent<TileGenerator>();
         tiles = tileGenerator.GenerateTiles();
+
+        yield return null;
 
         allLevelStates = new List<Tile.State[]>();
 
@@ -49,6 +51,7 @@ public class LevelManager : MonoBehaviour {
             }
         }
 
+        AdvanceState();
     }
 
     public void Update() {
