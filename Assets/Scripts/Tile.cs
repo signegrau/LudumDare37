@@ -168,6 +168,8 @@ public class Tile : MonoBehaviour
 
     public void GotoState(State newState)
     {
+        if (newState == state) return;
+
         switch (newState)
         {
             case State.Wall:
