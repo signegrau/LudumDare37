@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mail;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ public class Tile : MonoBehaviour
         public Color color;
     }
 
-
+    public GameObject pickupPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -48,6 +49,9 @@ public class Tile : MonoBehaviour
     private float lerpTime;
     private float lerpValue;
     public float timeToMove = 1f;
+
+    private GameObject attachment;
+    private Renderer attachmentRenderer;
 
     public AnimationCurve curve;
 
@@ -112,6 +116,7 @@ public class Tile : MonoBehaviour
 
 	        if (state == State.Pickup && transisionState == TransisionState.Background)
 	        {
+	            AttachObject(pickupPrefab);
 	            BeginTransision(TransisionState.Wall);
 	        }
 	        else
@@ -132,6 +137,13 @@ public class Tile : MonoBehaviour
 	        collider.enabled = false;
 	    }
 	}
+
+    public void AttachObject(GameObject gameObject)
+    {
+        attachment = Instantiate(gameObject, transform);
+        attachment.transform.localPosition = new Vector3(0, 0, -1f);
+        attachmentRenderer = attachment.GetComponent<Renderer>();
+    }
 
     public void BeginTransision(TransisionState transisionState)
     {
