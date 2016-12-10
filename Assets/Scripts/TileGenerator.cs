@@ -20,14 +20,14 @@ public class TileGenerator : MonoBehaviour
 	{
 	    var tiles = new Tile[numColumns * numRows];
 
-	    var firstCubePosition = new Vector3(-(numRows / 2) + 0.5f, numColumns / 2 - 0.5f, 0f);
+	    var firstCubePosition = new Vector3((numRows / 2) - 0.5f, numColumns / 2 - 0.5f, 0f);
 
 	    for (var i = 0; i < numRows; i++)
 	    {
 	        for (var j = 0; j < numColumns; j++)
 	        {
 	            tile = Instantiate(tilePrefab, transform);
-	            tile.transform.localPosition = firstCubePosition + new Vector3(i, -j, 0);
+	            tile.transform.localPosition = firstCubePosition + new Vector3(-j, -i, 0);
 	            tiles[i * numColumns + j] = tile.GetComponent<Tile>();
 	        }
 	    }

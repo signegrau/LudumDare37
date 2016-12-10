@@ -103,7 +103,7 @@ public class Tile : MonoBehaviour
 	    }
 
 	    lerpValue = curve.Evaluate(lerpTime);
-	    Debug.Log(lerpValue);
+	    // Debug.Log(lerpValue);
 
 	    transform.position = Vector3.LerpUnclamped(previousPosition, targetPosition, lerpValue);
 	    renderer.material.SetColor("_Color", Color.LerpUnclamped(previousColor, targetColor, lerpValue));
@@ -180,6 +180,8 @@ public class Tile : MonoBehaviour
 
     public void GotoState(State newState)
     {
+        if (state == newState) return;
+        
         switch (newState)
         {
             case State.Wall:
