@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mail;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,6 +55,9 @@ public class Tile : MonoBehaviour
     private Renderer attachmentRenderer;
 
     public AnimationCurve curve;
+
+    public delegate void MouseClickEventHandler(object sender);
+    public event MouseClickEventHandler OnMouseClick;
 
     private Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
     {
@@ -158,24 +162,8 @@ public class Tile : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("Mouse down");
-
-        if (transisionState != TransisionState.None) return;
-
-        switch (state)
-        {
-            case State.Wall:
-                GotoState(State.Pickup);
-                break;
-            case State.Platform:
-                GotoState(State.Wall);
-                break;
-            case State.Pickup:
-                GotoState(State.Platform);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        if (OnMouseClick == null) return;
+        OnMouseClick(this);
     }
 
     public void GotoState(State newState)
