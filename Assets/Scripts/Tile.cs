@@ -11,10 +11,38 @@ public class Tile : MonoBehaviour
     {
         Wall,
         Platform,
+        Pickup,
         Moving
     }
 
+    public enum TransisionState
+    {
+        None,
+        Background,
+        Wall,
+        Foreground
+    }
+
+    public struct TransisionStateData
+    {
+        public Vector3 position;
+        public Color color;
+    }
+
+
+
     private State state = State.Wall;
+    private State previousState;
+    private TransisionState transisionState = TransisionState.None;
+
+    private Vector3 previousPosition;
+    private Vector3 targetPosition;
+
+    private Color previousColor;
+    private Color targetColor;
+
+    private Vector3 basePosition;
+
     private bool movingToForeground;
 
     private float lerpTime;
@@ -23,14 +51,21 @@ public class Tile : MonoBehaviour
 
     public AnimationCurve curve;
 
-    private Vector3 foregroundPosition = new Vector3(0, 0, -1);
-    private Vector3 backgroundPosition = new Vector3(0, 0, 0);
+    private Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
+    {
+        {TransisionState.Background, new Vector3(0, 0, 1)},
+        {TransisionState.Foreground, new Vector3(0, 0, -1)},
+        {TransisionState.Wall, new Vector3(0, 0, 0)}
+    };
 
-    private readonly Color foregroundColor = new Color(1f, 1f, 1f);
-    private readonly Color backgroundColor = new Color(0.7f, 0.7f, 0.7f);
+    private Dictionary<TransisionState, Color> targetColors = new Dictionary<TransisionState, Color>
+    {
+        {TransisionState.Background, new Color(0.0f, 0.0f, 0.0f)},
+        {TransisionState.Foreground, new Color(1f, 1f, 1f)},
+        {TransisionState.Wall, new Color(0.7f, 0.7f, 0.7f)}
+    };
 
     private Renderer renderer;
-    private Rigidbody _rigidbody;
 
     public BoxCollider2D collider;
 
@@ -38,50 +73,56 @@ public class Tile : MonoBehaviour
 	public void Start ()
 	{
 	    renderer = GetComponent<Renderer>();
-	    renderer.material.SetColor("_Color", backgroundColor);
+	    renderer.material.SetColor("_Color", targetColors[TransisionState.Wall]);
 
-	    _rigidbody = GetComponent<Rigidbody>();
-	    _rigidbody.isKinematic = true;
+	    basePosition = transform.position;
 
-	    foregroundPosition += transform.position;
-	    backgroundPosition += transform.position;
+	    targetPositions[TransisionState.Background] += basePosition;
+	    targetPositions[TransisionState.Foreground] += basePosition;
+	    targetPositions[TransisionState.Wall] += basePosition;
 	}
 
+
+    private bool transisionFinished;
 	public void Update ()
 	{
-	    if (state != State.Moving) return;
+	    if (transisionState == TransisionState.None) return;
 
-	    if (movingToForeground)
-	    {
-	        lerpTime += 1f / timeToMove * Time.deltaTime;
-	    }
-	    else
-	    {
-	        lerpTime -= 1f / timeToMove * Time.deltaTime;
-	    }
+	    lerpTime += 1f / timeToMove * Time.deltaTime;
 
-	    if (lerpTime < 0)
+	    lerpValue = curve.Evaluate(lerpTime);
+
+        if (lerpTime >= 1)
 	    {
-	        Debug.Log("Hit lower bound");
-	        lerpTime = 0;
-	        state = State.Wall;
-	        collider.enabled = false;
-	    }
-	    else if (lerpTime > 1)
-	    {
-	        Debug.Log("Hit upper bound");
 	        lerpTime = 1;
-	        state = State.Platform;
-	        collider.enabled = true;
-	        //_rigidbody.isKinematic = false;
+	        transisionFinished = true;
 	    }
 
 	    lerpValue = curve.Evaluate(lerpTime);
 	    Debug.Log(lerpValue);
 
-	    transform.position = Vector3.LerpUnclamped(backgroundPosition, foregroundPosition, lerpValue);
-	    renderer.material.SetColor("_Color", Color.LerpUnclamped(backgroundColor, foregroundColor, lerpValue));
+	    transform.position = Vector3.LerpUnclamped(previousPosition, targetPosition, lerpValue);
+	    renderer.material.SetColor("_Color", Color.LerpUnclamped(previousColor, targetColor, lerpValue));
 
+	    if (transisionFinished)
+	    {
+	        lerpTime = 0;
+
+	        Debug.Log(transisionState);
+
+	        if (state == State.Pickup && transisionState == TransisionState.Background)
+	        {
+	            BeginTransision(TransisionState.Wall);
+	        }
+	        else
+	        {
+	            transisionState = TransisionState.None;
+	        }
+
+	        transisionFinished = false;
+	    }
+
+	    if (state != State.Platform || collider.enabled) return;
 	    if (lerpValue >= 0.5f && !collider.enabled)
 	    {
 	        collider.enabled = true;
@@ -90,34 +131,35 @@ public class Tile : MonoBehaviour
 	    {
 	        collider.enabled = false;
 	    }
-
 	}
 
-    public void MoveToForeground()
+    public void BeginTransision(TransisionState transisionState)
     {
-        state = State.Moving;
-        movingToForeground = true;
-    }
+        targetPosition = targetPositions[transisionState];
+        previousPosition = transform.position;
 
-    public void MoveToBackground()
-    {
-        state = State.Moving;
-        movingToForeground = false;
+        targetColor = targetColors[transisionState];
+        previousColor = renderer.material.GetColor("_Color");
+
+        this.transisionState = transisionState;
     }
 
     private void OnMouseDown()
     {
         Debug.Log("Mouse down");
 
+        if (transisionState != TransisionState.None) return;
+
         switch (state)
         {
             case State.Wall:
-                MoveToForeground();
+                GotoState(State.Pickup);
                 break;
             case State.Platform:
-                MoveToBackground();
+                GotoState(State.Wall);
                 break;
-            case State.Moving:
+            case State.Pickup:
+                GotoState(State.Platform);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -129,15 +171,18 @@ public class Tile : MonoBehaviour
         switch (newState)
         {
             case State.Wall:
-                MoveToBackground();
+                BeginTransision(TransisionState.Wall);
                 break;
             case State.Platform:
-                MoveToForeground();
+                BeginTransision(TransisionState.Foreground);
                 break;
-            case State.Moving:
+            case State.Pickup:
+                BeginTransision(TransisionState.Background);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        state = newState;
     }
 }
