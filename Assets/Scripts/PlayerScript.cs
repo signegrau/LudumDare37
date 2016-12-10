@@ -7,17 +7,23 @@ public class PlayerScript : MonoBehaviour {
 
 	public float maxSpeed = 10f;
 	public float jumpForce = 700f;
+    float springForce = 400;
 
-	Animator animator;
+    Animator animator;
 
 	bool isGrounded = false;
+    private bool onSpring = false;
 	bool isJumping = false;
 	bool leftGround = false;
 	bool facingRight = true;
 
-	public Transform groundCheck;
+	public Transform groundCheckStart;
+    public Transform groundCheckEnd;
 
-	public LayerMask layersToLandOn;
+    public Transform sideCheckStart;
+    public Transform sideCheckEnd;
+
+    public LayerMask layersToLandOn;
 	private Rigidbody2D rigidbody2D;
 
 	// Use this for initialization
@@ -32,10 +38,11 @@ public class PlayerScript : MonoBehaviour {
 	{
 		bool oldIsGrounded = isGrounded;
 
-		isGrounded = Physics2D.OverlapCircle( groundCheck.position, 0.1f, layersToLandOn );
+	    isGrounded =
+	        Physics2D.Linecast(groundCheckStart.position, groundCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
 
 
-		if ( isGrounded )
+	    if ( isGrounded )
 		{
 			if ( Input.GetButtonDown("Jump") )
 			{
@@ -61,10 +68,44 @@ public class PlayerScript : MonoBehaviour {
 
 	}
 
-	void FixedUpdate ()
-	{
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        var other = collision.collider;
 
-		float move = Input.GetAxisRaw("Horizontal") * maxSpeed;
+        if (other.CompareTag("Spring"))
+        {
+            if (collision.contacts[0].point.y < transform.position.y)
+            {
+                isJumping = true;
+                leftGround = false;
+                rigidbody2D.AddForce(new Vector2(0, springForce));
+            }
+        }
+        else if (other.CompareTag("Tile"))
+        {
+            if (collision.contacts[0].point.y < transform.position.y)
+            {
+                isGrounded = true;
+            }
+        }
+    }
+
+    void FixedUpdate ()
+    {
+
+        bool sideFree =
+            !Physics2D.Linecast(sideCheckStart.position, sideCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
+
+        float move = Input.GetAxisRaw("Horizontal") * maxSpeed;
+
+        if ( move > 0 && !facingRight
+             || move < 0 && facingRight )
+        {
+            Flip ();
+        }
+
+        if (!sideFree)
+            move = 0;
 
 		Vector2 v = rigidbody2D.velocity;
 
@@ -74,11 +115,7 @@ public class PlayerScript : MonoBehaviour {
 
 		animator.SetFloat("Speed", Mathf.Abs( rigidbody2D.velocity.x ) );
 
-		if ( rigidbody2D.velocity.x > 0 && !facingRight
-		  || rigidbody2D.velocity.x < 0 && facingRight )
-		{
-			Flip ();
-		}
+
 
 	}
 
