@@ -78,7 +78,10 @@ public class LevelManager : MonoBehaviour
         }
     }
     
-    public void AdvanceState() {
+    public void AdvanceState()
+    {
+        var hasPlayerSpawn = false;
+
         Debug.Log(currentStateIndex);
         Debug.Log(allLevelStates.Count);
         if (currentStateIndex < allLevelStates.Count) {
@@ -91,7 +94,8 @@ public class LevelManager : MonoBehaviour
 
                 if (tileState == Tile.State.PlayerStart)
                 {
-                    player.transform.position = tile.transform.position + new Vector3(0, 0, -1);
+                    hasPlayerSpawn = true;
+                    playerStartPosition = tile.transform.position + new Vector3(0, 0, -1);
                 }
 
                 tile.GotoState(tileState);
@@ -99,6 +103,11 @@ public class LevelManager : MonoBehaviour
         }
         else {
             // WE win!
+        }
+
+        if (hasPlayerSpawn)
+        {
+            player.transform.position = playerStartPosition;
         }
     }
 }
