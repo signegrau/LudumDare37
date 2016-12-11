@@ -11,11 +11,6 @@ public class TileGenerator : MonoBehaviour
 
     private GameObject tile;
 
-    private void Start()
-    {
-        GenerateTiles();
-    }
-
     public Tile[] GenerateTiles()
 	{
 	    var tiles = new Tile[numColumns * numRows];

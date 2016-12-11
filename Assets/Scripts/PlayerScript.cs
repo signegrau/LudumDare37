@@ -60,8 +60,7 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (transform.position.y < -10)
 	    {
-	        transform.position = startPosition;
-	        velocity = Vector2.zero;
+	        Respawn();
 	    }
 
 	    RaycastHit2D raycast;
@@ -191,6 +190,10 @@ public class PlayerScript : MonoBehaviour {
 	            var pickup = collision.GetComponent<Pickup>();
 	            pickup.OnPlayerCollision();
 	        }
+	        else if (collision.CompareTag("Spike"))
+	        {
+	            Respawn();
+	        }
 	    }
 
 	    animator.SetFloat("Speed", Mathf.Abs(velocity.x / maxSpeed));
@@ -284,4 +287,10 @@ public class PlayerScript : MonoBehaviour {
 
 		facingRight = !facingRight;
 	}
+
+    private void Respawn()
+    {
+        transform.position = startPosition;
+        velocity = Vector2.zero;
+    }
 }

@@ -16,8 +16,14 @@ public class Tile : MonoBehaviour
         Platform,
         Pickup,
         Spring,
+        Spike,
         PlayerStart
     }
+
+    private readonly List<State> objectStates = new List<State>
+    {
+        State.Pickup, State.Spring, State.Spike
+    };
 
     public enum TransisionState
     {
@@ -35,6 +41,7 @@ public class Tile : MonoBehaviour
 
     public GameObject pickupPrefab;
     public GameObject springPrefab;
+    public GameObject spikePrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -79,6 +86,11 @@ public class Tile : MonoBehaviour
         {TransisionState.Wall, new Color(0.7f, 0.7f, 0.7f)}
     };
 
+    private readonly Dictionary<State, TransisionState> stateTransistionState = new Dictionary<State, TransisionState>
+    {
+        {State.Platform, TransisionState.Foreground}
+    };
+
     private Renderer renderer;
 
     public BoxCollider2D collider;
@@ -102,13 +114,13 @@ public class Tile : MonoBehaviour
 	{
 	    if (transisionState == TransisionState.None) return;
 
-	    if (state == State.Pickup || state == State.Spring)
+	    if (transisionState != TransisionState.Background)
 	    {
-	        lerpTime += 2f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
+	        lerpTime += 1f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
 	    }
 	    else
 	    {
-	        lerpTime += 1f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
+	        lerpTime += 2f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
 	    }
 
 
@@ -128,25 +140,41 @@ public class Tile : MonoBehaviour
 	    {
 	        lerpTime = 0;
 
-	        Debug.Log(transisionState);
-
-	        if ((state == State.Pickup || state == State.Spring) && transisionState == TransisionState.Background)
+	        if (transisionState == TransisionState.Background)
 	        {
-	            switch (state)
+	            if (attachment != null)
 	            {
-                    case State.Pickup:
-	                    AttachObject(pickupPrefab);
-	                    break;
-	                case State.Spring:
-	                    AttachObject(springPrefab);
-	                    break;
-	                case State.Wall:
-	                    break;
-	                case State.Platform:
-	                    break;
+	                Destroy(attachment);
+	                attachment = null;
 	            }
 
-	            BeginTransision(TransisionState.Wall);
+	            BeginTransision(stateTransistionState.ContainsKey(state)
+	                ? stateTransistionState[state]
+	                : TransisionState.Wall);
+
+	            if (objectStates.Contains(state))
+	            {
+	                switch (state)
+	                {
+	                    case State.Pickup:
+	                        AttachObject(pickupPrefab);
+	                        break;
+	                    case State.Spring:
+	                        AttachObject(springPrefab);
+	                        break;
+	                    case State.Wall:
+	                        break;
+	                    case State.Platform:
+	                        break;
+	                    case State.Spike:
+	                        AttachObject(spikePrefab);
+	                        break;
+	                    case State.PlayerStart:
+	                        break;
+	                    default:
+	                        throw new ArgumentOutOfRangeException();
+	                }
+	            }
 	        }
 	        else
 	        {
@@ -195,31 +223,35 @@ public class Tile : MonoBehaviour
     {
         if (state == newState) return;
 
-        switch (newState)
+        if (objectStates.Contains(state) && state != State.Pickup)
         {
-            case State.Wall:
-                BeginTransision(TransisionState.Wall);
-                break;
-            case State.Platform:
-                BeginTransision(TransisionState.Foreground);
-                break;
-            case State.Pickup:
-                BeginTransision(TransisionState.Background);
-                break;
-            case State.Spring:
-                BeginTransision(TransisionState.Background);
-                break;
-            case State.PlayerStart:
-                BeginTransision(TransisionState.Wall);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException("newState", newState, null);
+            BeginTransision(TransisionState.Background);
         }
-
-        if ((newState != State.Pickup || newState != State.Spring) && attachment != null)
+        else
         {
-            Destroy(attachment);
-            attachment = null;
+            switch (newState)
+            {
+                case State.Wall:
+                    BeginTransision(TransisionState.Wall);
+                    break;
+                case State.Platform:
+                    BeginTransision(TransisionState.Foreground);
+                    break;
+                case State.Pickup:
+                    BeginTransision(TransisionState.Background);
+                    break;
+                case State.Spring:
+                    BeginTransision(TransisionState.Background);
+                    break;
+                case State.PlayerStart:
+                    BeginTransision(TransisionState.Wall);
+                    break;
+                case State.Spike:
+                    BeginTransision(TransisionState.Background);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("newState", newState, null);
+            }
         }
 
         state = newState;
