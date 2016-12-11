@@ -23,11 +23,15 @@ public class PlayerScript : MonoBehaviour {
 	bool leftGround = false;
 	bool facingRight = true;
 
-	public Transform groundCheckStart;
-    public Transform groundCheckEnd;
+	public Transform groundCheckLeft;
+    public Transform groundCheckRight;
+    private Vector3 groundCheckOffset = new Vector3(0, 0.1f, 0);
 
-    public Transform sideCheckStart;
-    public Transform sideCheckEnd;
+    public Transform sideCheckTop;
+    public Transform sideCheckBottom;
+
+    public Transform headCheckLeft;
+    public Transform headCheckRight;
 
     public LayerMask layersToLandOn;
 	private Rigidbody2D rigidbody2D;
@@ -45,10 +49,10 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		bool oldIsGrounded = isGrounded;
+	    RaycastHit2D raycast;
 
 	    isGrounded =
-	        Physics2D.Linecast(groundCheckStart.position, groundCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
+	        Physics2D.Linecast(groundCheckRight.position - groundCheckOffset, groundCheckRight.position - groundCheckOffset, 1 << LayerMask.NameToLayer("Solid"));
 
 
 	    if (onSpring)
@@ -62,11 +66,12 @@ public class PlayerScript : MonoBehaviour {
 	    {
 	        velocity.y -= gravity * Time.deltaTime;
 
-	        var raycast = Physics2D.Raycast(transform.position, Vector3.down, 10, 1 << LayerMask.NameToLayer("Solid"));
+	        raycast = CheckGround();
 
-	        if (raycast && raycast.distance <= -(velocity.y * Time.deltaTime))
+	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
-	            velocity.y = -raycast.distance / Time.deltaTime;
+	            Debug.Log("Ground check: " + raycast.distance);
+	            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;
 
 	            if (raycast.collider.CompareTag("Spring"))
 	            {
@@ -76,15 +81,7 @@ public class PlayerScript : MonoBehaviour {
 	            }
 	        }
 
-	        raycast = Physics2D.Raycast(transform.position, Vector3.up, 10, 1 << LayerMask.NameToLayer("Solid"));
-
-	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
-	        {
-	            velocity.y = 0;
-	        }
-
-	        raycast =
-	            Physics2D.Raycast(transform.position + new Vector3(0, collider2D.size.y, 0), Vector2.up, 10, 1 << LayerMask.NameToLayer("Solid"));
+	        raycast = CheckHead();
 
 	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
 	        {
@@ -104,7 +101,7 @@ public class PlayerScript : MonoBehaviour {
 	            velocity.y = 0;
 	        }
 
-	        var raycast = Physics2D.Raycast(transform.position + new Vector3(0, 0.2f, 0), Vector3.down, 10, 1 << LayerMask.NameToLayer("Solid"));
+	        raycast = CheckGround();
 
 	        if (raycast)
 	        {
@@ -114,6 +111,13 @@ public class PlayerScript : MonoBehaviour {
 	                spring.OnPlayerCollision();
 	                onSpring = true;
 	            }
+
+	            Debug.Log("Standing on " + raycast.collider.name + " with distance " + raycast.distance);
+
+	            if (raycast.distance < groundCheckOffset.y)
+	            {
+	                velocity.y += (groundCheckOffset.y - raycast.distance);
+	            }
 	        }
 
 	        if (Input.GetButtonDown("Jump"))
@@ -122,7 +126,11 @@ public class PlayerScript : MonoBehaviour {
 	        }
 	    }
 
-	    float move = Input.GetAxisRaw("Horizontal");
+	    ///
+	    /// Horizontal movement
+	    ///
+
+	    var move = Input.GetAxisRaw("Horizontal");
 
 	    if ( move > 0 && !facingRight
 	         || move < 0 && facingRight )
@@ -130,27 +138,25 @@ public class PlayerScript : MonoBehaviour {
 	        Flip ();
 	    }
 
-	    sideFree = !Physics2D.Linecast(sideCheckStart.position, sideCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
+	    velocity.x = move * maxSpeed;
 
-	    if (sideFree)
+	    raycast = CheckSide(move);
+
+	    var blocked = raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime);
+
+	    if (blocked)
 	    {
-	        velocity.x = move * maxSpeed;
+	        Debug.Log(raycast.collider.name + " is stopping our movement!");
+	        Debug.Log("Side check: " + raycast.distance);
 
-	        var raycast =
-	            Physics2D.Raycast(transform.position + new Vector3(Mathf.Sign(move) * collider2D.size.x / 2, collider2D.size.y / 2, 0),
-	                Vector3.right * Mathf.Sign(move), 10, 1 << LayerMask.NameToLayer("Solid"));
-
-	        if (raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime))
-	        {
-	            velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
-	        }
-	    }
-	    else
-	    {
-	        velocity.x = 0;
+	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
 	    }
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
+
+	    ///
+	    /// Collisions
+	    ///
 
 	    var collisions = Physics2D.OverlapBoxAll(transform.position + (Vector3) collider2D.offset, collider2D.size, 0);
 
@@ -164,20 +170,6 @@ public class PlayerScript : MonoBehaviour {
 	    }
 
 	    /*
-	    if ( isGrounded )
-		{
-			if ( Input.GetButtonDown("Jump") )
-			{
-				isJumping = true;
-				leftGround = false;
-				rigidbody2D.AddForce( new Vector2 ( 0, jumpForce ) );
-			}
-			else if ( leftGround )
-			{
-				isJumping = false;
-			}
-		}
-
 		animator.SetBool("IsGrounded", isGrounded );
 		animator.SetBool("IsJumping", isJumping );
 
@@ -189,6 +181,54 @@ public class PlayerScript : MonoBehaviour {
 
 
 	}
+
+    private RaycastHit2D CheckSide(float sign)
+    {
+        var bottom = Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        var top = Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        if (top && bottom)
+        {
+            return bottom.distance > top.distance ? top : bottom;
+        }
+
+        return top ? top : bottom;
+    }
+
+    private RaycastHit2D CheckGround()
+    {
+        var left = Physics2D.Raycast(groundCheckLeft.position, Vector2.down, 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        var right = Physics2D.Raycast(groundCheckRight.position, Vector2.down, 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        if (left && right)
+        {
+            return left.distance > right.distance ? right : left;
+        }
+
+        return left ? left : right;
+    }
+
+    private RaycastHit2D CheckHead()
+    {
+        var left = Physics2D.Raycast(headCheckLeft.position, Vector2.up, 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        var right = Physics2D.Raycast(headCheckRight.position, Vector2.up, 10,
+            1 << LayerMask.NameToLayer("Solid"));
+
+        if (left && right)
+        {
+            return left.distance > right.distance ? right : left;
+        }
+
+        return left ? left : right;
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -211,35 +251,6 @@ public class PlayerScript : MonoBehaviour {
             }
         }
     }
-
-    void FixedUpdate ()
-    {
-/*
-        bool sideFree =
-            !Physics2D.Linecast(sideCheckStart.position, sideCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
-
-        float move = Input.GetAxisRaw("Horizontal") * maxSpeed;
-
-        if ( move > 0 && !facingRight
-             || move < 0 && facingRight )
-        {
-            Flip ();
-        }
-
-        if (!sideFree)
-            move = 0;
-
-		Vector2 v = rigidbody2D.velocity;
-
-		v.x = move;
-
-		rigidbody2D.velocity = v;
-
-		animator.SetFloat("Speed", Mathf.Abs( rigidbody2D.velocity.x ) );
-
-
-*/
-	}
 
 	void Flip ()
 	{
