@@ -1,5 +1,4 @@
-﻿using System;
-using System.CodeDom;
+﻿using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -50,7 +49,8 @@ public class Tile : MonoBehaviour
 
     private float lerpTime;
     private float lerpValue;
-    public float timeToMove = 1f;
+    public float timeToMoveMin = 1f;
+	public float timeToMoveMax = 1.2f;
 
     private GameObject attachment;
     private Renderer attachmentRenderer;
@@ -97,9 +97,7 @@ public class Tile : MonoBehaviour
 	{
 	    if (transisionState == TransisionState.None) return;
 
-	    lerpTime += 1f / timeToMove * Time.deltaTime;
-
-	    lerpValue = curve.Evaluate(lerpTime);
+		lerpTime += 1f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
 
         if (lerpTime >= 1)
 	    {
@@ -133,8 +131,6 @@ public class Tile : MonoBehaviour
 	                    break;
 	                case State.Platform:
 	                    break;
-	                default:
-	                    throw new ArgumentOutOfRangeException();
 	            }
 
 	            BeginTransision(TransisionState.Wall);
@@ -200,8 +196,6 @@ public class Tile : MonoBehaviour
             case State.Spring:
                 BeginTransision(TransisionState.Background);
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
 
         if ((newState != State.Pickup || newState != State.Spring) && attachment != null)
