@@ -43,6 +43,10 @@ public class LevelManager : MonoBehaviour {
             switch(c) {
                 case '#': s = Tile.State.Platform; break;
                 case '*': s = Tile.State.Pickup; break;
+                case 's':
+                case 'S':
+                    s = Tile.State.Spring;
+                    break;
                 default: s = Tile.State.Wall; break;
             }
             currentState[tileIndex] = s;

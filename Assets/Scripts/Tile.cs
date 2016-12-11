@@ -14,7 +14,7 @@ public class Tile : MonoBehaviour
         Wall,
         Platform,
         Pickup,
-        Moving
+        Spring
     }
 
     public enum TransisionState
@@ -32,6 +32,7 @@ public class Tile : MonoBehaviour
     }
 
     public GameObject pickupPrefab;
+    public GameObject springPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -118,9 +119,24 @@ public class Tile : MonoBehaviour
 
 	        Debug.Log(transisionState);
 
-	        if (state == State.Pickup && transisionState == TransisionState.Background)
+	        if ((state == State.Pickup || state == State.Spring) && transisionState == TransisionState.Background)
 	        {
-	            AttachObject(pickupPrefab);
+	            switch (state)
+	            {
+                    case State.Pickup:
+	                    AttachObject(pickupPrefab);
+	                    break;
+	                case State.Spring:
+	                    AttachObject(springPrefab);
+	                    break;
+	                case State.Wall:
+	                    break;
+	                case State.Platform:
+	                    break;
+	                default:
+	                    throw new ArgumentOutOfRangeException();
+	            }
+
 	            BeginTransision(TransisionState.Wall);
 	        }
 	        else
@@ -181,11 +197,14 @@ public class Tile : MonoBehaviour
             case State.Pickup:
                 BeginTransision(TransisionState.Background);
                 break;
+            case State.Spring:
+                BeginTransision(TransisionState.Background);
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        if (newState != State.Pickup && attachment != null)
+        if ((newState != State.Pickup || newState != State.Spring) && attachment != null)
         {
             Destroy(attachment);
             attachment = null;
