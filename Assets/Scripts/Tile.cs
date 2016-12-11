@@ -1,10 +1,12 @@
-﻿using System.CodeDom;
+﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mail;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Tile : MonoBehaviour
 {
@@ -13,7 +15,8 @@ public class Tile : MonoBehaviour
         Wall,
         Platform,
         Pickup,
-        Spring
+        Spring,
+        PlayerStart
     }
 
     public enum TransisionState
@@ -60,14 +63,16 @@ public class Tile : MonoBehaviour
     public delegate void MouseClickEventHandler(object sender);
     public event MouseClickEventHandler OnMouseClick;
 
-    private Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
+    public bool isPlayerStart = false;
+
+    private readonly Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
     {
         {TransisionState.Background, new Vector3(0, 0, 1)},
         {TransisionState.Foreground, new Vector3(0, 0, -1)},
         {TransisionState.Wall, new Vector3(0, 0, 0)}
     };
 
-    private Dictionary<TransisionState, Color> targetColors = new Dictionary<TransisionState, Color>
+    private readonly Dictionary<TransisionState, Color> targetColors = new Dictionary<TransisionState, Color>
     {
         {TransisionState.Background, new Color(0.0f, 0.0f, 0.0f)},
         {TransisionState.Foreground, new Color(1f, 1f, 1f)},
@@ -97,7 +102,15 @@ public class Tile : MonoBehaviour
 	{
 	    if (transisionState == TransisionState.None) return;
 
-		lerpTime += 1f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
+	    if (state == State.Pickup || state == State.Spring)
+	    {
+	        lerpTime += 2f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
+	    }
+	    else
+	    {
+	        lerpTime += 1f / Random.Range(timeToMoveMin, timeToMoveMax) * Time.deltaTime;
+	    }
+
 
         if (lerpTime >= 1)
 	    {
@@ -196,6 +209,11 @@ public class Tile : MonoBehaviour
             case State.Spring:
                 BeginTransision(TransisionState.Background);
                 break;
+            case State.PlayerStart:
+                BeginTransision(TransisionState.Wall);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("newState", newState, null);
         }
 
         if ((newState != State.Pickup || newState != State.Spring) && attachment != null)
