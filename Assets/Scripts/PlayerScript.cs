@@ -16,7 +16,8 @@ public class PlayerScript : MonoBehaviour {
 
     Animator animator;
 
-	bool isGrounded = false;
+	bool isGrounded;
+    private bool wasGrouneded;
     private bool sideFree;
     private bool onSpring = false;
 	bool isJumping = false;
@@ -38,17 +39,31 @@ public class PlayerScript : MonoBehaviour {
 
     private BoxCollider2D collider2D;
 
+    private Vector3 startPosition;
+
+    private float timeFromGround;
+
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
 	    collider2D = GetComponent<BoxCollider2D>();
+
+	    startPosition = transform.position;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
+	    wasGrouneded = isGrounded;
+
+	    if (transform.position.y < -10)
+	    {
+	        transform.position = startPosition;
+	        velocity = Vector2.zero;
+	    }
+
 	    RaycastHit2D raycast;
 
 	    isGrounded =
@@ -59,6 +74,7 @@ public class PlayerScript : MonoBehaviour {
 	    {
 	        velocity.y = springForce;
 	        onSpring = false;
+	        isJumping = true;
 	    }
 
 
@@ -70,7 +86,6 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
-	            Debug.Log("Ground check: " + raycast.distance);
 	            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;
 
 	            if (raycast.collider.CompareTag("Spring"))
@@ -93,9 +108,20 @@ public class PlayerScript : MonoBehaviour {
 	        {
 	            velocity.y /= 2;
 	        }
+
+	        if (Input.GetButtonDown("Jump") && timeFromGround < 0.15f && !isJumping)
+	        {
+	            velocity.y += jumpForce;
+	            isJumping = true;
+	        }
+
+	        timeFromGround += Time.deltaTime;
 	    }
 	    else
 	    {
+	        isJumping = false;
+	        timeFromGround = 0;
+
 	        if (velocity.y < 0)
 	        {
 	            velocity.y = 0;
@@ -112,8 +138,6 @@ public class PlayerScript : MonoBehaviour {
 	                onSpring = true;
 	            }
 
-	            Debug.Log("Standing on " + raycast.collider.name + " with distance " + raycast.distance);
-
 	            if (raycast.distance < groundCheckOffset.y)
 	            {
 	                velocity.y += (groundCheckOffset.y - raycast.distance);
@@ -123,6 +147,7 @@ public class PlayerScript : MonoBehaviour {
 	        if (Input.GetButtonDown("Jump"))
 	        {
 	            velocity.y += jumpForce;
+	            isJumping = true;
 	        }
 	    }
 
@@ -146,9 +171,6 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (blocked)
 	    {
-	        Debug.Log(raycast.collider.name + " is stopping our movement!");
-	        Debug.Log("Side check: " + raycast.distance);
-
 	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
 	    }
 
@@ -164,20 +186,22 @@ public class PlayerScript : MonoBehaviour {
 	    {
 	        if (collision.CompareTag("Pickup"))
 	        {
+	            startPosition = collision.transform.position;
+
 	            var pickup = collision.GetComponent<Pickup>();
 	            pickup.OnPlayerCollision();
 	        }
 	    }
 
-	    /*
+	    animator.SetFloat("Speed", Mathf.Abs(velocity.x / maxSpeed));
 		animator.SetBool("IsGrounded", isGrounded );
 		animator.SetBool("IsJumping", isJumping );
 
-		if (oldIsGrounded && !isGrounded)
+		if (wasGrouneded && !isGrounded)
 		{
 			leftGround = true;
 			animator.SetTrigger("LeftGround");
-		}*/
+		}
 
 
 	}
