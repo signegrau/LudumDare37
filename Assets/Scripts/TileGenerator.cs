@@ -27,6 +27,8 @@ public class TileGenerator : MonoBehaviour
 	        for (var j = 0; j < numColumns; j++)
 	        {
 	            tile = Instantiate(tilePrefab, transform);
+	            tile.name = "Tile (" + i + "," + j + ")";
+	            tile.transform.GetChild(0).name = "Collider (" + i + "," + j + ")";
 	            tile.transform.localPosition = firstCubePosition + new Vector3(-j, -i, 0);
 	            tiles[i * numColumns + j] = tile.GetComponent<Tile>();
 	        }

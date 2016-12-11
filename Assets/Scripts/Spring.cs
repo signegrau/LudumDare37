@@ -16,14 +16,9 @@ public class Spring : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision2D)
+    public void OnPlayerCollision()
     {
-        var other = collision2D.collider;
-
-        if (other.CompareTag("Player"))
-        {
-            StartCoroutine(Animation());
-        }
+        StartCoroutine(Animation());
     }
 
     private IEnumerator Animation()

@@ -7,10 +7,8 @@ public class Pickup : MonoBehaviour
     public delegate void PickupEventHandler();
     public static event PickupEventHandler OnPickup;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    public void OnPlayerCollision()
     {
-        if (!other.CompareTag("Player")) return;
-
         if (OnPickup != null)
         {
             OnPickup();

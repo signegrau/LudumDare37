@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEditor;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Animator))]
 
@@ -7,11 +9,15 @@ public class PlayerScript : MonoBehaviour {
 
 	public float maxSpeed = 10f;
 	public float jumpForce = 700f;
-    float springForce = 400;
+    public float springForce = 400;
+
+    private Vector2 velocity = new Vector2(0, 0);
+    public float gravity = 9.81f;
 
     Animator animator;
 
 	bool isGrounded = false;
+    private bool sideFree;
     private bool onSpring = false;
 	bool isJumping = false;
 	bool leftGround = false;
@@ -26,11 +32,14 @@ public class PlayerScript : MonoBehaviour {
     public LayerMask layersToLandOn;
 	private Rigidbody2D rigidbody2D;
 
+    private BoxCollider2D collider2D;
+
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
+	    collider2D = GetComponent<BoxCollider2D>();
 	}
 	
 	// Update is called once per frame
@@ -42,6 +51,119 @@ public class PlayerScript : MonoBehaviour {
 	        Physics2D.Linecast(groundCheckStart.position, groundCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
 
 
+	    if (onSpring)
+	    {
+	        velocity.y = springForce;
+	        onSpring = false;
+	    }
+
+
+	    if (!isGrounded)
+	    {
+	        velocity.y -= gravity * Time.deltaTime;
+
+	        var raycast = Physics2D.Raycast(transform.position, Vector3.down, 10, 1 << LayerMask.NameToLayer("Solid"));
+
+	        if (raycast && raycast.distance <= -(velocity.y * Time.deltaTime))
+	        {
+	            velocity.y = -raycast.distance / Time.deltaTime;
+
+	            if (raycast.collider.CompareTag("Spring"))
+	            {
+	                var spring = raycast.collider.GetComponent<Spring>();
+	                spring.OnPlayerCollision();
+	                onSpring = true;
+	            }
+	        }
+
+	        raycast = Physics2D.Raycast(transform.position, Vector3.up, 10, 1 << LayerMask.NameToLayer("Solid"));
+
+	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
+	        {
+	            velocity.y = 0;
+	        }
+
+	        raycast =
+	            Physics2D.Raycast(transform.position + new Vector3(0, collider2D.size.y, 0), Vector2.up, 10, 1 << LayerMask.NameToLayer("Solid"));
+
+	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
+	        {
+	            Debug.Log("Can't jump");
+	            velocity.y = raycast.distance / Time.deltaTime;
+	        }
+
+	        if (velocity.y > 0 && Input.GetButtonUp("Jump"))
+	        {
+	            velocity.y /= 2;
+	        }
+	    }
+	    else
+	    {
+	        if (velocity.y < 0)
+	        {
+	            velocity.y = 0;
+	        }
+
+	        var raycast = Physics2D.Raycast(transform.position + new Vector3(0, 0.2f, 0), Vector3.down, 10, 1 << LayerMask.NameToLayer("Solid"));
+
+	        if (raycast)
+	        {
+	            if (raycast.collider.CompareTag("Spring"))
+	            {
+	                var spring = raycast.collider.GetComponent<Spring>();
+	                spring.OnPlayerCollision();
+	                onSpring = true;
+	            }
+	        }
+
+	        if (Input.GetButtonDown("Jump"))
+	        {
+	            velocity.y += jumpForce;
+	        }
+	    }
+
+	    float move = Input.GetAxisRaw("Horizontal");
+
+	    if ( move > 0 && !facingRight
+	         || move < 0 && facingRight )
+	    {
+	        Flip ();
+	    }
+
+	    sideFree = !Physics2D.Linecast(sideCheckStart.position, sideCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
+
+	    if (sideFree)
+	    {
+	        velocity.x = move * maxSpeed;
+
+	        var raycast =
+	            Physics2D.Raycast(transform.position + new Vector3(Mathf.Sign(move) * collider2D.size.x / 2, collider2D.size.y / 2, 0),
+	                Vector3.right * Mathf.Sign(move), 10, 1 << LayerMask.NameToLayer("Solid"));
+
+	        if (raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime))
+	        {
+	            velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
+	        }
+	    }
+	    else
+	    {
+	        velocity.x = 0;
+	    }
+
+	    transform.position += (Vector3)velocity * Time.deltaTime;
+
+	    var collisions = Physics2D.OverlapBoxAll(transform.position + (Vector3) collider2D.offset, collider2D.size, 0);
+
+	    foreach (var collision in collisions)
+	    {
+	        if (collision.CompareTag("Pickup"))
+	        {
+	            var pickup = collision.GetComponent<Pickup>();
+	            pickup.OnPlayerCollision();
+	        }
+	    }
+
+	    /*
 	    if ( isGrounded )
 		{
 			if ( Input.GetButtonDown("Jump") )
@@ -63,7 +185,7 @@ public class PlayerScript : MonoBehaviour {
 		{
 			leftGround = true;
 			animator.SetTrigger("LeftGround");
-		}
+		}*/
 
 
 	}
@@ -92,7 +214,7 @@ public class PlayerScript : MonoBehaviour {
 
     void FixedUpdate ()
     {
-
+/*
         bool sideFree =
             !Physics2D.Linecast(sideCheckStart.position, sideCheckEnd.position, 1 << LayerMask.NameToLayer("Solid"));
 
@@ -116,7 +238,7 @@ public class PlayerScript : MonoBehaviour {
 		animator.SetFloat("Speed", Mathf.Abs( rigidbody2D.velocity.x ) );
 
 
-
+*/
 	}
 
 	void Flip ()
