@@ -72,7 +72,6 @@ public class LevelManager : MonoBehaviour
             }
             currentState[tileIndex] = s;
 
-            Debug.Log(currentState.Length);
             if (++tileIndex >= currentState.Length) {
                 tileIndex = 0;
                 allLevelStates.Add(currentState);
