@@ -188,16 +188,6 @@ public class Tile : MonoBehaviour
 
 	        transisionFinished = false;
 	    }
-
-	    if (state != State.Platform && !collider.enabled) return;
-	    if (lerpValue >= 0.5f && !collider.enabled)
-	    {
-	        collider.enabled = true;
-	    }
-	    else if (lerpValue < 0.5f && collider.enabled)
-	    {
-	        collider.enabled = false;
-	    }
 	}
 
     public void AttachObject(GameObject gameObject)
@@ -250,6 +240,15 @@ public class Tile : MonoBehaviour
                     ? stateTransistionState[newState]
                     : TransisionState.Wall);
             }
+        }
+
+        if (newState == State.Platform)
+        {
+            collider.enabled = true;
+        }
+        else
+        {
+            collider.enabled = false;
         }
 
         state = newState;
