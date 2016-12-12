@@ -91,10 +91,7 @@ public class LevelManager : MonoBehaviour
     {
         var hasPlayerSpawn = false;
 
-        Debug.Log(currentStateIndex);
-        Debug.Log(allLevelStates.Count);
         if (currentStateIndex < allLevelStates.Count) {
-            Debug.Log("kage!!");
             Tile.State[] newState = allLevelStates[currentStateIndex++];
 
             for(int i = 0; i < newState.Length; ++i) {

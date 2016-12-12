@@ -24,6 +24,7 @@ public class PlayerScript : MonoBehaviour {
 	bool leftGround = false;
 	bool facingRight = true;
 
+    public GameObject bloodExplosion;
 	public Transform groundCheckLeft;
     public Transform groundCheckRight;
     private Vector3 groundCheckOffset = new Vector3(0, 0.1f, 0);
@@ -130,12 +131,22 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (raycast)
 	        {
-	            if (raycast.collider.CompareTag("Spring"))
-	            {
-	                var spring = raycast.collider.GetComponent<Spring>();
-	                spring.OnPlayerCollision();
-	                onSpring = true;
-	            }
+
+                //if (raycast.collider.CompareTag("Spring"))
+                switch(raycast.collider.tag)
+                {
+                    case "Spring":
+    	            {
+    	                var spring = raycast.collider.GetComponent<Spring>();
+    	                spring.OnPlayerCollision();
+    	                onSpring = true;
+    	            } break;
+                    case "Spike":
+                    {
+                        // ...
+                    } break;
+                }
+
 
 	            if (raycast.distance < groundCheckOffset.y)
 	            {
@@ -290,6 +301,7 @@ public class PlayerScript : MonoBehaviour {
 
     private void Respawn()
     {
+        Instantiate(bloodExplosion, transform.position, Quaternion.identity);
         transform.position = startPosition;
         velocity = Vector2.zero;
     }
