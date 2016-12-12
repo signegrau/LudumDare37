@@ -20,6 +20,7 @@ public class LevelManager : MonoBehaviour
 
 	void OnEnable() {
 		Pickup.OnPickup += AdvanceState;
+	    Menu.OnPlayPressed += AdvanceState;
 	}
 
     // Use this for initialization
@@ -76,7 +77,7 @@ public class LevelManager : MonoBehaviour
         }
 
         player = Instantiate(playerPrefab).GetComponent<PlayerScript>();
-        player.transform.position = new Vector3(20, 20, 0);
+        player.transform.position = new Vector3(20, -20, 0);
 
         AdvanceState();
     }
