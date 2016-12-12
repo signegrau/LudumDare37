@@ -311,6 +311,9 @@ public class PlayerScript : MonoBehaviour {
 
     private void Respawn()
     {
+        isJumping = false;
+        isBall = false;
+
         Instantiate(bloodExplosion, transform.position, Quaternion.identity);
         transform.position = startPosition;
         velocity = Vector2.zero;
