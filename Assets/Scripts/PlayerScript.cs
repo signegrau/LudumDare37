@@ -78,7 +78,7 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.y = springForce;
 	        onSpring = false;
 	        isJumping = false;
-	        isBall = true;
+	        isBall = false;
 	    }
 
 	    if (boostUp)
