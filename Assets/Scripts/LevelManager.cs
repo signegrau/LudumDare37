@@ -56,7 +56,11 @@ public class LevelManager : MonoBehaviour
                 case 'S':
                     s = Tile.State.Spring;
                     break;
-                 case '@':
+                case 'u':
+                case 'U':
+                    s = Tile.State.BoostUp;
+                    break;
+                case '@':
                     s = Tile.State.PlayerStart;
                     break;
                 case '+':

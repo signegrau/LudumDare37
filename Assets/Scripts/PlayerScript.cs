@@ -10,6 +10,7 @@ public class PlayerScript : MonoBehaviour {
 	public float maxSpeed = 10f;
 	public float jumpForce = 700f;
     public float springForce = 400;
+    public float boostUpForce = 400;
 
     private Vector2 velocity = new Vector2(0, 0);
     public float gravity = 9.81f;
@@ -103,7 +104,7 @@ public class PlayerScript : MonoBehaviour {
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
 
-	        if (velocity.y > 0 && Input.GetButtonUp("Jump"))
+	        if (isJumping && velocity.y > 0 && Input.GetButtonUp("Jump"))
 	        {
 	            velocity.y /= 2;
 	        }
@@ -292,5 +293,15 @@ public class PlayerScript : MonoBehaviour {
     {
         transform.position = startPosition;
         velocity = Vector2.zero;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("BoostUp"))
+        {
+            velocity.y = boostUpForce;
+            velocity.y += other.transform.position.y - transform.position.y;
+            isJumping = false;
+        }
     }
 }

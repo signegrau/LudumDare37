@@ -17,12 +17,13 @@ public class Tile : MonoBehaviour
         Pickup,
         Spring,
         Spike,
+        BoostUp,
         PlayerStart
     }
 
     private readonly List<State> objectStates = new List<State>
     {
-        State.Pickup, State.Spring, State.Spike
+        State.Pickup, State.Spring, State.Spike, State.BoostUp
     };
 
     public enum TransisionState
@@ -42,6 +43,7 @@ public class Tile : MonoBehaviour
     public GameObject pickupPrefab;
     public GameObject springPrefab;
     public GameObject spikePrefab;
+    public GameObject boostUpPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -171,6 +173,9 @@ public class Tile : MonoBehaviour
 	                        break;
 	                    case State.PlayerStart:
 	                        break;
+	                    case State.BoostUp:
+	                        AttachObject(boostUpPrefab);
+	                        break;
 	                    default:
 	                        throw new ArgumentOutOfRangeException();
 	                }
@@ -229,28 +234,15 @@ public class Tile : MonoBehaviour
         }
         else
         {
-            switch (newState)
+            if (objectStates.Contains(newState))
             {
-                case State.Wall:
-                    BeginTransision(TransisionState.Wall);
-                    break;
-                case State.Platform:
-                    BeginTransision(TransisionState.Foreground);
-                    break;
-                case State.Pickup:
-                    BeginTransision(TransisionState.Background);
-                    break;
-                case State.Spring:
-                    BeginTransision(TransisionState.Background);
-                    break;
-                case State.PlayerStart:
-                    BeginTransision(TransisionState.Wall);
-                    break;
-                case State.Spike:
-                    BeginTransision(TransisionState.Background);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("newState", newState, null);
+                BeginTransision(TransisionState.Background);
+            }
+            else
+            {
+                BeginTransision(stateTransistionState.ContainsKey(newState)
+                    ? stateTransistionState[newState]
+                    : TransisionState.Wall);
             }
         }
 
