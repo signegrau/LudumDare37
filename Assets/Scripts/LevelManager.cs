@@ -32,6 +32,18 @@ public class LevelManager : MonoBehaviour
 
     private int countDeath;
 
+    private readonly Dictionary<char, Tile.State> charToState = new Dictionary<char, Tile.State>
+    {
+        { '#', Tile.State.Platform },
+        { '*', Tile.State.Pickup },
+        { 's', Tile.State.Spring },
+        { 'u', Tile.State.BoostUp },
+        { 'l', Tile.State.BoostLeft },
+        { 'r', Tile.State.BoostRight },
+        { '@', Tile.State.PlayerStart },
+        { '+', Tile.State.Spike }
+    };
+
 	void OnEnable() {
 		Pickup.OnPickup += AdvanceState;
 	    Menu.OnPlayPressed += AdvanceState;
@@ -65,31 +77,16 @@ public class LevelManager : MonoBehaviour
             // Debug.Log(c);
 
             Tile.State s;
-            switch(c) {
-                case '#':
-                    s = Tile.State.Platform;
-                    break;
-                case '*':
-                    s = Tile.State.Pickup;
-                    break;
-                case 's':
-                case 'S':
-                    s = Tile.State.Spring;
-                    break;
-                case 'u':
-                case 'U':
-                    s = Tile.State.BoostUp;
-                    break;
-                case '@':
-                    s = Tile.State.PlayerStart;
-                    break;
-                case '+':
-                    s = Tile.State.Spike;
-                    break;
-                default:
-                    s = Tile.State.Wall;
-                    break;
+
+            if (charToState.ContainsKey(char.ToLower(c)))
+            {
+                s = charToState[char.ToLower(c)];
             }
+            else
+            {
+                s = Tile.State.Wall;
+            }
+
             currentState[tileIndex] = s;
 
             if (++tileIndex >= currentState.Length) {

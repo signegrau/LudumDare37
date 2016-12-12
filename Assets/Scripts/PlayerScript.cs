@@ -10,11 +10,11 @@ public class PlayerScript : MonoBehaviour {
     public delegate void DeathHandler();
 
     public static event DeathHandler OnDeath;
-
 	public float maxSpeed = 10f;
 	public float jumpForce = 700f;
     public float springForce = 400;
     public float boostUpForce = 400;
+    public float boostSideForce = 400;
 
     private Vector2 velocity = new Vector2(0, 0);
     public float gravity = 9.81f;
@@ -187,7 +187,22 @@ public class PlayerScript : MonoBehaviour {
 	        Flip ();
 	    }
 
-	    velocity.x = move * maxSpeed;
+	    if (Mathf.Abs(velocity.x) <= maxSpeed)
+	    {
+	        velocity.x = move * maxSpeed;
+	    }
+	    else
+	    {
+	        if (Mathf.Abs(velocity.x) - maxSpeed > gravity * Time.deltaTime)
+	        {
+	            velocity.x -= Mathf.Sign(velocity.x) * gravity * Time.deltaTime;
+	        }
+	        else
+	        {
+	            velocity.x = maxSpeed;
+	        }
+	    }
+
 
 	    raycast = CheckSide(move);
 
@@ -334,6 +349,20 @@ public class PlayerScript : MonoBehaviour {
 
             velocity.y = boostUpForce;
             velocity.y += other.transform.position.y - transform.position.y;
+        }
+        else if (other.CompareTag("BoostLeft"))
+        {
+            boostUp = true;
+
+            velocity.x = -boostSideForce;
+            velocity.x += other.transform.position.x - transform.position.x;
+        }
+        else if (other.CompareTag("BoostRight"))
+        {
+            boostUp = true;
+
+            velocity.x = boostSideForce;
+            velocity.x += other.transform.position.x - transform.position.x;
         }
     }
 }
