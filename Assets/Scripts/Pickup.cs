@@ -31,5 +31,15 @@ public class Pickup : MonoBehaviour
         }
     }
 
-    public void OnPlayerCollision(){}
+    public void OnPlayerCollision()
+    {
+        if (OnPickup != null)
+        {
+            OnPickup();
+        }
+
+        GetComponent<Collider2D>().enabled = false;
+
+        sr.sprite = buttonDown;
+    }
 }

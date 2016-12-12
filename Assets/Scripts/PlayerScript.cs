@@ -21,6 +21,7 @@ public class PlayerScript : MonoBehaviour {
 
     private Vector2 velocity = new Vector2(0, 0);
     public float gravity = 9.81f;
+    public float drag = 0.05f;
 
     Animator animator;
 
@@ -61,6 +62,8 @@ public class PlayerScript : MonoBehaviour {
     private float timeFromGround;
 
     private List<Collider2D> previousColliders = new List<Collider2D>();
+
+    private float uncontrollableTimer;
 
 	// Use this for initialization
 	void Start ()
@@ -197,35 +200,33 @@ public class PlayerScript : MonoBehaviour {
 	    /// Horizontal movement
 	    ///
 
-	    var move = Input.GetAxisRaw("Horizontal");
+	    float move = 0;
+	    if (uncontrollableTimer <= 0)
+	    {
+	        move = Input.GetAxisRaw("Horizontal");
+
+	        velocity.x = move * maxSpeed;
+	    }
+	    else
+	    {
+	        uncontrollableTimer -= Time.deltaTime;
+
+	        if (Mathf.Abs(velocity.x - drag * Time.deltaTime * Mathf.Sign(velocity.x)) > 0)
+	        {
+	            velocity.x -= drag * Time.deltaTime * Mathf.Sign(velocity.x);
+	        }
+	        else
+	        {
+	            velocity.x = 0;
+	        }
+	    }
+
 
 	    if ( move > 0 && !facingRight
 	         || move < 0 && facingRight )
 	    {
 	        Flip ();
 	    }
-
-	    if (Mathf.Abs(velocity.x) <= maxSpeed)
-	    {
-	        velocity.x = move * maxSpeed;
-	    }
-	    else
-	    {
-	        if (Mathf.Abs(velocity.x) - maxSpeed > gravity * Time.deltaTime)
-	        {
-	            velocity.x -= Mathf.Sign(velocity.x) * gravity * Time.deltaTime;
-	        }
-	        else
-	        {
-	            velocity.x = maxSpeed;
-
-	            if (boostSide)
-	            {
-	                boostSide = false;
-	            }
-	        }
-	    }
-
 
 	    raycast = CheckSide(velocity.x);
 
@@ -279,14 +280,19 @@ public class PlayerScript : MonoBehaviour {
 	            boostSide = true;
 
 	            velocity.x = -boostSideForce;
-	            //velocity.x -= other.transform.position.x - transform.position.x;
+	            velocity.x -= collider.transform.position.x - transform.position.x;
+	            uncontrollableTimer = 0.5f;
+	            velocity.y = 2f;
 	        }
 	        else if (collider.CompareTag("BoostRight"))
 	        {
 	            boostSide = true;
 
 	            velocity.x = boostSideForce;
-	            //velocity.x += other.transform.position.x - transform.position.x;
+	            velocity.x += collider.transform.position.x - transform.position.x;
+	            velocity.y = 2f;
+
+	            uncontrollableTimer = 0.5f;
 	        }
 	    }
 
@@ -305,19 +311,23 @@ public class PlayerScript : MonoBehaviour {
 
 	}
 
-    private RaycastHit2D CheckSide(float sign)
+    private RaycastHit2D CheckSide(float velocity)
     {
         var rays = new List<RaycastHit2D>
         {
-            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
+            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 10,
                 1 << LayerMask.NameToLayer("Solid")),
-            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
+            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 10,
                 1 << LayerMask.NameToLayer("Solid")),
-            Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
-                1 << LayerMask.NameToLayer("Solid")),
-            Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
-                1 << LayerMask.NameToLayer("Solid"))
         };
+
+        if (uncontrollableTimer > 0)
+        {
+            rays.Add(Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 11,
+                1 << LayerMask.NameToLayer("Solid")));
+            rays.Add(Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 11,
+                1 << LayerMask.NameToLayer("Solid")));
+        }
 
         return rays.Where(ray => ray)
             .OrderBy(ray => ray.distance)

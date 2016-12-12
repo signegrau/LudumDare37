@@ -200,7 +200,7 @@ public class PlayerRigidbody : MonoBehaviour
             OnDeath();
 
         Instantiate(bloodExplosion, transform.position, Quaternion.identity);
-        transform.position = startPosition;
+        _rigidbody2D.MovePosition(startPosition);
         hasRespawned = true;
     }
 
@@ -210,11 +210,10 @@ public class PlayerRigidbody : MonoBehaviour
 
         if (other.CompareTag("Spring"))
         {
-            Debug.Log(collision.contacts[0].point.y - transform.position.y);
-
             if (collision.contacts[0].point.y < transform.position.y + 0.01f)
             {
                 toSpring = true;
+                other.GetComponent<Spring>().OnPlayerCollision();
             }
         }
     }
