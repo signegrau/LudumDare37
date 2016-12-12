@@ -15,22 +15,43 @@ public class InGameUI : MonoBehaviour
     private float startTime;
     private bool gameStarted;
 
+    private int countDeath;
+
     private float miliseconds, seconds, minutes, time;
+
+    private CanvasGroup _canvasGroup;
 
     private void OnEnable()
     {
         LevelManager.OnGameStart += OnGameStart;
+        PlayerScript.OnDeath += OnPlayerDeath;
+    }
+
+    private void OnPlayerDeath()
+    {
+        countDeath++;
+
+        deathCounter.text = string.Format(deathCounterTemplate, countDeath);
     }
 
     private void OnDisable()
     {
         LevelManager.OnGameStart -= OnGameStart;
+        PlayerScript.OnDeath -= OnPlayerDeath;
     }
 
     private void Start()
     {
         timerTemplate = timer.text;
         deathCounterTemplate = deathCounter.text;
+
+        _canvasGroup = GetComponent<CanvasGroup>();
+
+        _canvasGroup.alpha = 0;
+        _canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
+
+        deathCounter.text = string.Format(deathCounterTemplate, 0);
     }
 
     private void Update()
@@ -50,5 +71,9 @@ public class InGameUI : MonoBehaviour
     {
         startTime = time;
         gameStarted = true;
+
+        _canvasGroup.alpha = 1;
+        _canvasGroup.blocksRaycasts = true;
+        _canvasGroup.interactable = true;
     }
 }

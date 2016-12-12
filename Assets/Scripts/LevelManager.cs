@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,10 +30,18 @@ public class LevelManager : MonoBehaviour
 
     private bool isChanging;
 
+    private int countDeath;
+
 	void OnEnable() {
 		Pickup.OnPickup += AdvanceState;
 	    Menu.OnPlayPressed += AdvanceState;
+	    PlayerScript.OnDeath += OnPlayerDeath;
 	}
+
+    private void OnPlayerDeath()
+    {
+        countDeath++;
+    }
 
     // Use this for initialization
     IEnumerator Start () {
@@ -108,12 +117,8 @@ public class LevelManager : MonoBehaviour
     {
         isChanging = true;
 
-        player.gameObject.SetActive(false);
-        AdvanceState();
-        yield return new WaitForSeconds(1f);
-        player.transform.position =
-            new Vector3(previousPickupPosition.x, previousPickupPosition.y, 0);
-        player.gameObject.SetActive(true);
+        player.transform.position = new Vector3(pickupPosition.x, pickupPosition.y, 0);
+        yield return new WaitForSeconds(0.5f);
 
         isChanging = false;
     }

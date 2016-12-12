@@ -7,6 +7,10 @@ using UnityEngine.AI;
 
 public class PlayerScript : MonoBehaviour {
 
+    public delegate void DeathHandler();
+
+    public static event DeathHandler OnDeath;
+
 	public float maxSpeed = 10f;
 	public float jumpForce = 700f;
     public float springForce = 400;
@@ -313,6 +317,9 @@ public class PlayerScript : MonoBehaviour {
     {
         isJumping = false;
         isBall = false;
+
+        if (OnDeath != null)
+            OnDeath();
 
         Instantiate(bloodExplosion, transform.position, Quaternion.identity);
         transform.position = startPosition;
