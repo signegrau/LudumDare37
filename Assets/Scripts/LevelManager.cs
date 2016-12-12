@@ -81,6 +81,7 @@ public class LevelManager : MonoBehaviour
         }
 
         player = Instantiate(playerPrefab).GetComponent<PlayerScript>();
+        player.gameObject.SetActive(false);
         player.transform.position = new Vector3(20, -20, 0);
 
         AdvanceState();
@@ -119,6 +120,7 @@ public class LevelManager : MonoBehaviour
         if (hasPlayerSpawn)
         {
             player.transform.position = playerStartPosition;
+            player.gameObject.SetActive(true);
         }
     }
 }
