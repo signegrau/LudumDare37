@@ -4,8 +4,17 @@ using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
+	public Sprite buttonUp, buttonDown;
+
     public delegate void PickupEventHandler();
     public static event PickupEventHandler OnPickup;
+
+	private SpriteRenderer sr;
+
+	void Start() {
+		sr = GetComponent<SpriteRenderer>();
+		sr.sprite = buttonUp;
+	}
 
     public void OnPlayerCollision()
     {
@@ -14,6 +23,6 @@ public class Pickup : MonoBehaviour
             OnPickup();
         }
 
-        Destroy(gameObject);
+		sr.sprite = buttonDown;
     }
 }

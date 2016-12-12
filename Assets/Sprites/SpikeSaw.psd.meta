@@ -1,13 +1,12 @@
 fileFormatVersion: 2
-guid: bba90514f6b17614385bd68e5a481c52
-timeCreated: 1481501970
+guid: c6aa44f3bd249c141a8d5f7e4c5de5a8
+timeCreated: 1481550065
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: SpikeAnim_0
-    21300002: SpikeAnim_1
-    21300004: SpikeAnim_2
-    21300006: SpikeAnim_3
+    21300000: SpikeSaw_0
+    21300002: SpikeSaw_1
+    21300004: SpikeSaw_2
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -82,54 +81,41 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SpikeAnim_0
+      name: SpikeSaw_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 1
+        y: 1
         width: 8
         height: 8
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: SpikeAnim_1
+      name: SpikeSaw_1
       rect:
         serializedVersion: 2
-        x: 8
-        y: 0
+        x: 11
+        y: 1
         width: 8
         height: 8
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: SpikeAnim_2
+      name: SpikeSaw_2
       rect:
         serializedVersion: 2
-        x: 16
-        y: 0
+        x: 21
+        y: 1
         width: 8
         height: 8
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: SpikeAnim_3
-      rect:
-        serializedVersion: 2
-        x: 24
-        y: 0
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       tessellationDetail: 0
