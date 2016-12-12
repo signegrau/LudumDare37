@@ -6,8 +6,8 @@ public class Pickup : MonoBehaviour
 {
 	public Sprite buttonUp, buttonDown;
 
-    public delegate void PickupEventHandler();
-    public static event PickupEventHandler OnPickup;
+	public delegate void PickupEvent();
+	public static event PickupEvent OnPickup;
 
 	private SpriteRenderer sr;
 
@@ -18,10 +18,7 @@ public class Pickup : MonoBehaviour
 
     public void OnPlayerCollision()
     {
-        if (OnPickup != null)
-        {
-            OnPickup();
-        }
+		OnPickup();
 
         GetComponent<Collider2D>().enabled = false;
 

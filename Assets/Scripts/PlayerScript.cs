@@ -60,10 +60,14 @@ public class PlayerScript : MonoBehaviour {
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
 	    collider2D = GetComponent<BoxCollider2D>();
-
-	    startPosition = transform.position;
+		startPosition = transform.position;
 	}
-	
+
+	private int FootStepAnimationEvent() {
+		SoundManager.single.PlayFootstepSound();
+		return 0;
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -90,16 +94,19 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (boostUp)
 	    {
+			
 	        isJumping = false;
 	        isBall = true;
 	        boostUp = false;
 	        boostSide = false;
+			SoundManager.single.PlayBoostSound();
 	    }
 
 	    if (boostSide)
 	    {
 	        isJumping = false;
 	        isBall = true;
+			SoundManager.single.PlayBoostSound();
 	    }
 
 
@@ -180,6 +187,7 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (Input.GetButtonDown("Jump"))
 	        {
+				SoundManager.single.PlayJumpSound();
 	            velocity.y += jumpForce;
 	            isJumping = true;
 	        }
@@ -197,7 +205,16 @@ public class PlayerScript : MonoBehaviour {
 	        Flip ();
 	    }
 
-	    if (Mathf.Abs(velocity.x) <= maxSpeed)
+//		if (Mathf.Abs(velocity.x) < 0.001f || !isGrounded)
+//		{
+//			stepAudioSource.Stop();
+//		}
+//
+//		if (!stepAudioSource.isPlaying && isGrounded && Mathf.Abs(velocity.x) > 0.002f) {
+//			stepAudioSource.Play();
+//		}
+
+		if (Mathf.Abs(velocity.x) <= maxSpeed)
 	    {
 	        velocity.x = move * maxSpeed;
 	    }
@@ -269,6 +286,9 @@ public class PlayerScript : MonoBehaviour {
 		{
 			leftGround = true;
 			animator.SetTrigger("LeftGround");
+		}
+		else if(!wasGrouneded && isGrounded) {
+			SoundManager.single.PlayLandSound();
 		}
 
 
@@ -355,6 +375,8 @@ public class PlayerScript : MonoBehaviour {
 
     private void Respawn()
     {
+		SoundManager.single.PlaySplatSound();
+
         isJumping = false;
         isBall = false;
 
@@ -389,7 +411,8 @@ public class PlayerScript : MonoBehaviour {
             boostSide = true;
 
             velocity.x = boostSideForce;
-            //velocity.x += other.transform.position.x - transform.position.x;
+            
+			//velocity.x += other.transform.position.x - transform.position.x;
         }
     }
 }

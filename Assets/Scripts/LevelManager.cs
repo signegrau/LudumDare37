@@ -145,6 +145,8 @@ public class LevelManager : MonoBehaviour
 
                 tile.GotoState(tileState);
             }
+
+			SoundManager.single.PlayAdvanceSound();
         }
         else {
             // WE win!
