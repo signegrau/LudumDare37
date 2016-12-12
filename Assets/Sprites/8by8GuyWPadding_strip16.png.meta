@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 94e39b29d1fd8d04293badf17ca4dfee
-timeCreated: 1481542977
+timeCreated: 1481544665
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -12,14 +12,17 @@ TextureImporter:
     21300010: Idle2
     21300012: Idle3
     21300014: Idle4
-    21300016: Jump1
-    21300018: Jump2
-    21300020: Jump3
+    21300016: Jump2
+    21300018: Jump3
+    21300020: Jump4
     21300022: Jump4
-    21300024: Fall1
-    21300026: Fall2
-    21300028: Fall3
+    21300024: Fall2
+    21300026: Fall3
+    21300028: Fall4
     21300030: Fall4
+    21300032: Jump1
+    21300034: Fall0
+    21300036: Fall1
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -90,6 +93,46 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+  - buildTarget: iPhone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: tvOS
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Tizen
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Samsung TV
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -97,10 +140,10 @@ TextureImporter:
       name: Run1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 10
-        height: 10
+        x: 1
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -110,10 +153,10 @@ TextureImporter:
       name: Run2
       rect:
         serializedVersion: 2
-        x: 10
-        y: 0
-        width: 10
-        height: 10
+        x: 11
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -123,10 +166,10 @@ TextureImporter:
       name: Run3
       rect:
         serializedVersion: 2
-        x: 20
-        y: 0
-        width: 10
-        height: 10
+        x: 21
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -136,10 +179,10 @@ TextureImporter:
       name: Run4
       rect:
         serializedVersion: 2
-        x: 30
-        y: 0
-        width: 10
-        height: 10
+        x: 31
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -149,10 +192,10 @@ TextureImporter:
       name: Idle1
       rect:
         serializedVersion: 2
-        x: 40
-        y: 0
-        width: 10
-        height: 10
+        x: 41
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -162,10 +205,10 @@ TextureImporter:
       name: Idle2
       rect:
         serializedVersion: 2
-        x: 50
-        y: 0
-        width: 10
-        height: 10
+        x: 51
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -175,10 +218,10 @@ TextureImporter:
       name: Idle3
       rect:
         serializedVersion: 2
-        x: 60
-        y: 0
-        width: 10
-        height: 10
+        x: 61
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -188,10 +231,10 @@ TextureImporter:
       name: Idle4
       rect:
         serializedVersion: 2
-        x: 70
-        y: 0
-        width: 10
-        height: 10
+        x: 71
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -201,10 +244,10 @@ TextureImporter:
       name: Jump1
       rect:
         serializedVersion: 2
-        x: 80
-        y: 0
-        width: 10
-        height: 10
+        x: 81
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -214,10 +257,10 @@ TextureImporter:
       name: Jump2
       rect:
         serializedVersion: 2
-        x: 90
-        y: 0
-        width: 10
-        height: 10
+        x: 91
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -227,10 +270,10 @@ TextureImporter:
       name: Jump3
       rect:
         serializedVersion: 2
-        x: 100
-        y: 0
-        width: 10
-        height: 10
+        x: 101
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -240,10 +283,10 @@ TextureImporter:
       name: Jump4
       rect:
         serializedVersion: 2
-        x: 110
-        y: 0
-        width: 10
-        height: 10
+        x: 111
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -253,10 +296,10 @@ TextureImporter:
       name: Fall1
       rect:
         serializedVersion: 2
-        x: 120
-        y: 0
-        width: 10
-        height: 10
+        x: 121
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -266,10 +309,10 @@ TextureImporter:
       name: Fall2
       rect:
         serializedVersion: 2
-        x: 130
-        y: 0
-        width: 10
-        height: 10
+        x: 131
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -279,10 +322,10 @@ TextureImporter:
       name: Fall3
       rect:
         serializedVersion: 2
-        x: 140
-        y: 0
-        width: 10
-        height: 10
+        x: 141
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -292,10 +335,10 @@ TextureImporter:
       name: Fall4
       rect:
         serializedVersion: 2
-        x: 150
-        y: 0
-        width: 10
-        height: 10
+        x: 151
+        y: 1
+        width: 8
+        height: 8
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

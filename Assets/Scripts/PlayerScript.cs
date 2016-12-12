@@ -78,7 +78,7 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.y = springForce;
 	        onSpring = false;
 	        isJumping = false;
-	        isBall = true;
+	        isBall = false;
 	    }
 
 	    if (boostUp)
@@ -311,6 +311,9 @@ public class PlayerScript : MonoBehaviour {
 
     private void Respawn()
     {
+        isJumping = false;
+        isBall = false;
+
         Instantiate(bloodExplosion, transform.position, Quaternion.identity);
         transform.position = startPosition;
         velocity = Vector2.zero;
