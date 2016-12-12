@@ -18,12 +18,14 @@ public class Tile : MonoBehaviour
         Spring,
         Spike,
         BoostUp,
+        BoostLeft,
+        BoostRight,
         PlayerStart
     }
 
     private readonly List<State> objectStates = new List<State>
     {
-        State.Pickup, State.Spring, State.Spike, State.BoostUp
+        State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight
     };
 
     public enum TransisionState
@@ -44,6 +46,8 @@ public class Tile : MonoBehaviour
     public GameObject springPrefab;
     public GameObject spikePrefab;
     public GameObject boostUpPrefab;
+    public GameObject boostLeftPrefab;
+    public GameObject boostRightPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -85,7 +89,7 @@ public class Tile : MonoBehaviour
     {
         {TransisionState.Background, new Color(0.0f, 0.0f, 0.0f)},
         {TransisionState.Foreground, new Color(1f, 1f, 1f)},
-        {TransisionState.Wall, new Color(0.7f, 0.7f, 0.7f)}
+        {TransisionState.Wall, new Color(0.5f, 0.5f, 0.5f)}
     };
 
     private readonly Dictionary<State, TransisionState> stateTransistionState = new Dictionary<State, TransisionState>
@@ -175,6 +179,12 @@ public class Tile : MonoBehaviour
 	                        break;
 	                    case State.BoostUp:
 	                        AttachObject(boostUpPrefab);
+	                        break;
+	                    case State.BoostLeft:
+	                        AttachObject(boostLeftPrefab);
+	                        break;
+	                    case State.BoostRight:
+	                        AttachObject(boostRightPrefab);
 	                        break;
 	                    default:
 	                        throw new ArgumentOutOfRangeException();
