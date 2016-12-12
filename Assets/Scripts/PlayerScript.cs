@@ -68,7 +68,7 @@ public class PlayerScript : MonoBehaviour {
 	    RaycastHit2D raycast;
 
 	    isGrounded =
-	        Physics2D.Linecast(groundCheckRight.position - groundCheckOffset, groundCheckRight.position - groundCheckOffset, 1 << LayerMask.NameToLayer("Solid"));
+	        Physics2D.Linecast(groundCheckLeft.position - groundCheckOffset, groundCheckRight.position - groundCheckOffset, 1 << LayerMask.NameToLayer("Solid"));
 
 
 	    if (onSpring)
