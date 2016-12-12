@@ -234,6 +234,12 @@ public class Tile : MonoBehaviour
         }
         else
         {
+            if (state == State.Pickup && attachment != null)
+            {
+                Destroy(attachment);
+                attachment = null;
+            }
+
             if (objectStates.Contains(newState))
             {
                 BeginTransision(TransisionState.Background);

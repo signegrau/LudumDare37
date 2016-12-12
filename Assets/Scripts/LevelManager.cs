@@ -6,9 +6,18 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public delegate void GameStartHandler(float time);
+
+    public static event GameStartHandler OnGameStart;
+
+    private float startTime;
+
     public GameObject playerPrefab;
     private PlayerScript player;
     private Vector3 playerStartPosition;
+
+    private Vector3 pickupPosition;
+    private Vector3 previousPickupPosition;
 
     List<Tile.State[]> allLevelStates;
     private int currentStateIndex;
@@ -17,6 +26,8 @@ public class LevelManager : MonoBehaviour
 
     TileGenerator tileGenerator;
     Tile[] tiles;
+
+    private bool isChanging;
 
 	void OnEnable() {
 		Pickup.OnPickup += AdvanceState;
@@ -72,7 +83,6 @@ public class LevelManager : MonoBehaviour
             }
             currentState[tileIndex] = s;
 
-            Debug.Log(currentState.Length);
             if (++tileIndex >= currentState.Length) {
                 tileIndex = 0;
                 allLevelStates.Add(currentState);
@@ -88,9 +98,24 @@ public class LevelManager : MonoBehaviour
     }
 
     public void Update() {
-        if (Input.GetKeyDown(KeyCode.U)) {
-            AdvanceState();
+        if (Input.GetKeyDown(KeyCode.U) && !isChanging)
+        {
+            StartCoroutine(GotoNextState());
         }
+    }
+
+    private IEnumerator GotoNextState()
+    {
+        isChanging = true;
+
+        player.gameObject.SetActive(false);
+        AdvanceState();
+        yield return new WaitForSeconds(1f);
+        player.transform.position =
+            new Vector3(previousPickupPosition.x, previousPickupPosition.y, 0);
+        player.gameObject.SetActive(true);
+
+        isChanging = false;
     }
     
     public void AdvanceState()
@@ -107,8 +132,14 @@ public class LevelManager : MonoBehaviour
                 if (tileState == Tile.State.PlayerStart)
                 {
                     hasPlayerSpawn = true;
-                    playerStartPosition = tile.transform.position + new Vector3(0, 0, -1);
+                    playerStartPosition = tile.transform.position + new Vector3(0, 0, 0);
                 }
+                else if (tileState == Tile.State.Pickup)
+                {
+                    previousPickupPosition = pickupPosition;
+                    pickupPosition = tile.transform.position;
+                }
+
 
                 tile.GotoState(tileState);
             }
@@ -119,6 +150,12 @@ public class LevelManager : MonoBehaviour
 
         if (hasPlayerSpawn)
         {
+            startTime = Time.time;
+            if (OnGameStart != null)
+            {
+                OnGameStart(startTime);
+            }
+
             player.transform.position = playerStartPosition;
             player.gameObject.SetActive(true);
         }

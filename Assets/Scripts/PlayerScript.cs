@@ -20,10 +20,12 @@ public class PlayerScript : MonoBehaviour {
 	bool isGrounded;
     private bool wasGrouneded;
     private bool sideFree;
-    private bool onSpring = false;
+    private bool onSpring;
+    private bool boostUp;
 	bool isJumping = false;
 	bool leftGround = false;
 	bool facingRight = true;
+    private bool isBall;
 
     public GameObject bloodExplosion;
 	public Transform groundCheckLeft;
@@ -60,30 +62,36 @@ public class PlayerScript : MonoBehaviour {
 	{
 	    wasGrouneded = isGrounded;
 
+	    isBall = isBall || isJumping;
+
 	    if (transform.position.y < -6)
 	    {
 	        Respawn();
 	    }
 
-	    RaycastHit2D raycast;
+	    RaycastHit2D raycast = CheckGround();
 
-	    isGrounded =
-	        Physics2D.Linecast(groundCheckLeft.position - groundCheckOffset, groundCheckRight.position - groundCheckOffset, 1 << LayerMask.NameToLayer("Solid"));
-
+	    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);
 
 	    if (onSpring)
 	    {
 	        velocity.y = springForce;
 	        onSpring = false;
-	        isJumping = true;
+	        isJumping = false;
+	        isBall = true;
+	    }
+
+	    if (boostUp)
+	    {
+	        isJumping = false;
+	        isBall = true;
+	        boostUp = false;
 	    }
 
 
 	    if (!isGrounded)
 	    {
 	        velocity.y -= gravity * Time.deltaTime;
-
-	        raycast = CheckGround();
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
@@ -101,7 +109,6 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
 	        {
-	            Debug.Log("Can't jump");
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
 
@@ -120,7 +127,9 @@ public class PlayerScript : MonoBehaviour {
 	    }
 	    else
 	    {
+
 	        isJumping = false;
+	        isBall = false;
 	        timeFromGround = 0;
 
 	        if (velocity.y < 0)
@@ -149,7 +158,7 @@ public class PlayerScript : MonoBehaviour {
                 }
 
 
-	            if (raycast.distance < groundCheckOffset.y)
+	            if (raycast.distance <= groundCheckOffset.y + Mathf.Epsilon)
 	            {
 	                velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
@@ -210,7 +219,7 @@ public class PlayerScript : MonoBehaviour {
 
 	    animator.SetFloat("Speed", Mathf.Abs(velocity.x / maxSpeed));
 		animator.SetBool("IsGrounded", isGrounded );
-		animator.SetBool("IsJumping", isJumping );
+		animator.SetBool("IsJumping", isBall );
 
 		if (wasGrouneded && !isGrounded)
 		{
@@ -311,9 +320,10 @@ public class PlayerScript : MonoBehaviour {
     {
         if (other.CompareTag("BoostUp"))
         {
+            boostUp = true;
+
             velocity.y = boostUpForce;
             velocity.y += other.transform.position.y - transform.position.y;
-            isJumping = false;
         }
     }
 }
