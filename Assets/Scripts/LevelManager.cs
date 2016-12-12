@@ -115,7 +115,7 @@ public class LevelManager : MonoBehaviour
         isChanging = true;
 
         player.transform.position = new Vector3(pickupPosition.x, pickupPosition.y, 0);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
 
         isChanging = false;
     }
