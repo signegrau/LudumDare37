@@ -5,7 +5,9 @@ using UnityEngine;
 
 public class Spring : MonoBehaviour
 {
-    public Sprite loaded;
+	public AudioSource audioSource;
+	public AudioClip springSound;
+	public Sprite loaded;
     public Sprite unloaded;
     public float loadTime = 0.5f;
 
@@ -23,6 +25,7 @@ public class Spring : MonoBehaviour
 
     private IEnumerator Animation()
     {
+		audioSource.PlayOneShot(springSound);
         spriteRenderer.sprite = unloaded;
         yield return new WaitForSeconds(loadTime);
         spriteRenderer.sprite = loaded;
