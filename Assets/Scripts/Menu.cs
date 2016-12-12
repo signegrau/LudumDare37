@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
@@ -8,11 +10,15 @@ public class Menu : MonoBehaviour
 
     public static PlayPressedHandler OnPlayPressed;
 
+    public GameObject playButton;
+
     private CanvasGroup _canvasGroup;
 
     private void Start()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+
+        EventSystem.current.SetSelectedGameObject(playButton, null);
     }
 
     public void PlayGame()
