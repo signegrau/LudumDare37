@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Animator))]
 
@@ -42,24 +45,29 @@ public class PlayerScript : MonoBehaviour {
     public Transform sideCheckTop;
     public Transform sideCheckBottom;
 
+    public Transform altSideCheckTop;
+    public Transform altSideCheckBottom;
+
     public Transform headCheckLeft;
     public Transform headCheckRight;
 
     public LayerMask layersToLandOn;
 	private Rigidbody2D rigidbody2D;
 
-    private BoxCollider2D collider2D;
+    private CapsuleCollider2D collider2D;
 
     private Vector3 startPosition;
 
     private float timeFromGround;
+
+    private List<Collider2D> previousColliders = new List<Collider2D>();
 
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
-	    collider2D = GetComponent<BoxCollider2D>();
+	    collider2D = GetComponent<CapsuleCollider2D>();
 
 	    startPosition = transform.position;
 	}
@@ -219,13 +227,13 @@ public class PlayerScript : MonoBehaviour {
 	    }
 
 
-	    raycast = CheckSide(move);
+	    raycast = CheckSide(velocity.x);
 
 	    var blocked = raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime);
 
 	    if (blocked)
 	    {
-	        velocity.x = 0.9f * raycast.distance * Mathf.Sign(move) / Time.deltaTime;
+	        velocity.x = raycast.distance * Mathf.Sign(velocity.x) / Time.deltaTime;
 	    }
 
 	    if (boostSide)
@@ -235,31 +243,54 @@ public class PlayerScript : MonoBehaviour {
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
 
-	    if (blocked)
-	    {
-	        velocity.x = 0;
-	    }
-
 	    ///
 	    /// Collisions
 	    ///
-
-	    var collisions = Physics2D.OverlapBoxAll(transform.position + (Vector3) collider2D.offset, collider2D.size, 0);
-
-	    foreach (var collision in collisions)
+	    var colliders =
+	        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);
+	    foreach (var collider in colliders)
 	    {
-	        if (collision.CompareTag("Pickup"))
+	        Debug.Log(collider.name);
+	        if (collider.CompareTag("Pickup"))
 	        {
-	            startPosition = collision.transform.position;
+	            startPosition = collider.transform.position;
 
-	            var pickup = collision.GetComponent<Pickup>();
+	            var pickup = collider.GetComponent<Pickup>();
 	            pickup.OnPlayerCollision();
 	        }
-	        else if (collision.CompareTag("Spike"))
+	        else if (collider.CompareTag("Spike"))
 	        {
 	            Respawn();
 	        }
+
+	        if (previousColliders.Contains(collider)) continue;
+
+	        if (collider.CompareTag("BoostUp"))
+	        {
+	            Debug.Log("What");
+
+	            boostUp = true;
+
+	            velocity.y = boostUpForce;
+	            velocity.y += collider.transform.position.y - transform.position.y;
+	        }
+	        else if (collider.CompareTag("BoostLeft"))
+	        {
+	            boostSide = true;
+
+	            velocity.x = -boostSideForce;
+	            //velocity.x -= other.transform.position.x - transform.position.x;
+	        }
+	        else if (collider.CompareTag("BoostRight"))
+	        {
+	            boostSide = true;
+
+	            velocity.x = boostSideForce;
+	            //velocity.x += other.transform.position.x - transform.position.x;
+	        }
 	    }
+
+	    previousColliders = colliders.ToList();
 
 	    animator.SetFloat("Speed", Mathf.Abs(velocity.x / maxSpeed));
 		animator.SetBool("IsGrounded", isGrounded );
@@ -276,18 +307,21 @@ public class PlayerScript : MonoBehaviour {
 
     private RaycastHit2D CheckSide(float sign)
     {
-        var bottom = Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
-            1 << LayerMask.NameToLayer("Solid"));
-
-        var top = Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
-            1 << LayerMask.NameToLayer("Solid"));
-
-        if (top && bottom)
+        var rays = new List<RaycastHit2D>
         {
-            return bottom.distance > top.distance ? top : bottom;
-        }
+            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
+                1 << LayerMask.NameToLayer("Solid")),
+            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
+                1 << LayerMask.NameToLayer("Solid")),
+            Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
+                1 << LayerMask.NameToLayer("Solid")),
+            Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
+                1 << LayerMask.NameToLayer("Solid"))
+        };
 
-        return top ? top : bottom;
+        return rays.Where(ray => ray)
+            .OrderBy(ray => ray.distance)
+            .FirstOrDefault();
     }
 
     private RaycastHit2D CheckGround()
@@ -322,7 +356,7 @@ public class PlayerScript : MonoBehaviour {
         return left ? left : right;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    /*private void OnCollisionEnter2D(Collision2D collision)
     {
         var other = collision.collider;
 
@@ -342,7 +376,7 @@ public class PlayerScript : MonoBehaviour {
                 isGrounded = true;
             }
         }
-    }
+    }*/
 
 	void Flip ()
 	{
