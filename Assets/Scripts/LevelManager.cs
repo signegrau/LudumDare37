@@ -6,6 +6,12 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    public delegate void GameStartHandler(float time);
+
+    public static event GameStartHandler OnGameStart;
+
+    private float startTime;
+
     public GameObject playerPrefab;
     private PlayerScript player;
     private Vector3 playerStartPosition;
@@ -118,6 +124,12 @@ public class LevelManager : MonoBehaviour
 
         if (hasPlayerSpawn)
         {
+            startTime = Time.time;
+            if (OnGameStart != null)
+            {
+                OnGameStart(startTime);
+            }
+
             player.transform.position = playerStartPosition;
             player.gameObject.SetActive(true);
         }
