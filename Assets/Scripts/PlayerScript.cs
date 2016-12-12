@@ -60,7 +60,7 @@ public class PlayerScript : MonoBehaviour {
 	{
 	    wasGrouneded = isGrounded;
 
-	    if (transform.position.y < -10)
+	    if (transform.position.y < -6)
 	    {
 	        Respawn();
 	    }
