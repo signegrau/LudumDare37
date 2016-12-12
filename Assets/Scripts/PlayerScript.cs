@@ -68,7 +68,6 @@ public class PlayerScript : MonoBehaviour {
 	    RaycastHit2D raycast = CheckGround();
 
 	    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);
-	    Debug.Log(raycast.distance);
 
 	    if (onSpring)
 	    {
@@ -80,7 +79,6 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (!isGrounded)
 	    {
-	        Debug.Log("Not grounded");
 	        velocity.y -= gravity * Time.deltaTime;
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
@@ -183,7 +181,6 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
 	    }
 
-	    Debug.Log(velocity);
 	    transform.position += (Vector3)velocity * Time.deltaTime;
 
 	    ///
