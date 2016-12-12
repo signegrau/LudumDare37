@@ -26,6 +26,7 @@ public class PlayerScript : MonoBehaviour {
     private bool sideFree;
     private bool onSpring;
     private bool boostUp;
+    private bool boostSide;
 	bool isJumping = false;
 	bool leftGround = false;
 	bool facingRight = true;
@@ -90,6 +91,13 @@ public class PlayerScript : MonoBehaviour {
 	        isJumping = false;
 	        isBall = true;
 	        boostUp = false;
+	        boostSide = false;
+	    }
+
+	    if (boostSide)
+	    {
+	        isJumping = false;
+	        isBall = true;
 	    }
 
 
@@ -200,6 +208,11 @@ public class PlayerScript : MonoBehaviour {
 	        else
 	        {
 	            velocity.x = maxSpeed;
+
+	            if (boostSide)
+	            {
+	                boostSide = false;
+	            }
 	        }
 	    }
 
@@ -211,6 +224,11 @@ public class PlayerScript : MonoBehaviour {
 	    if (blocked)
 	    {
 	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
+	    }
+
+	    if (boostSide)
+	    {
+	        velocity.y = 0;
 	    }
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
@@ -352,14 +370,14 @@ public class PlayerScript : MonoBehaviour {
         }
         else if (other.CompareTag("BoostLeft"))
         {
-            boostUp = true;
+            boostSide = true;
 
             velocity.x = -boostSideForce;
-            velocity.x += other.transform.position.x - transform.position.x;
+            velocity.x -= other.transform.position.x - transform.position.x;
         }
         else if (other.CompareTag("BoostRight"))
         {
-            boostUp = true;
+            boostSide = true;
 
             velocity.x = boostSideForce;
             velocity.x += other.transform.position.x - transform.position.x;
