@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b984c71009053704ea01d9c62e580284
+timeCreated: 1481535772
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - bloodPrefab: {fileID: 1687286807565582, guid: cc67f2d2c9f04f149922af3acdf4f765,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
