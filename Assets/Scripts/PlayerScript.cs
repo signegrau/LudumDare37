@@ -122,7 +122,6 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (!isGrounded)
 	    {
-	        Debug.Log(currentGravity);
 	        velocity.y -= currentGravity * Time.deltaTime;
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
