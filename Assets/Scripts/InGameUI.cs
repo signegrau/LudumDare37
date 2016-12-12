@@ -17,6 +17,8 @@ public class InGameUI : MonoBehaviour
 
     private float miliseconds, seconds, minutes, time;
 
+    private CanvasGroup _canvasGroup;
+
     private void OnEnable()
     {
         LevelManager.OnGameStart += OnGameStart;
@@ -31,6 +33,12 @@ public class InGameUI : MonoBehaviour
     {
         timerTemplate = timer.text;
         deathCounterTemplate = deathCounter.text;
+
+        _canvasGroup = GetComponent<CanvasGroup>();
+
+        _canvasGroup.alpha = 0;
+        _canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
     }
 
     private void Update()
@@ -50,5 +58,9 @@ public class InGameUI : MonoBehaviour
     {
         startTime = time;
         gameStarted = true;
+
+        _canvasGroup.alpha = 1;
+        _canvasGroup.blocksRaycasts = true;
+        _canvasGroup.interactable = true;
     }
 }
