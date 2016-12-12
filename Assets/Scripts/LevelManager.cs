@@ -106,7 +106,7 @@ public class LevelManager : MonoBehaviour
                 if (tileState == Tile.State.PlayerStart)
                 {
                     hasPlayerSpawn = true;
-                    playerStartPosition = tile.transform.position + new Vector3(0, 0, -1);
+                    playerStartPosition = tile.transform.position + new Vector3(0, 0, 0);
                 }
 
                 tile.GotoState(tileState);
