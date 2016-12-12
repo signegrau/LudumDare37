@@ -117,12 +117,8 @@ public class LevelManager : MonoBehaviour
     {
         isChanging = true;
 
-        player.gameObject.SetActive(false);
-        AdvanceState();
-        yield return new WaitForSeconds(1f);
-        player.transform.position =
-            new Vector3(previousPickupPosition.x, previousPickupPosition.y, 0);
-        player.gameObject.SetActive(true);
+        player.transform.position = new Vector3(pickupPosition.x, pickupPosition.y, 0);
+        yield return new WaitForSeconds(0.5f);
 
         isChanging = false;
     }
