@@ -65,11 +65,10 @@ public class PlayerScript : MonoBehaviour {
 	        Respawn();
 	    }
 
-	    RaycastHit2D raycast;
+	    RaycastHit2D raycast = CheckGround();
 
-	    isGrounded =
-	        Physics2D.Linecast(groundCheckLeft.position - groundCheckOffset, groundCheckRight.position - groundCheckOffset, 1 << LayerMask.NameToLayer("Solid"));
-
+	    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);
+	    Debug.Log(raycast.distance);
 
 	    if (onSpring)
 	    {
@@ -81,9 +80,8 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (!isGrounded)
 	    {
+	        Debug.Log("Not grounded");
 	        velocity.y -= gravity * Time.deltaTime;
-
-	        raycast = CheckGround();
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
@@ -101,7 +99,6 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
 	        {
-	            Debug.Log("Can't jump");
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
 
@@ -120,6 +117,7 @@ public class PlayerScript : MonoBehaviour {
 	    }
 	    else
 	    {
+
 	        isJumping = false;
 	        timeFromGround = 0;
 
@@ -149,7 +147,7 @@ public class PlayerScript : MonoBehaviour {
                 }
 
 
-	            if (raycast.distance < groundCheckOffset.y)
+	            if (raycast.distance <= groundCheckOffset.y + Mathf.Epsilon)
 	            {
 	                velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
@@ -185,6 +183,7 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
 	    }
 
+	    Debug.Log(velocity);
 	    transform.position += (Vector3)velocity * Time.deltaTime;
 
 	    ///
