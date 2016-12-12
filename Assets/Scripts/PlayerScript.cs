@@ -20,7 +20,12 @@ public class PlayerScript : MonoBehaviour {
     public float boostSideForce = 400;
 
     private Vector2 velocity = new Vector2(0, 0);
+
     public float gravity = 9.81f;
+    public float jumpHoldGravity;
+    public float fallingGravity;
+
+    private float currentGravity;
     public float drag = 0.05f;
 
     Animator animator;
@@ -73,6 +78,7 @@ public class PlayerScript : MonoBehaviour {
 	    collider2D = GetComponent<CapsuleCollider2D>();
 
 	    startPosition = transform.position;
+	    currentGravity = gravity;
 	}
 	
 	// Update is called once per frame
@@ -116,7 +122,8 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (!isGrounded)
 	    {
-	        velocity.y -= gravity * Time.deltaTime;
+	        Debug.Log(currentGravity);
+	        velocity.y -= currentGravity * Time.deltaTime;
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
@@ -124,6 +131,7 @@ public class PlayerScript : MonoBehaviour {
 
 	            if (raycast.collider.CompareTag("Spring"))
 	            {
+	                currentGravity = gravity;
 	                var spring = raycast.collider.GetComponent<Spring>();
 	                spring.OnPlayerCollision();
 	                onSpring = true;
@@ -137,25 +145,16 @@ public class PlayerScript : MonoBehaviour {
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
 
-	        if (isJumping && velocity.y > 0 && Input.GetButtonUp("Jump"))
-	        {
-	            velocity.y /= 2;
-	        }
 
-	        if (Input.GetButtonDown("Jump") && timeFromGround < 0.15f && !isJumping)
-	        {
-	            velocity.y += jumpForce;
-	            isJumping = true;
-	        }
 
 	        timeFromGround += Time.deltaTime;
 	    }
 	    else
 	    {
-
 	        isJumping = false;
 	        isBall = false;
 	        timeFromGround = 0;
+	        currentGravity = gravity;
 
 	        if (velocity.y < 0)
 	        {
@@ -172,7 +171,8 @@ public class PlayerScript : MonoBehaviour {
                 {
                     case "Spring":
     	            {
-    	                var spring = raycast.collider.GetComponent<Spring>();
+	                    currentGravity = gravity;
+	                    var spring = raycast.collider.GetComponent<Spring>();
     	                spring.OnPlayerCollision();
     	                onSpring = true;
     	            } break;
@@ -188,12 +188,25 @@ public class PlayerScript : MonoBehaviour {
 	                velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
 	        }
+	    }
 
-	        if (Input.GetButtonDown("Jump"))
-	        {
-	            velocity.y += jumpForce;
-	            isJumping = true;
-	        }
+	    if (Input.GetButtonDown("Jump") && (isGrounded || (timeFromGround < 0.15f && !isJumping)))
+	    {
+	        currentGravity = jumpHoldGravity;
+
+	        velocity.y += jumpForce;
+	        isJumping = true;
+	    }
+
+	    if (isJumping && Input.GetButtonUp("Jump"))
+	    {
+	        currentGravity = gravity;
+	        isJumping = false;
+	    }
+
+	    if (!isJumping && velocity.y < 0)
+	    {
+	        currentGravity = fallingGravity;
 	    }
 
 	    ///
@@ -251,7 +264,6 @@ public class PlayerScript : MonoBehaviour {
 	        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);
 	    foreach (var collider in colliders)
 	    {
-	        Debug.Log(collider.name);
 	        if (collider.CompareTag("Pickup"))
 	        {
 	            startPosition = collider.transform.position;
@@ -270,8 +282,10 @@ public class PlayerScript : MonoBehaviour {
 	        {
 	            Debug.Log("What");
 
+	            isBall = true;
+	            isJumping = false;
 	            boostUp = true;
-
+	            currentGravity = gravity;
 	            velocity.y = boostUpForce;
 	            velocity.y += collider.transform.position.y - transform.position.y;
 	        }
@@ -279,18 +293,28 @@ public class PlayerScript : MonoBehaviour {
 	        {
 	            boostSide = true;
 
+	            isBall = true;
+
+	            isJumping = false;
+	            currentGravity = gravity;
+
 	            velocity.x = -boostSideForce;
-	            velocity.x -= collider.transform.position.x - transform.position.x;
+	            //velocity.x -= collider.transform.position.x - transform.position.x;
 	            uncontrollableTimer = 0.5f;
-	            velocity.y = 2f;
+	            velocity.y = 3f;
 	        }
 	        else if (collider.CompareTag("BoostRight"))
 	        {
 	            boostSide = true;
 
+	            isBall = true;
+
+	            isJumping = false;
+	            currentGravity = gravity;
+
 	            velocity.x = boostSideForce;
-	            velocity.x += collider.transform.position.x - transform.position.x;
-	            velocity.y = 2f;
+	            //velocity.x += collider.transform.position.x - transform.position.x;
+	            velocity.y = 3f;
 
 	            uncontrollableTimer = 0.5f;
 	        }
