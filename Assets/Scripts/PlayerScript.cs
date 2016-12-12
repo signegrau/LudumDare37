@@ -27,6 +27,8 @@ public class PlayerScript : MonoBehaviour {
     private bool onSpring;
     private bool boostUp;
     private bool boostSide;
+    private bool boostLeft;
+    private bool boostRight;
 	bool isJumping = false;
 	bool leftGround = false;
 	bool facingRight = true;
@@ -223,15 +225,20 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (blocked)
 	    {
-	        velocity.x = raycast.distance * Mathf.Sign(move) / Time.deltaTime;
+	        velocity.x = 0.9f * raycast.distance * Mathf.Sign(move) / Time.deltaTime;
 	    }
 
 	    if (boostSide)
 	    {
-	        velocity.y = 0;
+	        //velocity.y = 0;
 	    }
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
+
+	    if (blocked)
+	    {
+	        velocity.x = 0;
+	    }
 
 	    ///
 	    /// Collisions
@@ -361,6 +368,8 @@ public class PlayerScript : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log(other.tag);
+
         if (other.CompareTag("BoostUp"))
         {
             boostUp = true;
@@ -373,14 +382,14 @@ public class PlayerScript : MonoBehaviour {
             boostSide = true;
 
             velocity.x = -boostSideForce;
-            velocity.x -= other.transform.position.x - transform.position.x;
+            //velocity.x -= other.transform.position.x - transform.position.x;
         }
         else if (other.CompareTag("BoostRight"))
         {
             boostSide = true;
 
             velocity.x = boostSideForce;
-            velocity.x += other.transform.position.x - transform.position.x;
+            //velocity.x += other.transform.position.x - transform.position.x;
         }
     }
 }

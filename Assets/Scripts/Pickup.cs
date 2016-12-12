@@ -23,6 +23,8 @@ public class Pickup : MonoBehaviour
             OnPickup();
         }
 
+        GetComponent<Collider2D>().enabled = false;
+
 		sr.sprite = buttonDown;
     }
 }
