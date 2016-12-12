@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,10 +30,18 @@ public class LevelManager : MonoBehaviour
 
     private bool isChanging;
 
+    private int countDeath;
+
 	void OnEnable() {
 		Pickup.OnPickup += AdvanceState;
 	    Menu.OnPlayPressed += AdvanceState;
+	    PlayerScript.OnDeath += OnPlayerDeath;
 	}
+
+    private void OnPlayerDeath()
+    {
+        countDeath++;
+    }
 
     // Use this for initialization
     IEnumerator Start () {
