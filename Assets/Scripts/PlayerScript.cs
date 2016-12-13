@@ -174,7 +174,7 @@ public class PlayerScript : MonoBehaviour {
 	        }
 	    }
 
-	    if (Input.GetButtonDown("Jump") && (isGrounded || (!hasJumped)))
+	    if (Input.GetButtonDown("Jump") && (isGrounded || (!hasJumped && timeFromGround < 0.15f)))
 	    {
 	        currentGravity = jumpHoldGravity;
 
