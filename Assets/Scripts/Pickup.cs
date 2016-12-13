@@ -16,12 +16,27 @@ public class Pickup : MonoBehaviour
 		sr.sprite = buttonUp;
 	}
 
+    public void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            if (OnPickup != null)
+            {
+                OnPickup();
+            }
+
+            GetComponent<Collider2D>().enabled = false;
+
+            sr.sprite = buttonDown;
+        }
+    }
+
     public void OnPlayerCollision()
     {
 		OnPickup();
 
         GetComponent<Collider2D>().enabled = false;
 
-		sr.sprite = buttonDown;
+        sr.sprite = buttonDown;
     }
 }

@@ -25,6 +25,7 @@ public class InGameUI : MonoBehaviour
     {
         LevelManager.OnGameStart += OnGameStart;
         PlayerScript.OnDeath += OnPlayerDeath;
+        PlayerRigidbody.OnDeath += OnPlayerDeath;
     }
 
     private void OnPlayerDeath()
@@ -38,6 +39,7 @@ public class InGameUI : MonoBehaviour
     {
         LevelManager.OnGameStart -= OnGameStart;
         PlayerScript.OnDeath -= OnPlayerDeath;
+        PlayerRigidbody.OnDeath -= OnPlayerDeath;
     }
 
     private void Start()

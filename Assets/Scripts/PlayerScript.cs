@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Animator))]
 
@@ -17,7 +20,13 @@ public class PlayerScript : MonoBehaviour {
     public float boostSideForce = 400;
 
     private Vector2 velocity = new Vector2(0, 0);
+
     public float gravity = 9.81f;
+    public float jumpHoldGravity;
+    public float fallingGravity;
+
+    private float currentGravity;
+    public float drag = 0.05f;
 
     Animator animator;
 
@@ -30,6 +39,7 @@ public class PlayerScript : MonoBehaviour {
     private bool boostLeft;
     private bool boostRight;
 	bool isJumping = false;
+    bool hasJumped = false;
 	bool leftGround = false;
 	bool facingRight = true;
     private bool isBall;
@@ -42,23 +52,31 @@ public class PlayerScript : MonoBehaviour {
     public Transform sideCheckTop;
     public Transform sideCheckBottom;
 
+    public Transform altSideCheckTop;
+    public Transform altSideCheckBottom;
+
     public Transform headCheckLeft;
     public Transform headCheckRight;
 
     public LayerMask layersToLandOn;
 	private Rigidbody2D rigidbody2D;
 
-    private BoxCollider2D collider2D;
+    private CapsuleCollider2D collider2D;
 
     private Vector3 startPosition;
 
     private float timeFromGround;
+
+    private List<Collider2D> previousColliders = new List<Collider2D>();
+
+    private float uncontrollableTimer;
 
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
+<<<<<<< HEAD
 	    collider2D = GetComponent<BoxCollider2D>();
 		startPosition = transform.position;
 	}
@@ -66,6 +84,12 @@ public class PlayerScript : MonoBehaviour {
 	private int FootStepAnimationEvent() {
 		SoundManager.single.PlayFootstepSound();
 		return 0;
+=======
+	    collider2D = GetComponent<CapsuleCollider2D>();
+
+	    startPosition = transform.position;
+	    currentGravity = gravity;
+>>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
 	}
 
 	// Update is called once per frame
@@ -82,7 +106,10 @@ public class PlayerScript : MonoBehaviour {
 
 	    RaycastHit2D raycast = CheckGround();
 
-	    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);
+	    isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;
+        isGrounded = isGrounded && velocity.y <= 0;
+
+        Debug.Log(raycast.distance);
 
 	    if (onSpring)
 	    {
@@ -112,7 +139,7 @@ public class PlayerScript : MonoBehaviour {
 
 	    if (!isGrounded)
 	    {
-	        velocity.y -= gravity * Time.deltaTime;
+	        velocity.y -= currentGravity * Time.deltaTime;
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
 	        {
@@ -120,6 +147,7 @@ public class PlayerScript : MonoBehaviour {
 
 	            if (raycast.collider.CompareTag("Spring"))
 	            {
+	                currentGravity = gravity;
 	                var spring = raycast.collider.GetComponent<Spring>();
 	                spring.OnPlayerCollision();
 	                onSpring = true;
@@ -133,32 +161,18 @@ public class PlayerScript : MonoBehaviour {
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
 
-	        if (isJumping && velocity.y > 0 && Input.GetButtonUp("Jump"))
-	        {
-	            velocity.y /= 2;
-	        }
 
-	        if (Input.GetButtonDown("Jump") && timeFromGround < 0.15f && !isJumping)
-	        {
-	            velocity.y += jumpForce;
-	            isJumping = true;
-	        }
 
 	        timeFromGround += Time.deltaTime;
 	    }
 	    else
 	    {
-
+            hasJumped = false;
 	        isJumping = false;
-	        isBall = false;
-	        timeFromGround = 0;
-
-	        if (velocity.y < 0)
-	        {
-	            velocity.y = 0;
-	        }
-
-	        raycast = CheckGround();
+            isBall = false;
+            timeFromGround = 0;
+            currentGravity = gravity;
+	        velocity.y = 0;
 
 	        if (raycast)
 	        {
@@ -168,7 +182,8 @@ public class PlayerScript : MonoBehaviour {
                 {
                     case "Spring":
     	            {
-    	                var spring = raycast.collider.GetComponent<Spring>();
+	                    currentGravity = gravity;
+	                    var spring = raycast.collider.GetComponent<Spring>();
     	                spring.OnPlayerCollision();
     	                onSpring = true;
     	            } break;
@@ -179,32 +194,52 @@ public class PlayerScript : MonoBehaviour {
                 }
 
 
-	            if (raycast.distance <= groundCheckOffset.y + Mathf.Epsilon)
+	            if (raycast.distance < groundCheckOffset.y - 0.01f)
 	            {
-	                velocity.y += (groundCheckOffset.y - raycast.distance);
+                    velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
 	        }
+	    }
 
+<<<<<<< HEAD
 	        if (Input.GetButtonDown("Jump"))
 	        {
 				SoundManager.single.PlayJumpSound();
 	            velocity.y += jumpForce;
 	            isJumping = true;
 	        }
+=======
+	    if (Input.GetButtonDown("Jump") && (isGrounded || (!hasJumped)))
+	    {
+	        currentGravity = jumpHoldGravity;
+
+	        velocity.y += jumpForce;
+	        isJumping = true;
+            hasJumped = true;
+	    }
+
+	    if (isJumping && Input.GetButtonUp("Jump"))
+	    {
+	        currentGravity = gravity;
+	        isJumping = false;
+	    }
+
+	    if (!isJumping && velocity.y < 0)
+	    {
+	        currentGravity = fallingGravity;
+>>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
 	    }
 
 	    ///
 	    /// Horizontal movement
 	    ///
 
-	    var move = Input.GetAxisRaw("Horizontal");
-
-	    if ( move > 0 && !facingRight
-	         || move < 0 && facingRight )
+	    float move = 0;
+	    if (uncontrollableTimer <= 0)
 	    {
-	        Flip ();
-	    }
+	        move = Input.GetAxisRaw("Horizontal");
 
+<<<<<<< HEAD
 //		if (Mathf.Abs(velocity.x) < 0.001f || !isGrounded)
 //		{
 //			stepAudioSource.Stop();
@@ -216,33 +251,38 @@ public class PlayerScript : MonoBehaviour {
 
 		if (Mathf.Abs(velocity.x) <= maxSpeed)
 	    {
+=======
+>>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
 	        velocity.x = move * maxSpeed;
 	    }
 	    else
 	    {
-	        if (Mathf.Abs(velocity.x) - maxSpeed > gravity * Time.deltaTime)
+	        uncontrollableTimer -= Time.deltaTime;
+
+	        if (Mathf.Abs(velocity.x - drag * Time.deltaTime * Mathf.Sign(velocity.x)) > 0)
 	        {
-	            velocity.x -= Mathf.Sign(velocity.x) * gravity * Time.deltaTime;
+	            velocity.x -= drag * Time.deltaTime * Mathf.Sign(velocity.x);
 	        }
 	        else
 	        {
-	            velocity.x = maxSpeed;
-
-	            if (boostSide)
-	            {
-	                boostSide = false;
-	            }
+	            velocity.x = 0;
 	        }
 	    }
 
 
-	    raycast = CheckSide(move);
+	    if ( move > 0 && !facingRight
+	         || move < 0 && facingRight )
+	    {
+	        Flip ();
+	    }
+
+	    raycast = CheckSide(velocity.x);
 
 	    var blocked = raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime);
 
 	    if (blocked)
 	    {
-	        velocity.x = 0.9f * raycast.distance * Mathf.Sign(move) / Time.deltaTime;
+	        velocity.x = raycast.distance * Mathf.Sign(velocity.x) / Time.deltaTime;
 	    }
 
 	    if (boostSide)
@@ -252,31 +292,68 @@ public class PlayerScript : MonoBehaviour {
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
 
-	    if (blocked)
-	    {
-	        velocity.x = 0;
-	    }
-
 	    ///
 	    /// Collisions
 	    ///
-
-	    var collisions = Physics2D.OverlapBoxAll(transform.position + (Vector3) collider2D.offset, collider2D.size, 0);
-
-	    foreach (var collision in collisions)
+	    var colliders =
+	        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);
+	    foreach (var collider in colliders)
 	    {
-	        if (collision.CompareTag("Pickup"))
+	        if (collider.CompareTag("Pickup"))
 	        {
-	            startPosition = collision.transform.position;
+	            startPosition = collider.transform.position;
 
-	            var pickup = collision.GetComponent<Pickup>();
+	            var pickup = collider.GetComponent<Pickup>();
 	            pickup.OnPlayerCollision();
 	        }
-	        else if (collision.CompareTag("Spike"))
+	        else if (collider.CompareTag("Spike"))
 	        {
 	            Respawn();
 	        }
+
+	        if (previousColliders.Contains(collider)) continue;
+
+	        if (collider.CompareTag("BoostUp"))
+	        {
+	            isBall = true;
+	            isJumping = false;
+	            boostUp = true;
+	            currentGravity = gravity;
+	            velocity.y = boostUpForce;
+	            velocity.y += collider.transform.position.y - transform.position.y;
+	        }
+	        else if (collider.CompareTag("BoostLeft"))
+	        {
+	            boostSide = true;
+
+	            isBall = true;
+
+	            isJumping = false;
+	            currentGravity = gravity;
+
+	            velocity.x = -boostSideForce;
+	            //velocity.x -= collider.transform.position.x - transform.position.x;
+	            uncontrollableTimer = 0.5f;
+	            velocity.y = 3f;
+	        }
+	        else if (collider.CompareTag("BoostRight"))
+	        {
+	            boostSide = true;
+
+	            isBall = true;
+
+	            isJumping = false;
+	            currentGravity = gravity;
+
+	            velocity.x = boostSideForce;
+	            //velocity.x += collider.transform.position.x - transform.position.x;
+	            velocity.y = 3f;
+
+	            uncontrollableTimer = 0.5f;
+	        }
 	    }
+
+	    previousColliders = colliders.ToList();
 
 	    animator.SetFloat("Speed", Mathf.Abs(velocity.x / maxSpeed));
 		animator.SetBool("IsGrounded", isGrounded );
@@ -294,20 +371,27 @@ public class PlayerScript : MonoBehaviour {
 
 	}
 
-    private RaycastHit2D CheckSide(float sign)
+    private RaycastHit2D CheckSide(float velocity)
     {
-        var bottom = Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(sign), 10,
-            1 << LayerMask.NameToLayer("Solid"));
-
-        var top = Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(sign), 10,
-            1 << LayerMask.NameToLayer("Solid"));
-
-        if (top && bottom)
+        var rays = new List<RaycastHit2D>
         {
-            return bottom.distance > top.distance ? top : bottom;
+            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 10,
+                1 << LayerMask.NameToLayer("Solid")),
+            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 10,
+                1 << LayerMask.NameToLayer("Solid")),
+        };
+
+        if (uncontrollableTimer > 0)
+        {
+            rays.Add(Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 11,
+                1 << LayerMask.NameToLayer("Solid")));
+            rays.Add(Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 11,
+                1 << LayerMask.NameToLayer("Solid")));
         }
 
-        return top ? top : bottom;
+        return rays.Where(ray => ray)
+            .OrderBy(ray => ray.distance)
+            .FirstOrDefault();
     }
 
     private RaycastHit2D CheckGround()
@@ -342,7 +426,7 @@ public class PlayerScript : MonoBehaviour {
         return left ? left : right;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    /*private void OnCollisionEnter2D(Collision2D collision)
     {
         var other = collision.collider;
 
@@ -362,7 +446,7 @@ public class PlayerScript : MonoBehaviour {
                 isGrounded = true;
             }
         }
-    }
+    }*/
 
 	void Flip ()
 	{

@@ -14,7 +14,7 @@ public class LevelManager : MonoBehaviour
     private float startTime;
 
     public GameObject playerPrefab;
-    private PlayerScript player;
+    private Transform player;
     private Vector3 playerStartPosition;
 
     private Vector3 pickupPosition;
@@ -96,7 +96,7 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        player = Instantiate(playerPrefab).GetComponent<PlayerScript>();
+        player = Instantiate(playerPrefab).transform;
         player.gameObject.SetActive(false);
         player.transform.position = new Vector3(20, -20, 0);
 
