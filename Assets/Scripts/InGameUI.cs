@@ -26,6 +26,7 @@ public class InGameUI : MonoBehaviour
         LevelManager.OnGameStart += OnGameStart;
         PlayerScript.OnDeath += OnPlayerDeath;
         PlayerRigidbody.OnDeath += OnPlayerDeath;
+        LevelManager.OnGameEnd += OnGameEnd;
     }
 
     private void OnPlayerDeath()
@@ -40,6 +41,7 @@ public class InGameUI : MonoBehaviour
         LevelManager.OnGameStart -= OnGameStart;
         PlayerScript.OnDeath -= OnPlayerDeath;
         PlayerRigidbody.OnDeath -= OnPlayerDeath;
+        LevelManager.OnGameEnd -= OnGameEnd;
     }
 
     private void Start()
@@ -77,5 +79,12 @@ public class InGameUI : MonoBehaviour
         _canvasGroup.alpha = 1;
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.interactable = true;
+    }
+
+    private void OnGameEnd(float time, int deaths)
+    {
+        _canvasGroup.alpha = 0;
+        _canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
     }
 }
