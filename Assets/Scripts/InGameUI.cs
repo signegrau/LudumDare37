@@ -23,10 +23,10 @@ public class InGameUI : MonoBehaviour
 
     private void OnEnable()
     {
-        LevelManager.OnGameStart += OnGameStart;
+        GameManager.OnGameStart += OnGameStart;
         PlayerScript.OnDeath += OnPlayerDeath;
         PlayerRigidbody.OnDeath += OnPlayerDeath;
-        LevelManager.OnGameEnd += OnGameEnd;
+        GameManager.OnGameEnd += OnGameEnd;
     }
 
     private void OnPlayerDeath()
@@ -38,10 +38,10 @@ public class InGameUI : MonoBehaviour
 
     private void OnDisable()
     {
-        LevelManager.OnGameStart -= OnGameStart;
+        GameManager.OnGameStart -= OnGameStart;
         PlayerScript.OnDeath -= OnPlayerDeath;
         PlayerRigidbody.OnDeath -= OnPlayerDeath;
-        LevelManager.OnGameEnd -= OnGameEnd;
+        GameManager.OnGameEnd -= OnGameEnd;
     }
 
     private void Start()

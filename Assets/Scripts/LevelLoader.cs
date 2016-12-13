@@ -18,17 +18,20 @@ public class LevelLoader
         { '+', Tile.State.Spike }
     };
 
-    public static List<Tile.State[]> LoadLevel(string levelText)
+    public static Level LoadLevel(string levelText)
     {
-        int tileIndex = 0;
-        Tile.State tileState;
+        var tileIndex = 0;
+        var pickupIndex = 0;
+        var playerStartIndex = -1;
 
-        var level = new List<Tile.State[]>();
+        var level = new Level();
         var state = new Tile.State[100];
 
-        foreach (char c in levelText) {
+        foreach (var c in levelText)
+        {
             if (c < ' ') continue;
 
+            Tile.State tileState;
             if (charToState.ContainsKey(char.ToLower(c)))
             {
                 tileState = charToState[char.ToLower(c)];
@@ -38,11 +41,21 @@ public class LevelLoader
                 tileState = Tile.State.Wall;
             }
 
+            if (tileState == Tile.State.PlayerStart)
+            {
+                playerStartIndex = tileIndex;
+            }
+
             state[tileIndex] = tileState;
 
             if (++tileIndex >= state.Length) {
+
+                level.AddState(new LevelState(state, pickupIndex, playerStartIndex));
+
                 tileIndex = 0;
-                level.Add(state);
+                pickupIndex = 0;
+                playerStartIndex = 0;
+
                 state = new Tile.State[100];
             }
         }
@@ -55,11 +68,11 @@ public class LevelLoader
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public static List<Tile.State[]> LoadLevelFromFile(string fileName)
+    public static Level LoadLevelFromFile(string fileName)
     {
-        string path = Application.persistentDataPath + "\\" + fileName;
+        var path = Application.persistentDataPath + "\\" + fileName;
 
-        string text = System.IO.File.ReadAllText(path);
+        var text = System.IO.File.ReadAllText(path);
 
         return LoadLevel(text);
     }

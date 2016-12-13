@@ -4,30 +4,18 @@ using System.Collections.Generic;
 using System.IO;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    public bool isEditor = false;
+    public bool isEditor;
 
-    public delegate void GameStartHandler(float time);
+    public delegate void StateChangedHandler(int stateIndex);
+    public static event StateChangedHandler OnStateChanged;
 
-    public static event GameStartHandler OnGameStart;
+    public delegate void NoStatesLeftHandler();
+    public static event NoStatesLeftHandler OnNoStatesLeft;
 
-    public delegate void GameEndHandler(float time, int deaths);
-
-    public static event GameEndHandler OnGameEnd;
-
-    private float startTime;
-
-    public GameObject playerPrefab;
-    private Transform player;
-    private Vector3 playerStartPosition;
-
-    private Vector3 pickupPosition;
-    private Vector3 previousPickupPosition;
-
-    List<Tile.State[]> allLevelStates;
+    Level level;
     private int currentStateIndex;
 
     public TextAsset statesFile;
@@ -39,125 +27,66 @@ public class LevelManager : MonoBehaviour
 
     private int countDeath;
 
-
-
-	void OnEnable() {
-		Pickup.OnPickup += AdvanceState;
-	    Menu.OnPlayPressed += AdvanceState;
-	    PlayerScript.OnDeath += OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed += RestartGame; 
-	}
-
-    void OnDisable()
+    private void Start ()
     {
-        Pickup.OnPickup -= AdvanceState;
-        Menu.OnPlayPressed -= AdvanceState;
-        PlayerScript.OnDeath -= OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed -= RestartGame;
-    }
-
-    private void RestartGame()
-    {
-        SceneManager.LoadScene(0);
-    }
-
-    private void OnPlayerDeath()
-    {
-        countDeath++;
-    }
-
-    // Use this for initialization
-    private IEnumerator Start () {
         tileGenerator = GetComponent<TileGenerator>();
+    }
+
+    public IEnumerator Setup()
+    {
         tiles = tileGenerator.GenerateTiles();
+        currentStateIndex = 0;
+
+        level = LevelLoader.LoadLevel(statesFile.text);
 
         yield return null;
 
-        currentStateIndex = 0;
-
-        allLevelStates = LevelLoader.LoadLevel(statesFile.text);
-
-        player = Instantiate(playerPrefab).transform;
-        player.gameObject.SetActive(false);
-        player.transform.position = new Vector3(20, -20, 0);
-
         AdvanceState();
-    }
-
-    public void Update() {
-        if (Input.GetKeyDown(KeyCode.U) && !isChanging)
-        {
-            StartCoroutine(PlayerGotoNextState());
-        }
-    }
-
-    private IEnumerator PlayerGotoNextState()
-    {
-        isChanging = true;
-
-        player.transform.position = new Vector3(pickupPosition.x, pickupPosition.y, 0);
-        yield return new WaitForSeconds(0.1f);
-
-        isChanging = false;
     }
     
     public void AdvanceState()
     {
         if (ChangeState(currentStateIndex, !isEditor))
         {
+            if (OnStateChanged != null)
+            {
+                OnStateChanged(currentStateIndex);
+            }
+
             ++currentStateIndex;
         }
-        else if (OnGameEnd != null)
+        else if (OnNoStatesLeft != null)
         {
-            OnGameEnd(Time.time - startTime, countDeath);
+            OnNoStatesLeft();
         }
     }
 
-    public void ChangeState(Tile.State[] state, bool movePlayer)
+    public void ChangeState(LevelState state)
     {
-        bool hasPlayerSpawn = false;
-
-        for(var i = 0; i < state.Length; ++i) {
-            var tileState = state[i];
+        for(var i = 0; i < state.tileStates.Length; ++i) {
+            var tileState = state.tileStates[i];
             var tile = tiles[i];
-
-            if (tileState == Tile.State.PlayerStart)
-            {
-                hasPlayerSpawn = true;
-                playerStartPosition = tile.transform.position + new Vector3(0, 0, 0);
-            }
-            else if (tileState == Tile.State.Pickup)
-            {
-                previousPickupPosition = pickupPosition;
-                pickupPosition = tile.transform.position;
-            }
-
 
             tile.GotoState(tileState);
         }
         SoundManager.single.PlayAdvanceSound();
-
-        if (movePlayer && hasPlayerSpawn)
-        {
-            startTime = Time.time;
-            if (OnGameStart != null)
-            {
-                OnGameStart(startTime);
-            }
-
-            player.transform.position = playerStartPosition;
-            player.gameObject.SetActive(true);
-        }
     }
 
     public bool ChangeState(int stateIndex, bool movePlayer)
     {
-        if (stateIndex < allLevelStates.Count)
+        if (stateIndex < level.StatesCount)
         {
-            ChangeState(allLevelStates[stateIndex], movePlayer);
+            ChangeState(level.GetState(stateIndex));
+            currentStateIndex = stateIndex;
             return true;
         }
 
         return false;
+    }
+
+    public Vector3 PlayerStartPosition()
+    {
+        var index = level.GetPlayerStartIndex(currentStateIndex);
+        return tiles[index].transform.position;
     }
 }

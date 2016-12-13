@@ -21,7 +21,7 @@ public class EndScreen : MonoBehaviour
 
     private void OnEnable()
     {
-        LevelManager.OnGameEnd += OnGameEnd;
+        GameManager.OnGameEnd += OnGameEnd;
     }
 
     private void OnGameEnd(float time, int deaths)
@@ -41,7 +41,7 @@ public class EndScreen : MonoBehaviour
 
     private void OnDisable()
     {
-        LevelManager.OnGameEnd -= OnGameEnd;
+        GameManager.OnGameEnd -= OnGameEnd;
     }
 
     private void Start()
