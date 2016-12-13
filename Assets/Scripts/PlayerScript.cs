@@ -142,7 +142,7 @@ public class PlayerScript : MonoBehaviour {
 
 	        raycast = CheckHead();
 
-	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime && velocity.y <= 0)
+	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
 	        {
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
