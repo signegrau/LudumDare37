@@ -4,6 +4,50 @@
 		"selected_items":
 		[
 			[
+				"splatSoundsS",
+				"splatSoundsSource"
+			],
+			[
+				"foot",
+				"footStepSoundsSource"
+			],
+			[
+				"land",
+				"landSoundSource"
+			],
+			[
+				"jum",
+				"jumpSoundSource"
+			],
+			[
+				"boostSoundS",
+				"boostSoundSource"
+			],
+			[
+				"springBo",
+				"springBoardSoundSource"
+			],
+			[
+				"adv",
+				"advanceButtonPushSoundSource"
+			],
+			[
+				"Re",
+				"Repool\t(ObjectPool.cs)"
+			],
+			[
+				"GameO",
+				"GameObjectPool\t(ObjectPool.cs)"
+			],
+			[
+				"Vec",
+				"Vector2.up\t(PlayerScript.cs)"
+			],
+			[
+				"Star",
+				"StartCoroutine\t(Spring.cs)"
+			],
+			[
 				"char",
 				"charToTileState"
 			],
@@ -196,10 +240,6 @@
 				"follow_player"
 			],
 			[
-				"Vec",
-				"Vector2"
-			],
-			[
 				"ad",
 				"adjust_t"
 			],
@@ -254,10 +294,6 @@
 			[
 				"turen",
 				"turn_time_max"
-			],
-			[
-				"jum",
-				"jump_timer_max"
 			],
 			[
 				"ju",
@@ -478,47 +514,121 @@
 			[
 				"font-",
 				"font-weight"
-			],
-			[
-				"Game",
-				"GameState"
-			],
-			[
-				"WINDO",
-				"WINDOW_HEIGHT"
-			],
-			[
-				"WIND",
-				"WINDOW_WIDTH"
-			],
-			[
-				"En",
-				"EntityType_SquareHero"
-			],
-			[
-				"GameS",
-				"GameSpeed"
-			],
-			[
-				"Dir",
-				"DirRight"
-			],
-			[
-				"SDL_",
-				"SDL_Window"
-			],
-			[
-				"WINDOW",
-				"VIRUAL_WINDOW_WIDTH"
-			],
-			[
-				"Frame",
-				"FrameSkips"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "Assets/Scripts/TimeControl.cs",
+			"settings":
+			{
+				"buffer_size": 989,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/TileGenerator.cs",
+			"settings":
+			{
+				"buffer_size": 953,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/Spike.cs",
+			"settings":
+			{
+				"buffer_size": 268,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/Pickup.cs",
+			"settings":
+			{
+				"buffer_size": 807,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/PlayerScript.cs",
+			"settings":
+			{
+				"buffer_size": 12186,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class GameObjectPool : MonoBehaviour {\n\n    public GameObject prefab;\n    public int addAmount = 256;\n    private Queue<GameObject> poolQueue;\n    private int firstActive;\n\n    void Start() {\n        Upscale();\n    }\n\n    public GameObject Depool() {\n        if (!poolQueue.Peek()) {\n            Upscale();\n        }\n        var result =  poolQueue.Dequeue();\n        result.SetActive(true);\n        return result;\n    }\n\n    public void Repool(GameObject go) {\n        go.SetActive(false);\n        poolQueue.Enqueue(go);\n    }\n\n    void Upscale() {\n        for (int i = 0; i < addAmount; ++i) {\n            var go = Instantiate(prefab);\n            go.SetActive(false);\n            poolQueue.Enqueue(go);\n        }\n    }\n\n}\n",
+			"file": "Assets/Scripts/ObjectPool.cs",
+			"file_size": 815,
+			"file_write_time": 131260085153897333,
+			"settings":
+			{
+				"buffer_size": 812,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/GameObjectPool.cs",
+			"settings":
+			{
+				"buffer_size": 898,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\nif sign(input.x) != sign(vel.x):\n    vel.x = input.x\nelse:\n    vel.x += input.x",
+			"settings":
+			{
+				"buffer_size": 80,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Assets/Scripts/SoundManager.cs",
+			"settings":
+			{
+				"buffer_size": 2298,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/Files/Development/Game_Jam/LudumDare37_merger/LudumDare37/Assets/Scripts/PlayerScript.cs",
+			"settings":
+			{
+				"buffer_size": 11799,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/BloodExplosion.cs",
+			"settings":
+			{
+				"buffer_size": 1187,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Scripts/Spring.cs",
+			"settings":
+			{
+				"buffer_size": 632,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -1105,17 +1215,18 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Files/Development/Game_Jam/LudumDare37/Assets"
+		"/C/Files/Development/Game_Jam/LudumDare37/Assets",
+		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts"
 	],
 	"file_history":
 	[
+		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts/LevelManager.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Resources/all_states.txt",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts/Tile.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts/TileGenerator.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts/PlayerScript.cs",
 		"/C/Users/jkg/Music/Loop1.prg",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/all_states.txt",
-		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts/LevelManager.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/PlayerMovement.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/PlayerScript.cs",
 		"/C/Files/Development/Game_Jam/LudumDare37/Assets/LevelManager.cs",
@@ -1240,7 +1351,7 @@
 	],
 	"find":
 	{
-		"height": 36.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -1256,6 +1367,19 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"Play",
+			"_source",
+			" ",
+			"SoundSorce",
+			"=",
+			"AudioClip",
+			"public",
+			"active",
+			"enabled",
+			"maxActive",
+			"deactives",
+			"lastDeactive",
+			"Respawn",
 			"anim",
 			"#",
 			"##########",
@@ -1370,20 +1494,7 @@
 			"last_ang",
 			"ang",
 			"dif",
-			"turn_origin",
-			"Vector3",
-			"explosionRadius",
-			"round_duration",
-			"transform",
-			"preview_time",
-			"forward",
-			"speed",
-			"turn_rate",
-			"round_time_normalized",
-			"turn_rate",
-			"true",
-			"fuel",
-			"sdfg"
+			"turn_origin"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1466,14 +1577,523 @@
 	"groups":
 	[
 		{
+			"selected": 9,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Assets/Scripts/TimeControl.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 989,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Assets/Scripts/TileGenerator.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 953,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								591,
+								591
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Assets/Scripts/Spike.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 268,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								265,
+								265
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "Assets/Scripts/Pickup.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 807,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								370,
+								370
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Assets/Scripts/PlayerScript.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12186,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7586,
+								7586
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 7287.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Assets/Scripts/ObjectPool.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 812,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								756,
+								756
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Assets/Scripts/GameObjectPool.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 898,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								898,
+								898
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 80,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								80,
+								80
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"color_helper.box_height": 48,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": null,
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"default_dir": "C:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "Assets/Scripts/SoundManager.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2298,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1414,
+								1414
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 22,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 609.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/C/Files/Development/Game_Jam/LudumDare37_merger/LudumDare37/Assets/Scripts/PlayerScript.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11799,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								11799
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 22,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3447.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "Assets/Scripts/BloodExplosion.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1187,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								942,
+								942
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481530452.76
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 27.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "Assets/Scripts/Spring.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 632,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								542,
+								593
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481499076.44
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 25.0
+		"height": 30.0
 	},
 	"input":
 	{
@@ -1510,7 +2130,7 @@
 	"project": "Unity.sublime-project",
 	"replace":
 	{
-		"height": 46.0
+		"height": 56.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1519,6 +2139,14 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"soundm",
+				"Scripts\\SoundManager.cs"
+			],
+			[
+				"pickup",
+				"Scripts\\Pickup.cs"
+			],
 			[
 				"level",
 				"Scripts\\LevelManager.cs"
@@ -1783,8 +2411,8 @@
 	"show_minimap": false,
 	"show_open_files": true,
 	"show_tabs": false,
-	"side_bar_visible": true,
-	"side_bar_width": 176.0,
+	"side_bar_visible": false,
+	"side_bar_width": 326.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

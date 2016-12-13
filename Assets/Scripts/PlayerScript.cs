@@ -71,25 +71,21 @@ public class PlayerScript : MonoBehaviour {
 
     private float uncontrollableTimer;
 
+	private int FootStepAnimationEvent() {
+		SoundManager.single.PlayFootstepSound();
+		return 0;
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
-<<<<<<< HEAD
-	    collider2D = GetComponent<BoxCollider2D>();
 		startPosition = transform.position;
-	}
+		collider2D = GetComponent<CapsuleCollider2D>();
 
-	private int FootStepAnimationEvent() {
-		SoundManager.single.PlayFootstepSound();
-		return 0;
-=======
-	    collider2D = GetComponent<CapsuleCollider2D>();
-
-	    startPosition = transform.position;
-	    currentGravity = gravity;
->>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
+		startPosition = transform.position;
+		currentGravity = gravity;
 	}
 
 	// Update is called once per frame
@@ -201,14 +197,6 @@ public class PlayerScript : MonoBehaviour {
 	        }
 	    }
 
-<<<<<<< HEAD
-	        if (Input.GetButtonDown("Jump"))
-	        {
-				SoundManager.single.PlayJumpSound();
-	            velocity.y += jumpForce;
-	            isJumping = true;
-	        }
-=======
 	    if (Input.GetButtonDown("Jump") && (isGrounded || (!hasJumped)))
 	    {
 	        currentGravity = jumpHoldGravity;
@@ -216,6 +204,8 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.y += jumpForce;
 	        isJumping = true;
             hasJumped = true;
+			SoundManager.single.PlayJumpSound();
+
 	    }
 
 	    if (isJumping && Input.GetButtonUp("Jump"))
@@ -227,7 +217,6 @@ public class PlayerScript : MonoBehaviour {
 	    if (!isJumping && velocity.y < 0)
 	    {
 	        currentGravity = fallingGravity;
->>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
 	    }
 
 	    ///
@@ -238,21 +227,6 @@ public class PlayerScript : MonoBehaviour {
 	    if (uncontrollableTimer <= 0)
 	    {
 	        move = Input.GetAxisRaw("Horizontal");
-
-<<<<<<< HEAD
-//		if (Mathf.Abs(velocity.x) < 0.001f || !isGrounded)
-//		{
-//			stepAudioSource.Stop();
-//		}
-//
-//		if (!stepAudioSource.isPlaying && isGrounded && Mathf.Abs(velocity.x) > 0.002f) {
-//			stepAudioSource.Play();
-//		}
-
-		if (Mathf.Abs(velocity.x) <= maxSpeed)
-	    {
-=======
->>>>>>> 9de23adb4de0444339db2d5a7845122289149dce
 	        velocity.x = move * maxSpeed;
 	    }
 	    else
