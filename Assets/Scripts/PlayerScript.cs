@@ -150,13 +150,12 @@ public class PlayerScript : MonoBehaviour {
 	    }
 	    else
 	    {
-	        isJumping = false;
-	        isBall = false;
-	        timeFromGround = 0;
-	        currentGravity = gravity;
-
-	        if (velocity.y < 0)
+	        if (velocity.y <= 0)
 	        {
+	            isJumping = false;
+                isBall = false;
+                timeFromGround = 0;
+                currentGravity = gravity;
 	            velocity.y = 0;
 	        }
 
