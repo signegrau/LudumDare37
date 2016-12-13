@@ -101,7 +101,6 @@ public class PlayerScript : MonoBehaviour {
 
         if (onSpring)
         {
-            velocity.y = springForce;
             onSpring = false;
             isJumping = false;
             isBall = false;
@@ -131,21 +130,12 @@ public class PlayerScript : MonoBehaviour {
 
         if (!isGrounded)
 	    {
+			Debug.Log(currentGravity);
 	        velocity.y -= currentGravity * Time.deltaTime;
 
 	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime) && velocity.y <= 0)
 	        {
 	            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;
-
-	            if (raycast.collider.CompareTag("Spring") && velocity.y <= 0)
-	            {
-	                currentGravity = gravity;
-	                var spring = raycast.collider.GetComponent<Spring>();
-	                spring.OnPlayerCollision();
-	                onSpring = true;
-                    velocity.y = 0;
-                    Debug.Log("ho");
-	            }
 	        }
 
 	        raycast = CheckHead();
@@ -170,19 +160,6 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (raycast)
 	        {
-
-                //if (raycast.collider.CompareTag("Spring"))
-                if (raycast.collider.CompareTag("Spring") && velocity.y <= 0)
-                {
-                    currentGravity = gravity;
-                    var spring = raycast.collider.GetComponent<Spring>();
-                    spring.OnPlayerCollision();
-                    onSpring = true;
-                    velocity.y = 0;
-                    Debug.Log("hi");
-                }
-
-
 	            if (raycast.distance < groundCheckOffset.y - 0.01f && !onSpring)
 	            {
                     velocity.y += (groundCheckOffset.y - raycast.distance);
@@ -318,6 +295,14 @@ public class PlayerScript : MonoBehaviour {
 
 	            uncontrollableTimer = 0.5f;
 	        }
+			else if (collider.CompareTag("Spring") && velocity.y <= 0)
+			{
+				currentGravity = gravity;
+				var spring = collider.GetComponent<Spring>();
+				spring.OnPlayerCollision();
+				onSpring = true;
+				velocity.y = springForce;
+			}
 	    }
 
 	    previousColliders = colliders.ToList();
