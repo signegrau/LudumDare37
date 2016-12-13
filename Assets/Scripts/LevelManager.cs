@@ -4,12 +4,17 @@ using System.Collections.Generic;
 using System.IO;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     public delegate void GameStartHandler(float time);
 
     public static event GameStartHandler OnGameStart;
+
+    public delegate void GameEndHandler(float time, int deaths);
+
+    public static event GameEndHandler OnGameEnd;
 
     private float startTime;
 
@@ -48,7 +53,22 @@ public class LevelManager : MonoBehaviour
 		Pickup.OnPickup += AdvanceState;
 	    Menu.OnPlayPressed += AdvanceState;
 	    PlayerScript.OnDeath += OnPlayerDeath;
+        EndScreen.OnPlayAgainPressed += RestartGame; 
 	}
+
+    void OnDisable()
+    {
+        Pickup.OnPickup -= AdvanceState;
+        Menu.OnPlayPressed -= AdvanceState;
+        PlayerScript.OnDeath -= OnPlayerDeath;
+        EndScreen.OnPlayAgainPressed -= RestartGame;
+    }
+
+    private void RestartGame()
+    {
+        Application.LoadLevel(Application.loadedLevel);
+        SceneManager.LoadScene(0);
+    }
 
     private void OnPlayerDeath()
     {
@@ -147,7 +167,10 @@ public class LevelManager : MonoBehaviour
             }
         }
         else {
-            // WE win!
+            if (OnGameEnd != null)
+            {
+                OnGameEnd(Time.time - startTime, countDeath);
+            }
         }
 
         if (hasPlayerSpawn)
