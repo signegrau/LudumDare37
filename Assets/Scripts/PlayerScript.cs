@@ -70,6 +70,8 @@ public class PlayerScript : MonoBehaviour {
 
     private float uncontrollableTimer;
 
+	private bool isDead = false;
+
 	private int FootStepAnimationEvent() {
 		SoundManager.single.PlayFootstepSound();
 		return 0;
@@ -90,6 +92,11 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+		if (isDead) {
+			velocity = Vector2.zero;
+			return;
+		}
+
 	    wasGrouneded = isGrounded;
 
 	    isBall = isBall || isJumping;
@@ -378,28 +385,6 @@ public class PlayerScript : MonoBehaviour {
         return left ? left : right;
     }
 
-    /*private void OnCollisionEnter2D(Collision2D collision)
-    {
-        var other = collision.collider;
-
-        if (other.CompareTag("Spring"))
-        {
-            if (collision.contacts[0].point.y < transform.position.y)
-            {
-                isJumping = true;
-                leftGround = false;
-                rigidbody2D.AddForce(new Vector2(0, springForce));
-            }
-        }
-        else if (other.CompareTag("Tile"))
-        {
-            if (collision.contacts[0].point.y < transform.position.y)
-            {
-                isGrounded = true;
-            }
-        }
-    }*/
-
 	void Flip ()
 	{
 		Vector3 tmp = transform.localScale;
@@ -420,9 +405,18 @@ public class PlayerScript : MonoBehaviour {
             OnDeath();
 
         Instantiate(bloodExplosion, transform.position, Quaternion.identity);
-        transform.position = startPosition;
+        transform.position = new Vector3(-20, 20, 0);
         velocity = Vector2.zero;
+		isDead = true;
+
+		StartCoroutine(RespawnReturn());
     }
+
+	private IEnumerator RespawnReturn() {
+		yield return new WaitForSeconds(0.5f);
+		transform.position = new Vector3(startPosition.x, startPosition.y, 0);
+		isDead = false;
+	}
 
     private void OnTriggerEnter2D(Collider2D other)
     {
