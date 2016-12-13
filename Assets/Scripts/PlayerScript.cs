@@ -70,17 +70,23 @@ public class PlayerScript : MonoBehaviour {
 
     private float uncontrollableTimer;
 
+	private int FootStepAnimationEvent() {
+		SoundManager.single.PlayFootstepSound();
+		return 0;
+	}
+
 	// Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
-	    collider2D = GetComponent<CapsuleCollider2D>();
+		startPosition = transform.position;
+		collider2D = GetComponent<CapsuleCollider2D>();
 
-	    startPosition = transform.position;
-	    currentGravity = gravity;
+		startPosition = transform.position;
+		currentGravity = gravity;
 	}
-	
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -107,19 +113,21 @@ public class PlayerScript : MonoBehaviour {
             isBall = true;
             boostUp = false;
             boostSide = false;
+			SoundManager.single.PlayBoostSound();
+
         }
 
         if (boostSide)
         {
             isJumping = false;
             isBall = true;
+			SoundManager.single.PlayBoostSound();
         }
-
+			
         RaycastHit2D raycast = CheckGround();
 
         isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;
         isGrounded = isGrounded && velocity.y <= 0;
-
 
         if (!isGrounded)
 	    {
@@ -189,6 +197,8 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.y = jumpForce;
 	        isJumping = true;
             hasJumped = true;
+			SoundManager.single.PlayJumpSound();
+
 	    }
 
 	    if (Input.GetButtonUp("Jump") && isJumping)
@@ -210,7 +220,6 @@ public class PlayerScript : MonoBehaviour {
 	    if (uncontrollableTimer <= 0)
 	    {
 	        move = Input.GetAxisRaw("Horizontal");
-
 	        velocity.x = move * maxSpeed;
 	    }
 	    else
@@ -322,6 +331,9 @@ public class PlayerScript : MonoBehaviour {
 			leftGround = true;
 			animator.SetTrigger("LeftGround");
 		}
+		else if(!wasGrouneded && isGrounded) {
+			SoundManager.single.PlayLandSound();
+		}
 
 
 	}
@@ -414,6 +426,8 @@ public class PlayerScript : MonoBehaviour {
 
     private void Respawn()
     {
+		SoundManager.single.PlaySplatSound();
+
         isJumping = false;
         isBall = false;
 
@@ -448,7 +462,8 @@ public class PlayerScript : MonoBehaviour {
             boostSide = true;
 
             velocity.x = boostSideForce;
-            //velocity.x += other.transform.position.x - transform.position.x;
+            
+			//velocity.x += other.transform.position.x - transform.position.x;
         }
     }
 }

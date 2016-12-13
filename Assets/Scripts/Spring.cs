@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class Spring : MonoBehaviour
 {
-	public AudioSource audioSource;
-	public AudioClip springSound;
-	public Sprite loaded;
-    public Sprite unloaded;
-    public float loadTime = 0.5f;
+	public Sprite[] anim;
+    public float interval = 0.06f;
 
     private SpriteRenderer spriteRenderer;
 
@@ -19,14 +16,15 @@ public class Spring : MonoBehaviour
 
     public void OnPlayerCollision()
     {
+		SoundManager.single.PlaySpringBoardSound();
         StartCoroutine(Animation());
     }
 
     private IEnumerator Animation()
     {
-		audioSource.PlayOneShot(springSound);
-        spriteRenderer.sprite = unloaded;
-        yield return new WaitForSeconds(loadTime);
-        spriteRenderer.sprite = loaded;
+		foreach (var s in anim) {
+			spriteRenderer.sprite = s;
+			yield return new WaitForSeconds(interval);
+		}
     }
 }
