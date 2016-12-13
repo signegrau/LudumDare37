@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
@@ -100,59 +99,58 @@ public class PlayerScript : MonoBehaviour {
 	        Respawn();
 	    }
 
-	    RaycastHit2D raycast = CheckGround();
+        if (onSpring)
+        {
+            velocity.y = springForce;
+            onSpring = false;
+            isJumping = false;
+            isBall = false;
+        }
 
-	    isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;
+        if (boostUp)
+        {
+            isJumping = false;
+            isBall = true;
+            boostUp = false;
+            boostSide = false;
+			SoundManager.single.PlayBoostSound();
+
+        }
+
+        if (boostSide)
+        {
+            isJumping = false;
+            isBall = true;
+			SoundManager.single.PlayBoostSound();
+        }
+			
+        RaycastHit2D raycast = CheckGround();
+
+        isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;
         isGrounded = isGrounded && velocity.y <= 0;
 
-        Debug.Log(raycast.distance);
-
-	    if (onSpring)
-	    {
-	        velocity.y = springForce;
-	        onSpring = false;
-	        isJumping = false;
-	        isBall = false;
-	    }
-
-	    if (boostUp)
-	    {
-			
-	        isJumping = false;
-	        isBall = true;
-	        boostUp = false;
-	        boostSide = false;
-			SoundManager.single.PlayBoostSound();
-	    }
-
-	    if (boostSide)
-	    {
-	        isJumping = false;
-	        isBall = true;
-			SoundManager.single.PlayBoostSound();
-	    }
-
-
-	    if (!isGrounded)
+        if (!isGrounded)
 	    {
 	        velocity.y -= currentGravity * Time.deltaTime;
 
-	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))
+	        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime) && velocity.y <= 0)
 	        {
 	            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;
 
-	            if (raycast.collider.CompareTag("Spring"))
+	            if (raycast.collider.CompareTag("Spring") && velocity.y <= 0)
 	            {
 	                currentGravity = gravity;
 	                var spring = raycast.collider.GetComponent<Spring>();
 	                spring.OnPlayerCollision();
 	                onSpring = true;
+                    velocity.y = 0;
+                    Debug.Log("ho");
 	            }
 	        }
 
 	        raycast = CheckHead();
 
-	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)
+	        if (raycast && raycast.distance <= velocity.y * Time.deltaTime && velocity.y <= 0)
 	        {
 	            velocity.y = raycast.distance / Time.deltaTime;
 	        }
@@ -174,23 +172,18 @@ public class PlayerScript : MonoBehaviour {
 	        {
 
                 //if (raycast.collider.CompareTag("Spring"))
-                switch(raycast.collider.tag)
+                if (raycast.collider.CompareTag("Spring") && velocity.y <= 0)
                 {
-                    case "Spring":
-    	            {
-	                    currentGravity = gravity;
-	                    var spring = raycast.collider.GetComponent<Spring>();
-    	                spring.OnPlayerCollision();
-    	                onSpring = true;
-    	            } break;
-                    case "Spike":
-                    {
-                        // ...
-                    } break;
+                    currentGravity = gravity;
+                    var spring = raycast.collider.GetComponent<Spring>();
+                    spring.OnPlayerCollision();
+                    onSpring = true;
+                    velocity.y = 0;
+                    Debug.Log("hi");
                 }
 
 
-	            if (raycast.distance < groundCheckOffset.y - 0.01f)
+	            if (raycast.distance < groundCheckOffset.y - 0.01f && !onSpring)
 	            {
                     velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
@@ -201,14 +194,14 @@ public class PlayerScript : MonoBehaviour {
 	    {
 	        currentGravity = jumpHoldGravity;
 
-	        velocity.y += jumpForce;
+	        velocity.y = jumpForce;
 	        isJumping = true;
             hasJumped = true;
 			SoundManager.single.PlayJumpSound();
 
 	    }
 
-	    if (isJumping && Input.GetButtonUp("Jump"))
+	    if (Input.GetButtonUp("Jump") && isJumping)
 	    {
 	        currentGravity = gravity;
 	        isJumping = false;
@@ -266,10 +259,10 @@ public class PlayerScript : MonoBehaviour {
 
 	    transform.position += (Vector3)velocity * Time.deltaTime;
 
-	    ///
-	    /// Collisions
-	    ///
-	    var colliders =
+        ///
+        /// Collisions
+        ///
+        var colliders =
 	        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);
 	    foreach (var collider in colliders)
 	    {
