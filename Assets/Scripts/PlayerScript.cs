@@ -39,6 +39,7 @@ public class PlayerScript : MonoBehaviour {
     private bool boostLeft;
     private bool boostRight;
 	bool isJumping = false;
+    bool hasJumped = false;
 	bool leftGround = false;
 	bool facingRight = true;
     private bool isBall;
@@ -95,7 +96,10 @@ public class PlayerScript : MonoBehaviour {
 
 	    RaycastHit2D raycast = CheckGround();
 
-	    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);
+	    isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;
+        isGrounded = isGrounded && velocity.y <= 0;
+
+        Debug.Log(raycast.distance);
 
 	    if (onSpring)
 	    {
@@ -150,16 +154,12 @@ public class PlayerScript : MonoBehaviour {
 	    }
 	    else
 	    {
-	        if (velocity.y <= 0)
-	        {
-	            isJumping = false;
-                isBall = false;
-                timeFromGround = 0;
-                currentGravity = gravity;
-	            velocity.y = 0;
-	        }
-
-	        raycast = CheckGround();
+            hasJumped = false;
+	        isJumping = false;
+            isBall = false;
+            timeFromGround = 0;
+            currentGravity = gravity;
+	        velocity.y = 0;
 
 	        if (raycast)
 	        {
@@ -181,19 +181,20 @@ public class PlayerScript : MonoBehaviour {
                 }
 
 
-	            if (raycast.distance <= groundCheckOffset.y + Mathf.Epsilon)
+	            if (raycast.distance < groundCheckOffset.y - 0.01f)
 	            {
-	                velocity.y += (groundCheckOffset.y - raycast.distance);
+                    velocity.y += (groundCheckOffset.y - raycast.distance);
 	            }
 	        }
 	    }
 
-	    if (Input.GetButtonDown("Jump") && (isGrounded || (timeFromGround < 0.15f && !isJumping)))
+	    if (Input.GetButtonDown("Jump") && (isGrounded || (!hasJumped)))
 	    {
 	        currentGravity = jumpHoldGravity;
 
 	        velocity.y += jumpForce;
 	        isJumping = true;
+            hasJumped = true;
 	    }
 
 	    if (isJumping && Input.GetButtonUp("Jump"))
@@ -278,8 +279,6 @@ public class PlayerScript : MonoBehaviour {
 
 	        if (collider.CompareTag("BoostUp"))
 	        {
-	            Debug.Log("What");
-
 	            isBall = true;
 	            isJumping = false;
 	            boostUp = true;
