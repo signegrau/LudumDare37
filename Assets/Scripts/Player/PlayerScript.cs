@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Animator))]
 
@@ -416,32 +414,4 @@ public class PlayerScript : MonoBehaviour {
 		transform.position = new Vector3(startPosition.x, startPosition.y, 0);
 		isDead = false;
 	}
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        Debug.Log(other.tag);
-
-        if (other.CompareTag("BoostUp"))
-        {
-            boostUp = true;
-
-            velocity.y = boostUpForce;
-            velocity.y += other.transform.position.y - transform.position.y;
-        }
-        else if (other.CompareTag("BoostLeft"))
-        {
-            boostSide = true;
-
-            velocity.x = -boostSideForce;
-            //velocity.x -= other.transform.position.x - transform.position.x;
-        }
-        else if (other.CompareTag("BoostRight"))
-        {
-            boostSide = true;
-
-            velocity.x = boostSideForce;
-            
-			//velocity.x += other.transform.position.x - transform.position.x;
-        }
-    }
 }
