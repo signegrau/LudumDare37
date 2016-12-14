@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-
+using UnityEditor;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -17,6 +17,13 @@ public class LevelManager : MonoBehaviour
 
     Level level;
     private int currentStateIndex;
+
+    public int CurrentStateIndex
+    {
+        get { return currentStateIndex; }
+    }
+
+    
 
     TileGenerator tileGenerator;
     private Tile[] tiles;
@@ -36,7 +43,7 @@ public class LevelManager : MonoBehaviour
         tileGenerator = GetComponent<TileGenerator>();
     }
 
-    public IEnumerator Setup(Level level = null, bool gotoFirstState = false)
+    public IEnumerator Setup(Level level = null, int firstState = -1)
     {
         yield return null;
 
@@ -52,9 +59,10 @@ public class LevelManager : MonoBehaviour
 
         yield return null;
 
-        if (gotoFirstState)
+        if (firstState > -1)
         {
-            AdvanceState();
+            currentStateIndex = firstState;
+            ChangeState(firstState);
         }
     }
     
@@ -62,11 +70,6 @@ public class LevelManager : MonoBehaviour
     {
         if (ChangeState(currentStateIndex, !isEditor))
         {
-            if (OnStateChanged != null)
-            {
-                OnStateChanged(currentStateIndex);
-            }
-
             ++currentStateIndex;
         }
         else if (OnNoStatesLeft != null)
@@ -86,18 +89,23 @@ public class LevelManager : MonoBehaviour
             tile.GotoState(tileState, asEditor);
         }
         SoundManager.single.PlayAdvanceSound();
+
+        if (OnStateChanged != null)
+        {
+            OnStateChanged(currentStateIndex);
+        }
     }
 
-    public void ChangeState(LevelState state)
+    public void ChangeState(LevelState state, bool asEditor = false)
     {
-        ChangeState(state.tileStates);
+        ChangeState(state.tileStates, asEditor);
     }
 
-    public bool ChangeState(int stateIndex, bool movePlayer)
+    public bool ChangeState(int stateIndex, bool asEditor = false)
     {
         if (stateIndex < level.StatesCount)
         {
-            ChangeState(level.GetState(stateIndex));
+            ChangeState(level.GetState(stateIndex), asEditor);
             currentStateIndex = stateIndex;
             return true;
         }

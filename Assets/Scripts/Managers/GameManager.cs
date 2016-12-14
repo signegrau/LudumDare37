@@ -38,6 +38,10 @@ public class GameManager : MonoBehaviour
         if (scene.name == levelScene.name)
         {
             levelManager = FindObjectOfType<LevelManager>();
+            if (gameStarting)
+            {
+                StartGameContinued(gameStartLevel, gameStartIndex);
+            }
         }
     }
 
@@ -76,7 +80,16 @@ public class GameManager : MonoBehaviour
         {
             player.transform.position = (Vector2)levelManager.PlayerStartPosition();
             player.gameObject.SetActive(true);
+
+            startTime = Time.time;
+            countDeath = 0;
+
             gameStarting = false;
+
+            if (OnGameStart != null)
+            {
+                OnGameStart(startTime);
+            }
         }
     }
 
@@ -95,15 +108,25 @@ public class GameManager : MonoBehaviour
         StartGame(null);
     }
 
-    public void StartGame(Level level = null)
+    private Level gameStartLevel;
+    private int gameStartIndex;
+    public void StartGame(Level level = null, int index = 0)
     {
+        gameStarting = true;
         if (levelManager == null)
         {
+            gameStartIndex = index;
+            gameStartLevel = level;
             LoadLevel();
         }
+        else
+        {
+            StartGameContinued(level, index);
+        }
+    }
 
-        gameStarting = true;
-
+    private void StartGameContinued(Level level = null, int index = 0)
+    {
         if (player == null)
         {
             player = Instantiate(playerPrefab).transform;
@@ -116,15 +139,15 @@ public class GameManager : MonoBehaviour
             level = LevelLoader.ParseLevel(statesFile.text);
         }
 
-        StartCoroutine(levelManager.Setup(level, true));
-
+        StartCoroutine(levelManager.Setup(level, index));
     }
 
-    public void StopGame()
+    public int StopGame()
     {
         Destroy(player.gameObject);
         startTime = 0;
         countDeath = 0;
+        return levelManager.CurrentStateIndex;
     }
 
     private void RestartGame()

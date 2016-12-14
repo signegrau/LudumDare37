@@ -143,7 +143,12 @@ public class Editor : MonoBehaviour
         }
     }
 
-    public void PlayLevel()
+    public void StartPlayingLevel()
+    {
+        StartPlaying(0);
+    }
+
+    public void StartPlaying(int index)
     {
         if (isPlaying) return;
 
@@ -152,7 +157,7 @@ public class Editor : MonoBehaviour
         level.StatesFindSpecialIndexes();
 
         gameManager.levelManager = _levelManager;
-        gameManager.StartGame(level);
+        gameManager.StartGame(level, index);
 
         if (playingStart != null)
         {
@@ -160,10 +165,17 @@ public class Editor : MonoBehaviour
         }
     }
 
-    public void StopPlayingLevel()
+    public void StopPlaying()
     {
         isPlaying = false;
-        gameManager.StopGame();
+        currentStateIndex = gameManager.StopGame() - 1;
+
+        if (currentStateIndex > 0)
+        {
+            var playerStartIndex = level.GetState(currentStateIndex-1).PickupPosition;
+            currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
+        }
+
         _levelManager.ChangeState(currentTileStates, true);
 
         if (playingStop != null)
@@ -176,25 +188,38 @@ public class Editor : MonoBehaviour
     {
         if (isPlaying)
         {
-            StopPlayingLevel();
+            StopPlaying();
         }
         else
         {
-            PlayLevel();
+            StartPlaying(currentStateIndex);
+        }
+    }
+
+    public void TogglePlayingLevel()
+    {
+        if (isPlaying)
+        {
+            StopPlaying();
+        }
+        else
+        {
+            StartPlayingLevel();
         }
     }
 
     private void Update()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.P))
         {
             if (isPlaying)
             {
-                StopPlayingLevel();
+                StopPlaying();
             }
             else
             {
-                PlayLevel();
+                StartPlayingLevel();
             }
         }
 
@@ -204,7 +229,7 @@ public class Editor : MonoBehaviour
             {
                 ChangeState(statesToShow[i]);
             }
-        }
+        }*/
     }
 
     public void GotoNextState()
