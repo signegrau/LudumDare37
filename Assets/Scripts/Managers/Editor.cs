@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class Editor : MonoBehaviour
 {
+    public GameManager gameManager;
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
 
@@ -15,6 +17,8 @@ public class Editor : MonoBehaviour
     public List<Tile.State> statesToShow = new List<Tile.State>();
     public RectTransform tileStateButtonPanel;
     public GameObject tileStateButtonPrefab;
+
+    private bool isPlaying;
 
     private void Start()
     {
@@ -83,6 +87,14 @@ public class Editor : MonoBehaviour
 
     public void PlayLevel()
     {
+        if (isPlaying) return;
 
+        isPlaying = true;
+        var level = new Level();
+        var state = new LevelState(tileStates);
+
+        level.AddState(state);
+        gameManager.levelManager = _levelManager;
+        gameManager.StartGame(level);
     }
 }

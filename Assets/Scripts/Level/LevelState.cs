@@ -23,6 +23,22 @@ public class LevelState
         get { return pickupIndex; }
     }
 
+    public LevelState(Tile.State[] tileStates)
+    {
+        this.tileStates = tileStates;
+        for(var i = 0; i < tileStates.Length; i++)
+        {
+            if (tileStates[i] == Tile.State.Pickup)
+            {
+                pickupIndex = i;
+            }
+            else if (tileStates[i] == Tile.State.PlayerStart)
+            {
+                playerStartIndex = i;
+            }
+        }
+    }
+
     public LevelState(Tile.State[] tileStates, int pickupIndex, int playerStartIndex = -1)
     {
         this.tileStates = tileStates;
