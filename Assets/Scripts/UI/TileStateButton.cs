@@ -36,6 +36,19 @@ public class TileStateButton : MonoBehaviour
     private void OnEnable()
     {
         tileStateButtonPressed += OnTileStateButtonPressed;
+        Editor.selectedStateChanged += EditorOnSelectedStateChanged;
+    }
+
+    private void EditorOnSelectedStateChanged(Tile.State state)
+    {
+        if (state == this.state)
+        {
+            background.enabled = true;
+        }
+        else
+        {
+            background.enabled = false;
+        }
     }
 
     private void OnDisable()

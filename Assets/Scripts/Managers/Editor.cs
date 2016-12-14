@@ -8,6 +8,9 @@ using Random = UnityEngine.Random;
 
 public class Editor : MonoBehaviour
 {
+    public delegate void SelectedStateChangedHandler(Tile.State state);
+    public static event SelectedStateChangedHandler selectedStateChanged;
+
     public GameManager gameManager;
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
@@ -29,25 +32,27 @@ public class Editor : MonoBehaviour
             var go = Instantiate(tileStateButtonPrefab, tileStateButtonPanel);
             go.GetComponent<TileStateButton>().SetState(state);
         }
+
+        for(int i = 0; i < tileStates.Length; i++)
+        {
+            tileStates[i] = Tile.State.Wall;
+        }
+
+        ChangeState(Tile.State.Platform);
     }
 
     private void OnEnable()
     {
         Tile.tilePressed += OnTilePressed;
         SceneManager.sceneLoaded += OnSceneLoaded;
-        TileStateButton.tileStateButtonPressed += OnTileStateButtonPressed;
-    }
-
-    private void OnTileStateButtonPressed(Tile.State state)
-    {
-        selectedState = state;
+        TileStateButton.tileStateButtonPressed += ChangeState;
     }
 
     private void OnDisable()
     {
         Tile.tilePressed -= OnTilePressed;
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        TileStateButton.tileStateButtonPressed -= OnTileStateButtonPressed;
+        TileStateButton.tileStateButtonPressed -= ChangeState;
     }
 
     private void OnTilePressed(int index, int mouseButton)
@@ -65,6 +70,16 @@ public class Editor : MonoBehaviour
             tile.GotoState(Tile.State.Wall, true);
         }
 
+    }
+
+    private void ChangeState(Tile.State state)
+    {
+        this.selectedState = state;
+
+        if (selectedStateChanged != null)
+        {
+            selectedStateChanged(state);
+        }
     }
 
     private void LoadLevel()
@@ -96,5 +111,35 @@ public class Editor : MonoBehaviour
         level.AddState(state);
         gameManager.levelManager = _levelManager;
         gameManager.StartGame(level);
+    }
+
+    public void StopPlayingLevel()
+    {
+        isPlaying = false;
+        gameManager.StopGame();
+        _levelManager.ChangeState(tileStates, true);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (isPlaying)
+            {
+                StopPlayingLevel();
+            }
+            else
+            {
+                PlayLevel();
+            }
+        }
+
+        for (var i = 0; i < Mathf.Min(statesToShow.Count, 10); i++)
+        {
+            if (Input.GetKeyDown((i + 1 % 10).ToString()))
+            {
+                ChangeState(statesToShow[i]);
+            }
+        }
     }
 }

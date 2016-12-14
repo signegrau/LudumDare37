@@ -76,15 +76,21 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void ChangeState(LevelState state)
+    public void ChangeState(Tile.State[] tileStates, bool asEditor = false)
     {
-        for(var i = 0; i < state.tileStates.Length; ++i) {
-            var tileState = state.tileStates[i];
+        for (var i = 0; i < tileStates.Length; ++i)
+        {
+            var tileState = tileStates[i];
             var tile = tiles[i];
 
-            tile.GotoState(tileState);
+            tile.GotoState(tileState, asEditor);
         }
         SoundManager.single.PlayAdvanceSound();
+    }
+
+    public void ChangeState(LevelState state)
+    {
+        ChangeState(state.tileStates);
     }
 
     public bool ChangeState(int stateIndex, bool movePlayer)

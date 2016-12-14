@@ -103,9 +103,13 @@ public class GameManager : MonoBehaviour
         }
 
         gameStarting = true;
-        player = Instantiate(playerPrefab).transform;
-        player.gameObject.SetActive(false);
-        player.transform.position = new Vector3(20, -20, 0);
+
+        if (player == null)
+        {
+            player = Instantiate(playerPrefab).transform;
+            player.gameObject.SetActive(false);
+            player.transform.position = new Vector3(20, -20, 0);
+        }
 
         if (level == null)
         {
@@ -114,6 +118,13 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(levelManager.Setup(level, true));
 
+    }
+
+    public void StopGame()
+    {
+        Destroy(player.gameObject);
+        startTime = 0;
+        countDeath = 0;
     }
 
     private void RestartGame()
