@@ -11,6 +11,12 @@ public class Editor : MonoBehaviour
     public delegate void SelectedStateChangedHandler(Tile.State state);
     public static event SelectedStateChangedHandler selectedStateChanged;
 
+    public delegate void PlayingStartHandler();
+    public static event PlayingStartHandler playingStart;
+
+    public delegate void PlayingStopHandler();
+    public static event PlayingStopHandler playingStop;
+
     public GameManager gameManager;
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
@@ -111,6 +117,11 @@ public class Editor : MonoBehaviour
         level.AddState(state);
         gameManager.levelManager = _levelManager;
         gameManager.StartGame(level);
+
+        if (playingStart != null)
+        {
+            playingStart();
+        }
     }
 
     public void StopPlayingLevel()
@@ -118,6 +129,23 @@ public class Editor : MonoBehaviour
         isPlaying = false;
         gameManager.StopGame();
         _levelManager.ChangeState(tileStates, true);
+
+        if (playingStop != null)
+        {
+            playingStop();
+        }
+    }
+
+    public void TogglePlaying()
+    {
+        if (isPlaying)
+        {
+            StopPlayingLevel();
+        }
+        else
+        {
+            PlayLevel();
+        }
     }
 
     private void Update()
