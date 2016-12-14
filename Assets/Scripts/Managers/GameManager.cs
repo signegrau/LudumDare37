@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public TextAsset statesFile;
     public UnityEngine.Object levelScene;
     public LevelManager levelManager;
 
@@ -102,7 +103,7 @@ public class GameManager : MonoBehaviour
         player.gameObject.SetActive(false);
         player.transform.position = new Vector3(20, -20, 0);
 
-        StartCoroutine(levelManager.Setup());
+        StartCoroutine(levelManager.Setup(statesFile.text, true));
     }
 
     private void RestartGame()

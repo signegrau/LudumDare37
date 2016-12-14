@@ -18,30 +18,40 @@ public class LevelManager : MonoBehaviour
     Level level;
     private int currentStateIndex;
 
-    public TextAsset statesFile;
-
     TileGenerator tileGenerator;
-    Tile[] tiles;
+    private Tile[] tiles;
 
     private bool isChanging;
 
     private int countDeath;
+
+    public Tile[] Tiles
+    {
+        get { return tiles; }
+    }
 
     private void Start ()
     {
         tileGenerator = GetComponent<TileGenerator>();
     }
 
-    public IEnumerator Setup()
+    public IEnumerator Setup(string levelText = null, bool gotoFirstState = false)
     {
+        yield return null;
         tiles = tileGenerator.GenerateTiles();
         currentStateIndex = 0;
 
-        level = LevelLoader.LoadLevel(statesFile.text);
+        if (levelText != null)
+        {
+            level = LevelLoader.LoadLevel(levelText);
+        }
 
         yield return null;
 
-        AdvanceState();
+        if (gotoFirstState)
+        {
+            AdvanceState();
+        }
     }
     
     public void AdvanceState()

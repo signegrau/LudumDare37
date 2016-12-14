@@ -26,6 +26,7 @@ public class TileGenerator : MonoBehaviour
 	            tile.transform.GetChild(0).name = "Collider (" + i + "," + j + ")";
 	            tile.transform.localPosition = firstCubePosition + new Vector3(j, -i, 0);
 	            tiles[i * numColumns + j] = tile.GetComponent<Tile>();
+	            tiles[i * numColumns + j].index = i * numColumns + j;
 	        }
 	    }
 

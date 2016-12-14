@@ -9,6 +9,10 @@ using Random = UnityEngine.Random;
 
 public class Tile : MonoBehaviour
 {
+    public delegate void PressedHandler(int index, int mouseButton);
+
+    public static event PressedHandler tilePressed;
+
     public enum State
     {
         Wall,
@@ -72,9 +76,6 @@ public class Tile : MonoBehaviour
 
     public AnimationCurve curve;
 
-    public delegate void MouseClickEventHandler(object sender);
-    public event MouseClickEventHandler OnMouseClick;
-
     public bool isPlayerStart = false;
 
     private readonly Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
@@ -99,6 +100,8 @@ public class Tile : MonoBehaviour
     private Renderer renderer;
 
     public BoxCollider2D collider;
+
+    public int index;
 
     // Use this for initialization
 	public void Start ()
@@ -217,10 +220,19 @@ public class Tile : MonoBehaviour
         this.transisionState = transisionState;
     }
 
-    private void OnMouseDown()
+    private void OnMouseOver()
     {
-        if (OnMouseClick == null) return;
-        OnMouseClick(this);
+        if (tilePressed == null) return;
+        if (Input.GetMouseButton(0))
+        {
+            tilePressed(index, 0);
+        }
+        else if (Input.GetMouseButton(1))
+        {
+            tilePressed(index, 1);
+        }
+
+
     }
 
     public void GotoState(State newState)
