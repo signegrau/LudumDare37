@@ -12,21 +12,38 @@ public class Editor : MonoBehaviour
 
     private Tile.State[] tileStates = new Tile.State[100];
 
+    public List<Tile.State> statesToShow = new List<Tile.State>();
+    public RectTransform tileStateButtonPanel;
+    public GameObject tileStateButtonPrefab;
+
     private void Start()
     {
         LoadLevel();
+
+        foreach (var state in statesToShow)
+        {
+            var go = Instantiate(tileStateButtonPrefab, tileStateButtonPanel);
+            go.GetComponent<TileStateButton>().SetState(state);
+        }
     }
 
     private void OnEnable()
     {
         Tile.tilePressed += OnTilePressed;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        TileStateButton.tileStateButtonPressed += OnTileStateButtonPressed;
+    }
+
+    private void OnTileStateButtonPressed(Tile.State state)
+    {
+        selectedState = state;
     }
 
     private void OnDisable()
     {
         Tile.tilePressed -= OnTilePressed;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        TileStateButton.tileStateButtonPressed -= OnTileStateButtonPressed;
     }
 
     private void OnTilePressed(int index, int mouseButton)
