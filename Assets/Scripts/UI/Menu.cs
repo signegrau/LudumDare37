@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
@@ -31,5 +32,10 @@ public class Menu : MonoBehaviour
         _canvasGroup.alpha = 0;
         _canvasGroup.blocksRaycasts = false;
         _canvasGroup.interactable = false;
+    }
+
+    public void GotoEditor()
+    {
+        SceneManager.LoadScene("Editor", LoadSceneMode.Single);
     }
 }
