@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public UnityEngine.Object levelScene;
     public LevelManager levelManager;
 
     public delegate void GameStartHandler(float time);
@@ -22,6 +23,28 @@ public class GameManager : MonoBehaviour
 
     private bool gameStarting;
 
+    private void Start()
+    {
+        LoadLevel();
+    }
+
+    private void LoadLevel()
+    {
+        var scene = SceneManager.GetSceneByName(levelScene.name);
+
+        if (scene.isLoaded) return;
+
+        SceneManager.LoadScene(levelScene.name, LoadSceneMode.Additive);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        if (scene.name == levelScene.name)
+        {
+            levelManager = FindObjectOfType<LevelManager>();
+        }
+    }
+
     private void OnEnable() {
         Pickup.OnPickup += AdvanceState;
         Menu.OnPlayPressed += StartGame;
@@ -29,16 +52,18 @@ public class GameManager : MonoBehaviour
         EndScreen.OnPlayAgainPressed += RestartGame;
         LevelManager.OnStateChanged += OnStateChanged;
         LevelManager.OnNoStatesLeft += OnNoStatesLeft;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
         Pickup.OnPickup -= AdvanceState;
-        Menu.OnPlayPressed -= AdvanceState;
+        Menu.OnPlayPressed -= StartGame;
         PlayerScript.OnDeath -= OnPlayerDeath;
         EndScreen.OnPlayAgainPressed -= RestartGame;
         LevelManager.OnStateChanged -= OnStateChanged;
         LevelManager.OnNoStatesLeft -= OnNoStatesLeft;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnNoStatesLeft()
@@ -71,6 +96,7 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        LoadLevel();
         gameStarting = true;
         player = Instantiate(playerPrefab).transform;
         player.gameObject.SetActive(false);
@@ -81,6 +107,6 @@ public class GameManager : MonoBehaviour
 
     private void RestartGame()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
 }
