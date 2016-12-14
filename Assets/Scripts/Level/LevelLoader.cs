@@ -109,7 +109,7 @@ public class LevelLoader
 
     public static void SaveLevelToFile(string fileName, Level level)
     {
-        var path = Application.persistentDataPath + "/" + fileName + ".mutolocus";
+        var path = Application.persistentDataPath + "/levels/" + fileName + ".mutolocus";
         var text = EncodeLevel(level);
 
         Debug.Log("Saved level to " + path);
