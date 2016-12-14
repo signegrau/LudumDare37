@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -18,6 +19,9 @@ public class Editor : MonoBehaviour
     public delegate void PlayingStopHandler();
     public static event PlayingStopHandler playingStop;
 
+    public delegate void StateChanged(int index);
+    public static event StateChanged stateChanged;
+
     public GameManager gameManager;
     public Text stateLabel;
     private string stateLabelTemplate;
@@ -25,7 +29,23 @@ public class Editor : MonoBehaviour
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
 
-    private int currentStateIndex;
+    private int _currentStateIndex;
+
+    private int currentStateIndex
+    {
+        get { return _currentStateIndex; }
+        set
+        {
+            _currentStateIndex = value;
+            if (stateChanged != null)
+            {
+                stateChanged(value);
+            }
+
+            stateLabel.text = string.Format(stateLabelTemplate, value + 1);
+        }
+    }
+
     private Level level = new Level();
 
     private Tile.State[] currentTileStates
@@ -36,6 +56,8 @@ public class Editor : MonoBehaviour
     public List<Tile.State> statesToShow = new List<Tile.State>();
     public RectTransform tileStateButtonPanel;
     public GameObject tileStateButtonPrefab;
+
+    private int currentPlayerStartIndex;
 
     private bool isPlaying;
 
@@ -74,6 +96,8 @@ public class Editor : MonoBehaviour
 
     private void OnTilePressed(int index, int mouseButton)
     {
+        if (currentStateIndex > 0 && currentTileStates[index] == Tile.State.PlayerStart) return;
+
         if (mouseButton == 0)
         {
             currentTileStates[index] = selectedState;
@@ -179,5 +203,77 @@ public class Editor : MonoBehaviour
                 ChangeState(statesToShow[i]);
             }
         }
+    }
+
+    public void GotoNextState()
+    {
+        level.StatesFindSpecialIndexes();
+        var playerStartIndex = level.GetState(currentStateIndex).PickupPosition;
+
+        if (playerStartIndex == -1)
+        {
+            Debug.Log("State must have a pickup");
+            return;
+        }
+
+        if (currentStateIndex > 0)
+        {
+            for(var i = 0; i < currentTileStates.Length; i++)
+            {
+                if (currentTileStates[i] == Tile.State.PlayerStart)
+                {
+                    currentTileStates[i] = Tile.State.Wall;
+                }
+            }
+        }
+
+        if (!level.HasState(currentStateIndex + 1))
+        {
+            var newState = new LevelState();
+            level.AddState(newState);
+        }
+
+        currentPlayerStartIndex = playerStartIndex;
+        currentStateIndex += 1;
+
+        currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
+        
+        _levelManager.ChangeState(currentTileStates, true);
+
+        
+    }
+
+    public void GotoPreviousState()
+    {
+        if (currentStateIndex < 1) return;
+
+        level.StatesFindSpecialIndexes();
+
+        int playerStartIndex = -1;
+
+        if (currentStateIndex > 0)
+        {
+            playerStartIndex = level.GetState(currentStateIndex - 1).PickupPosition;
+        }
+
+        if (currentStateIndex > 0)
+        {
+            for (var i = 0; i < currentTileStates.Length; i++)
+            {
+                if (currentTileStates[i] == Tile.State.PlayerStart)
+                {
+                    currentTileStates[i] = Tile.State.Wall;
+                }
+            }
+        }
+
+        currentStateIndex -= 1;
+        if (currentStateIndex > 0)
+        {
+            currentPlayerStartIndex = playerStartIndex;
+            currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
+        }
+
+        _levelManager.ChangeState(currentTileStates, true);
     }
 }

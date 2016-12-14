@@ -38,4 +38,9 @@ public class Level
             state.FindSpecialIndexes();
         }
     }
+
+    public bool HasState(int index)
+    {
+        return index < states.Count;
+    }
 }
