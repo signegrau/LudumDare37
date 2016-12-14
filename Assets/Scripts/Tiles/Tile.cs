@@ -31,6 +31,11 @@ public class Tile : MonoBehaviour
         State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight
     };
 
+    private readonly List<State> objectStatesEditor = new List<State>
+    {
+        State.PlayerStart
+    };
+
     public enum TransisionState
     {
         None,
@@ -51,6 +56,7 @@ public class Tile : MonoBehaviour
     public GameObject boostUpPrefab;
     public GameObject boostLeftPrefab;
     public GameObject boostRightPrefab;
+    public GameObject playerStartPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -65,6 +71,8 @@ public class Tile : MonoBehaviour
     private Vector3 basePosition;
 
     private bool movingToForeground;
+
+    private bool isEditor;
 
     private float lerpTime;
     private float lerpValue;
@@ -160,37 +168,38 @@ public class Tile : MonoBehaviour
 	                ? stateTransistionState[state]
 	                : TransisionState.Wall);
 
-	            if (objectStates.Contains(state))
+	            switch (state)
 	            {
-	                switch (state)
-	                {
-	                    case State.Pickup:
-	                        AttachObject(pickupPrefab);
-	                        break;
-	                    case State.Spring:
-	                        AttachObject(springPrefab);
-	                        break;
-	                    case State.Wall:
-	                        break;
-	                    case State.Platform:
-	                        break;
-	                    case State.Spike:
-	                        AttachObject(spikePrefab);
-	                        break;
-	                    case State.PlayerStart:
-	                        break;
-	                    case State.BoostUp:
-	                        AttachObject(boostUpPrefab);
-	                        break;
-	                    case State.BoostLeft:
-	                        AttachObject(boostLeftPrefab);
-	                        break;
-	                    case State.BoostRight:
-	                        AttachObject(boostRightPrefab);
-	                        break;
-	                    default:
-	                        throw new ArgumentOutOfRangeException();
-	                }
+	                case State.Pickup:
+	                    AttachObject(pickupPrefab);
+	                    break;
+	                case State.Spring:
+	                    AttachObject(springPrefab);
+	                    break;
+	                case State.Wall:
+	                    break;
+	                case State.Platform:
+	                    break;
+	                case State.Spike:
+	                    AttachObject(spikePrefab);
+	                    break;
+	                case State.PlayerStart:
+	                    if (isEditor)
+	                    {
+	                        AttachObject(playerStartPrefab);
+	                    }
+	                    break;
+	                case State.BoostUp:
+	                    AttachObject(boostUpPrefab);
+	                    break;
+	                case State.BoostLeft:
+	                    AttachObject(boostLeftPrefab);
+	                    break;
+	                case State.BoostRight:
+	                    AttachObject(boostRightPrefab);
+	                    break;
+	                default:
+	                    throw new ArgumentOutOfRangeException();
 	            }
 	        }
 	        else
@@ -235,11 +244,16 @@ public class Tile : MonoBehaviour
 
     }
 
-    public void GotoState(State newState)
+    public void GotoState(State newState, bool isEditor = false)
     {
+        this.isEditor = isEditor;
         if (state == newState) return;
 
-        if (objectStates.Contains(state))
+        if (isEditor && objectStatesEditor.Contains(newState))
+        {
+            BeginTransision(TransisionState.Background);
+        }
+        else if (objectStates.Contains(newState))
         {
             BeginTransision(TransisionState.Background);
         }

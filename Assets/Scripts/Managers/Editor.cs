@@ -52,13 +52,13 @@ public class Editor : MonoBehaviour
         {
             tileStates[index] = selectedState;
             var tile = _levelManager.Tiles[index];
-            tile.GotoState(selectedState);
+            tile.GotoState(selectedState, true);
         }
         else
         {
             tileStates[index] = Tile.State.Wall;
             var tile = _levelManager.Tiles[index];
-            tile.GotoState(Tile.State.Wall);
+            tile.GotoState(Tile.State.Wall, true);
         }
 
     }
