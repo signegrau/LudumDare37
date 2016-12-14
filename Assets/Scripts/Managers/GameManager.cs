@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour
 
         if (level == null)
         {
-            level = LevelLoader.LoadLevel(statesFile.text);
+            level = LevelLoader.ParseLevel(statesFile.text);
         }
 
         StartCoroutine(levelManager.Setup(level, true));

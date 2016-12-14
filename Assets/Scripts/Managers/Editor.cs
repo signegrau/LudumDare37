@@ -26,6 +26,8 @@ public class Editor : MonoBehaviour
     public Text stateLabel;
     private string stateLabelTemplate;
 
+    public InputField fileNameInput;
+
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
 
@@ -270,5 +272,21 @@ public class Editor : MonoBehaviour
         }
 
         _levelManager.ChangeState(currentTileStates, true);
+    }
+
+    public void SaveLevel()
+    {
+        var fileName = fileNameInput.text;
+
+        if (string.IsNullOrEmpty(fileName))
+        {
+            Debug.Log("No file name provided");
+        }
+        else
+        {
+            LevelLoader.SaveLevelToFile(fileName, level);
+        }
+
+
     }
 }

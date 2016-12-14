@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class LevelLoader
@@ -15,10 +16,13 @@ public class LevelLoader
         { 'l', Tile.State.BoostLeft },
         { 'r', Tile.State.BoostRight },
         { '@', Tile.State.PlayerStart },
-        { '+', Tile.State.Spike }
+        { '+', Tile.State.Spike },
+        { '_', Tile.State.Wall }
     };
 
-    public static Level LoadLevel(string levelText)
+    private static Dictionary<Tile.State, char> stateToChar;
+
+    public static Level ParseLevel(string levelText)
     {
         var tileIndex = 0;
         var pickupIndex = 0;
@@ -63,6 +67,32 @@ public class LevelLoader
         return level;
     }
 
+    public static string EncodeLevel(Level level)
+    {
+        if (stateToChar == null)
+        {
+            stateToChar = new Dictionary<Tile.State, char>();
+            foreach (var pair in charToState)
+            {
+                stateToChar.Add(pair.Value, pair.Key);
+            }
+        }
+
+        string encodedLevel = "";
+
+        for (var stateIndex = 0; stateIndex < level.StatesCount; stateIndex++)
+        {
+            var tiles = level.GetState(stateIndex).tileStates;
+            foreach (var tileState in tiles)
+            {
+                Debug.Log(tileState);
+                encodedLevel += stateToChar[tileState];
+            }
+        }
+
+        return encodedLevel;
+    }
+
     /// <summary>
     /// Load level from persistent data
     /// </summary>
@@ -70,10 +100,20 @@ public class LevelLoader
     /// <returns></returns>
     public static Level LoadLevelFromFile(string fileName)
     {
-        var path = Application.persistentDataPath + "\\" + fileName;
 
+        var path = Application.persistentDataPath + "/" + fileName;
         var text = System.IO.File.ReadAllText(path);
 
-        return LoadLevel(text);
+        return ParseLevel(text);
+    }
+
+    public static void SaveLevelToFile(string fileName, Level level)
+    {
+        var path = Application.persistentDataPath + "/" + fileName + ".mutolocus";
+        var text = EncodeLevel(level);
+
+        Debug.Log("Saved level to " + path);
+
+        System.IO.File.WriteAllText(path, text);
     }
 }
