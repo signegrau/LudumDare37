@@ -24,6 +24,7 @@ public class LevelManager : MonoBehaviour
     private bool isChanging;
 
     private int countDeath;
+    private bool hasGenerated;
 
     public Tile[] Tiles
     {
@@ -38,8 +39,14 @@ public class LevelManager : MonoBehaviour
     public IEnumerator Setup(Level level = null, bool gotoFirstState = false)
     {
         yield return null;
-        tiles = tileGenerator.GenerateTiles();
-        currentStateIndex = 0;
+
+        if (!hasGenerated)
+        {
+            tiles = tileGenerator.GenerateTiles();
+            hasGenerated = true;
+        }
+
+    currentStateIndex = 0;
 
         this.level = level;
 
@@ -65,6 +72,7 @@ public class LevelManager : MonoBehaviour
         else if (OnNoStatesLeft != null)
         {
             OnNoStatesLeft();
+            Debug.Log("No states left!");
         }
     }
 

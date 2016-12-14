@@ -246,8 +246,8 @@ public class Tile : MonoBehaviour
 
     public void GotoState(State newState, bool isEditor = false)
     {
+        if (state == newState && this.isEditor == isEditor && objectStatesEditor.Contains(newState)) return;
         this.isEditor = isEditor;
-        if (state == newState) return;
 
         if (isEditor && objectStatesEditor.Contains(newState))
         {
