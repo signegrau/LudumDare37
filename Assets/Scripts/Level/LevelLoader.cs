@@ -85,7 +85,6 @@ public class LevelLoader
             var tiles = level.GetState(stateIndex).tileStates;
             foreach (var tileState in tiles)
             {
-                Debug.Log(tileState);
                 encodedLevel += stateToChar[tileState];
             }
         }
@@ -100,16 +99,29 @@ public class LevelLoader
     /// <returns></returns>
     public static Level LoadLevelFromFile(string fileName)
     {
+        var path = Application.persistentDataPath + "/levels/" + fileName + ".mutolocus";
 
-        var path = Application.persistentDataPath + "/" + fileName;
-        var text = System.IO.File.ReadAllText(path);
+        if (System.IO.File.Exists(path))
+        {
+            var text = System.IO.File.ReadAllText(path);
+            return ParseLevel(text);
+        }
+        else
+        {
+            Debug.Log("file doesn't exsist");
+        }
 
-        return ParseLevel(text);
+        return null;
+
     }
 
     public static void SaveLevelToFile(string fileName, Level level)
     {
-        var path = Application.persistentDataPath + "/levels/" + fileName + ".mutolocus";
+        var path = Application.persistentDataPath + "/levels/";
+
+        System.IO.Directory.CreateDirectory(path);
+
+        path = path + fileName + ".mutolocus";
         var text = EncodeLevel(level);
 
         Debug.Log("Saved level to " + path);

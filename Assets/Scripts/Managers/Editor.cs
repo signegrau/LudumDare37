@@ -65,7 +65,7 @@ public class Editor : MonoBehaviour
 
     private void Start()
     {
-        LoadLevel();
+        LoadLevelScene();
 
         foreach (var tileState in statesToShow)
         {
@@ -125,7 +125,7 @@ public class Editor : MonoBehaviour
         }
     }
 
-    private void LoadLevel()
+    private void LoadLevelScene()
     {
         var scene = SceneManager.GetSceneByName("Level");
 
@@ -218,16 +218,7 @@ public class Editor : MonoBehaviour
             return;
         }
 
-        if (currentStateIndex > 0)
-        {
-            for(var i = 0; i < currentTileStates.Length; i++)
-            {
-                if (currentTileStates[i] == Tile.State.PlayerStart)
-                {
-                    currentTileStates[i] = Tile.State.Wall;
-                }
-            }
-        }
+        SanitizeLevel();
 
         if (!level.HasState(currentStateIndex + 1))
         {
@@ -251,15 +242,7 @@ public class Editor : MonoBehaviour
 
         level.StatesFindSpecialIndexes();
 
-        int playerStartIndex = -1;
-
-        for (var i = 0; i < currentTileStates.Length; i++)
-        {
-            if (currentTileStates[i] == Tile.State.PlayerStart)
-            {
-                currentTileStates[i] = Tile.State.Wall;
-            }
-        }
+        int playerStartIndex = SanitizeLevel();
 
         currentStateIndex -= 1;
 
@@ -274,6 +257,25 @@ public class Editor : MonoBehaviour
         _levelManager.ChangeState(currentTileStates, true);
     }
 
+    private int SanitizeLevel()
+    {
+        var startIndex = 0;
+        
+        for (var i = 0; i < currentTileStates.Length; i++)
+        {
+            if (currentTileStates[i] == Tile.State.PlayerStart)
+            {
+                if (currentStateIndex > 0)
+                {
+                    currentTileStates[i] = Tile.State.Wall;
+                }
+                startIndex = i;
+            }
+        }
+
+        return startIndex;
+    }
+
     public void SaveLevel()
     {
         var fileName = fileNameInput.text;
@@ -284,9 +286,36 @@ public class Editor : MonoBehaviour
         }
         else
         {
+            var startIndex = SanitizeLevel();
+
             LevelLoader.SaveLevelToFile(fileName, level);
+
+            if (currentStateIndex > 0)
+            {
+                currentTileStates[startIndex] = Tile.State.PlayerStart;
+            }
         }
 
 
+    }
+
+    public void LoadLevelFromFile()
+    {
+        var fileName = fileNameInput.text;
+
+        if (string.IsNullOrEmpty(fileName))
+        {
+            Debug.Log("No file name provided");
+        }
+        else
+        {
+            var newLevel = LevelLoader.LoadLevelFromFile(fileName);
+
+            if (newLevel == null) return;
+
+            level = newLevel;
+            currentStateIndex = 0;
+            _levelManager.ChangeState(currentTileStates, true);
+        }
     }
 }
