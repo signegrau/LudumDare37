@@ -152,10 +152,15 @@ public class Editor : MonoBehaviour
     {
         if (isPlaying) return;
 
-        isPlaying = true;
-
         level.StatesFindSpecialIndexes();
 
+        if (!level.GetState(index).HasStartPosition)
+        {
+            Debug.Log("A start position is required");
+            return;
+        }
+
+        isPlaying = true;
         gameManager.levelManager = _levelManager;
         gameManager.StartGame(level, index);
 
@@ -168,7 +173,8 @@ public class Editor : MonoBehaviour
     public void StopPlaying()
     {
         isPlaying = false;
-        currentStateIndex = gameManager.StopGame() - 1;
+        currentStateIndex = gameManager.StopGame();
+        Debug.Log(currentStateIndex);
 
         if (currentStateIndex > 0)
         {

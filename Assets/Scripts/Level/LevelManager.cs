@@ -68,13 +68,14 @@ public class LevelManager : MonoBehaviour
     
     public void AdvanceState()
     {
-        if (ChangeState(currentStateIndex, !isEditor))
+        ++currentStateIndex;
+        if (!ChangeState(currentStateIndex))
         {
-            ++currentStateIndex;
-        }
-        else if (OnNoStatesLeft != null)
-        {
-            OnNoStatesLeft();
+            currentStateIndex--;
+
+            if (OnNoStatesLeft != null)
+                OnNoStatesLeft();
+
             Debug.Log("No states left!");
         }
     }
