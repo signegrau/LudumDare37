@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class Editor : MonoBehaviour
@@ -18,10 +19,19 @@ public class Editor : MonoBehaviour
     public static event PlayingStopHandler playingStop;
 
     public GameManager gameManager;
+    public Text stateLabel;
+    private string stateLabelTemplate;
+
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
 
-    private Tile.State[] tileStates = new Tile.State[100];
+    private int currentStateIndex;
+    private Level level = new Level();
+
+    private Tile.State[] currentTileStates
+    {
+        get { return level.GetState(currentStateIndex).tileStates; }
+    }
 
     public List<Tile.State> statesToShow = new List<Tile.State>();
     public RectTransform tileStateButtonPanel;
@@ -33,18 +43,19 @@ public class Editor : MonoBehaviour
     {
         LoadLevel();
 
-        foreach (var state in statesToShow)
+        foreach (var tileState in statesToShow)
         {
             var go = Instantiate(tileStateButtonPrefab, tileStateButtonPanel);
-            go.GetComponent<TileStateButton>().SetState(state);
+            go.GetComponent<TileStateButton>().SetState(tileState);
         }
 
-        for(int i = 0; i < tileStates.Length; i++)
-        {
-            tileStates[i] = Tile.State.Wall;
-        }
+        var state = new LevelState();
+        level.AddState(state);
 
         ChangeState(Tile.State.Platform);
+
+        stateLabelTemplate = stateLabel.text;
+        stateLabel.text = string.Format(stateLabelTemplate, 1);
     }
 
     private void OnEnable()
@@ -65,13 +76,13 @@ public class Editor : MonoBehaviour
     {
         if (mouseButton == 0)
         {
-            tileStates[index] = selectedState;
+            currentTileStates[index] = selectedState;
             var tile = _levelManager.Tiles[index];
             tile.GotoState(selectedState, true);
         }
         else
         {
-            tileStates[index] = Tile.State.Wall;
+            currentTileStates[index] = Tile.State.Wall;
             var tile = _levelManager.Tiles[index];
             tile.GotoState(Tile.State.Wall, true);
         }
@@ -111,10 +122,9 @@ public class Editor : MonoBehaviour
         if (isPlaying) return;
 
         isPlaying = true;
-        var level = new Level();
-        var state = new LevelState(tileStates);
 
-        level.AddState(state);
+        level.StatesFindSpecialIndexes();
+
         gameManager.levelManager = _levelManager;
         gameManager.StartGame(level);
 
@@ -128,7 +138,7 @@ public class Editor : MonoBehaviour
     {
         isPlaying = false;
         gameManager.StopGame();
-        _levelManager.ChangeState(tileStates, true);
+        _levelManager.ChangeState(currentTileStates, true);
 
         if (playingStop != null)
         {

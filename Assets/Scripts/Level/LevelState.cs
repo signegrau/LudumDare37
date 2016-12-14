@@ -23,10 +23,24 @@ public class LevelState
         get { return pickupIndex; }
     }
 
+    public LevelState(int size = 100)
+    {
+        tileStates = new Tile.State[size];
+        for (var i = 0; i < size; i++)
+        {
+            tileStates[i] = Tile.State.Wall;
+        }
+    }
+
     public LevelState(Tile.State[] tileStates)
     {
         this.tileStates = tileStates;
-        for(var i = 0; i < tileStates.Length; i++)
+        FindSpecialIndexes();
+    }
+
+    public void FindSpecialIndexes()
+    {
+        for (var i = 0; i < tileStates.Length; i++)
         {
             if (tileStates[i] == Tile.State.Pickup)
             {

@@ -30,4 +30,12 @@ public class Level
     {
         return states[index];
     }
+
+    public void StatesFindSpecialIndexes()
+    {
+        foreach (var state in states)
+        {
+            state.FindSpecialIndexes();
+        }
+    }
 }
