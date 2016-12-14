@@ -80,4 +80,9 @@ public class Editor : MonoBehaviour
             StartCoroutine(_levelManager.Setup());
         }
     }
+
+    public void PlayLevel()
+    {
+
+    }
 }

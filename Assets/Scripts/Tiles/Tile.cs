@@ -259,7 +259,7 @@ public class Tile : MonoBehaviour
         }
         else
         {
-            if (objectStates.Contains(newState))
+            if (attachment != null)
             {
                 BeginTransision(TransisionState.Background);
             }

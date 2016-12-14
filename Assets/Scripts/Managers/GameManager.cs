@@ -24,11 +24,6 @@ public class GameManager : MonoBehaviour
 
     private bool gameStarting;
 
-    private void Start()
-    {
-        LoadLevel();
-    }
-
     private void LoadLevel()
     {
         var scene = SceneManager.GetSceneByName(levelScene.name);
@@ -97,13 +92,28 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        LoadLevel();
+        StartGame(null);
+    }
+
+    public void StartGame(Level level = null)
+    {
+        if (levelManager == null)
+        {
+            LoadLevel();
+        }
+
         gameStarting = true;
         player = Instantiate(playerPrefab).transform;
         player.gameObject.SetActive(false);
         player.transform.position = new Vector3(20, -20, 0);
 
-        StartCoroutine(levelManager.Setup(statesFile.text, true));
+        if (level == null)
+        {
+            level = LevelLoader.LoadLevel(statesFile.text);
+        }
+
+        StartCoroutine(levelManager.Setup(level, true));
+
     }
 
     private void RestartGame()

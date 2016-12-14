@@ -35,16 +35,13 @@ public class LevelManager : MonoBehaviour
         tileGenerator = GetComponent<TileGenerator>();
     }
 
-    public IEnumerator Setup(string levelText = null, bool gotoFirstState = false)
+    public IEnumerator Setup(Level level = null, bool gotoFirstState = false)
     {
         yield return null;
         tiles = tileGenerator.GenerateTiles();
         currentStateIndex = 0;
 
-        if (levelText != null)
-        {
-            level = LevelLoader.LoadLevel(levelText);
-        }
+        this.level = level;
 
         yield return null;
 
