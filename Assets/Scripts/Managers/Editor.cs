@@ -251,25 +251,20 @@ public class Editor : MonoBehaviour
 
         int playerStartIndex = -1;
 
-        if (currentStateIndex > 0)
+        for (var i = 0; i < currentTileStates.Length; i++)
         {
-            playerStartIndex = level.GetState(currentStateIndex - 1).PickupPosition;
-        }
-
-        if (currentStateIndex > 0)
-        {
-            for (var i = 0; i < currentTileStates.Length; i++)
+            if (currentTileStates[i] == Tile.State.PlayerStart)
             {
-                if (currentTileStates[i] == Tile.State.PlayerStart)
-                {
-                    currentTileStates[i] = Tile.State.Wall;
-                }
+                currentTileStates[i] = Tile.State.Wall;
             }
         }
 
         currentStateIndex -= 1;
+
         if (currentStateIndex > 0)
         {
+            playerStartIndex = level.GetState(currentStateIndex - 1).PickupPosition;
+
             currentPlayerStartIndex = playerStartIndex;
             currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
         }
