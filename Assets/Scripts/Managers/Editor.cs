@@ -351,8 +351,9 @@ public class Editor : MonoBehaviour
 
     public void Update()
     {
-        /*
-        if (Input.GetKeyDown(KeyCode.P))
+        if (filePickerOpen) return;
+
+        if (Input.GetKeyDown(KeyCode.Return))
         {
             if (isPlaying)
             {
@@ -363,6 +364,13 @@ public class Editor : MonoBehaviour
                 StartPlayingLevel();
             }
         }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (!isPlaying)
+            {
+                StartPlaying(currentStateIndex);
+            }
+        }
 
         for (var i = 0; i < Mathf.Min(statesToShow.Count, 10); i++)
         {
@@ -370,6 +378,6 @@ public class Editor : MonoBehaviour
             {
                 ChangeState(statesToShow[i]);
             }
-        }*/
+        }
     }
 }
