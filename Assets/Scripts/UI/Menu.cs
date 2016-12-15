@@ -11,10 +11,14 @@ public class Menu : MonoBehaviour
     public static PlayPressedHandler OnPlayPressed;
 
     public CanvasGroup titleMenu;
+    public CanvasGroup customLevelMenu;
     public Button quitButton;
 
     private void Start()
     {
+        titleMenu.SetVisibility(true);
+        customLevelMenu.SetVisibility(false);
+
 #if UNITY_STANDALONE
         quitButton.gameObject.SetActive(true);
 #else
@@ -29,7 +33,14 @@ public class Menu : MonoBehaviour
 
     public void GotoCustomLevelMenu()
     {
+        titleMenu.SetVisibility(false);
+        customLevelMenu.SetVisibility(true);
+    }
 
+    public void GotoTitleMenu()
+    {
+        titleMenu.SetVisibility(true);
+        customLevelMenu.SetVisibility(false);
     }
 
     public void GotoEditor()
