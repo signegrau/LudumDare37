@@ -23,12 +23,13 @@ public class Tile : MonoBehaviour
         BoostUp,
         BoostLeft,
         BoostRight,
+		LaserCannon,
         PlayerStart
     }
 
     private readonly List<State> objectStates = new List<State>
     {
-        State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight
+		State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight, State.LaserCannon
     };
 
     private readonly List<State> objectStatesEditor = new List<State>
@@ -56,7 +57,8 @@ public class Tile : MonoBehaviour
     public GameObject boostUpPrefab;
     public GameObject boostLeftPrefab;
     public GameObject boostRightPrefab;
-    public GameObject playerStartPrefab;
+	public GameObject laserCannonPrefab;
+	public GameObject playerStartPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -183,7 +185,10 @@ public class Tile : MonoBehaviour
 	                case State.Spike:
 	                    AttachObject(spikePrefab);
 	                    break;
-	                case State.PlayerStart:
+					case State.LaserCannon:
+						AttachObject(laserCannonPrefab);
+						break;    
+					case State.PlayerStart:
 	                    if (isEditor)
 	                    {
 	                        AttachObject(playerStartPrefab);

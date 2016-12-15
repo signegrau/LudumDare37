@@ -520,7 +520,10 @@
 	"buffers":
 	[
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class TimeControl : MonoBehaviour {\n\n    public KeyCode pauseKey;\n    private bool paused;\n\n    public AnimationCurve curve;\n\n    public float maxTimeScale = 1, minTimeScale = 0.04f;\n    public float timeScaleChangeRate = 5f;\n\n    private float t = 0;\n    private float a;\n    private float b;\n\n\t// Use this for initialization\n\tvoid Start () {\n\t\tpaused = false;\n        a = maxTimeScale;\n        b = minTimeScale;\n\t}\n\t\n\t// Update is called once per frame\n\tvoid Update () {\n        if (Input.GetKeyDown(pauseKey)) {\n            paused = !paused;\n            a = paused ? maxTimeScale : minTimeScale;\n            b = paused ? minTimeScale : maxTimeScale;\n            t = 1 - t;\n        }\n\n        if (t < 1) {\n            t += Time.unscaledDeltaTime * timeScaleChangeRate;\n        }\n        else {\n            t = 1;\n        }\n\n        Time.timeScale = Mathf.LerpUnclamped(a, b, curve.Evaluate(t));\n\t}\n}\n",
 			"file": "Assets/Scripts/TimeControl.cs",
+			"file_size": 992,
+			"file_write_time": 131258473700000000,
 			"settings":
 			{
 				"buffer_size": 989,
@@ -529,7 +532,10 @@
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing System.ComponentModel;\nusing UnityEngine;\n\npublic class TileGenerator : MonoBehaviour\n{\n    public GameObject tilePrefab;\n    public int numRows = 10;\n    public int numColumns = 10;\n\n    private GameObject tile;\n\n    public Tile[] GenerateTiles()\n\t{\n\t    var tiles = new Tile[numColumns * numRows];\n\n\t    var firstCubePosition = new Vector3(-(numRows / 2) + 0.5f, numColumns / 2 - 0.5f, 0f);\n\n\t    for (var i = 0; i < numRows; i++)\n\t    {\n\t        for (var j = 0; j < numColumns; j++)\n\t        {\n\t            tile = Instantiate(tilePrefab, transform);\n\t            tile.name = \"Tile (\" + i + \",\" + j + \")\";\n\t            tile.transform.GetChild(0).name = \"Collider (\" + i + \",\" + j + \")\";\n\t            tile.transform.localPosition = firstCubePosition + new Vector3(j, -i, 0);\n\t            tiles[i * numColumns + j] = tile.GetComponent<Tile>();\n\t        }\n\t    }\n\n\t    return tiles;\n\t}\n}\n",
 			"file": "Assets/Scripts/TileGenerator.cs",
+			"file_size": 956,
+			"file_write_time": 131259720370034880,
 			"settings":
 			{
 				"buffer_size": 953,
@@ -538,7 +544,10 @@
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class Spike : MonoBehaviour\n{\n    public float rotationSpeed = 3f;\n\n    private void Update()\n    {\n        transform.Rotate(Vector3.back * Time.deltaTime * rotationSpeed);\n    }\n}\n",
 			"file": "Assets/Scripts/Spike.cs",
+			"file_size": 271,
+			"file_write_time": 131259747479103072,
 			"settings":
 			{
 				"buffer_size": 268,
@@ -547,7 +556,10 @@
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class Pickup : MonoBehaviour\n{\n\tpublic Sprite buttonUp, buttonDown;\n\n\tpublic delegate void PickupEvent();\n\tpublic static event PickupEvent OnPickup;\n\n\tprivate SpriteRenderer sr;\n\n\tvoid Start() {\n\t\tsr = GetComponent<SpriteRenderer>();\n\t\tsr.sprite = buttonUp;\n\t}\n\n    public void OnTriggerEnter2D(Collider2D other)\n    {\n        if (other.CompareTag(\"Player\"))\n        {\n            if (OnPickup != null)\n            {\n                OnPickup();\n            }\n\n            GetComponent<Collider2D>().enabled = false;\n\n            sr.sprite = buttonDown;\n        }\n    }\n\n    public void OnPlayerCollision()\n    {\n\t\tOnPickup();\n\n        GetComponent<Collider2D>().enabled = false;\n\n        sr.sprite = buttonDown;\n    }\n}\n",
 			"file": "Assets/Scripts/Pickup.cs",
+			"file_size": 810,
+			"file_write_time": 131260673511383828,
 			"settings":
 			{
 				"buffer_size": 807,
@@ -556,10 +568,13 @@
 			}
 		},
 		{
+			"contents": "using UnityEngine;\nusing System.Collections;\nusing System.Collections.Generic;\nusing System.Linq;\nusing UnityEngine.AI;\nusing UnityEngine.EventSystems;\n\n[RequireComponent(typeof(Animator))]\n\npublic class PlayerScript : MonoBehaviour {\n\n    public delegate void DeathHandler();\n\n    public static event DeathHandler OnDeath;\n\tpublic float maxSpeed = 10f;\n\tpublic float jumpForce = 700f;\n    public float springForce = 400;\n    public float boostUpForce = 400;\n    public float boostSideForce = 400;\n\n    private Vector2 velocity = new Vector2(0, 0);\n\n    public float gravity = 9.81f;\n    public float jumpHoldGravity;\n    public float fallingGravity;\n\n    private float currentGravity;\n    public float drag = 0.05f;\n\n    Animator animator;\n\n\tbool isGrounded;\n    private bool wasGrouneded;\n    private bool sideFree;\n    private bool onSpring;\n    private bool boostUp;\n    private bool boostSide;\n    private bool boostLeft;\n    private bool boostRight;\n\tbool isJumping = false;\n    bool hasJumped = false;\n\tbool leftGround = false;\n\tbool facingRight = true;\n    private bool isBall;\n\n    public GameObject bloodExplosion;\n\tpublic Transform groundCheckLeft;\n    public Transform groundCheckRight;\n    private Vector3 groundCheckOffset = new Vector3(0, 0.1f, 0);\n\n    public Transform sideCheckTop;\n    public Transform sideCheckBottom;\n\n    public Transform altSideCheckTop;\n    public Transform altSideCheckBottom;\n\n    public Transform headCheckLeft;\n    public Transform headCheckRight;\n\n    public LayerMask layersToLandOn;\n\tprivate Rigidbody2D rigidbody2D;\n\n    private CapsuleCollider2D collider2D;\n\n    private Vector3 startPosition;\n\n    private float timeFromGround;\n\n    private List<Collider2D> previousColliders = new List<Collider2D>();\n\n    private float uncontrollableTimer;\n\n\tprivate bool isDead = false;\n\n\tprivate int FootStepAnimationEvent() {\n\t\tSoundManager.single.PlayFootstepSound();\n\t\treturn 0;\n\t}\n\n\t// Use this for initialization\n\tvoid Start ()\n\t{\n\t\trigidbody2D = GetComponent<Rigidbody2D>();\n\t\tanimator = GetComponent<Animator>();\n\t\tstartPosition = transform.position;\n\t\tcollider2D = GetComponent<CapsuleCollider2D>();\n\n\t\tstartPosition = transform.position;\n\t\tcurrentGravity = gravity;\n\t}\n\n\t// Update is called once per frame\n\tvoid Update ()\n\t{\n\t\tif (isDead) {\n\t\t\tvelocity = Vector2.zero;\n\t\t\treturn;\n\t\t}\n\n\t    wasGrouneded = isGrounded;\n\n\t    isBall = isBall || isJumping;\n\n\t    if (transform.position.y < -6)\n\t    {\n\t        Respawn();\n\t    }\n\n        if (onSpring)\n        {\n            onSpring = false;\n            isJumping = false;\n            isBall = false;\n        }\n\n        if (boostUp)\n        {\n            isJumping = false;\n            isBall = true;\n            boostUp = false;\n            boostSide = false;\n\t\t\tSoundManager.single.PlayBoostSound();\n\n        }\n\n        if (boostSide)\n        {\n            isJumping = false;\n            isBall = true;\n\t\t\tSoundManager.single.PlayBoostSound();\n        }\n\t\t\t\n        RaycastHit2D raycast = CheckGround();\n\n        isGrounded = raycast && raycast.distance <= groundCheckOffset.y + 0.01f;\n        isGrounded = isGrounded && velocity.y <= 0;\n\n        if (!isGrounded)\n\t    {\n\t\t\tDebug.Log(currentGravity);\n\t        velocity.y -= currentGravity * Time.deltaTime;\n\n\t        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime) && velocity.y <= 0)\n\t        {\n\t            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;\n\t        }\n\n\t        raycast = CheckHead();\n\n\t        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)\n\t        {\n\t            velocity.y = raycast.distance / Time.deltaTime;\n\t        }\n\n\n\n\t        timeFromGround += Time.deltaTime;\n\t    }\n\t    else\n\t    {\n            hasJumped = false;\n\t        isJumping = false;\n            isBall = false;\n            timeFromGround = 0;\n            currentGravity = gravity;\n\t        velocity.y = 0;\n\n\t        if (raycast)\n\t        {\n\t            if (raycast.distance < groundCheckOffset.y - 0.01f && !onSpring)\n\t            {\n                    velocity.y += (groundCheckOffset.y - raycast.distance);\n\t            }\n\t        }\n\t    }\n\n\t    if (Input.GetButtonDown(\"Jump\") && (isGrounded || (!hasJumped)))\n\t    {\n\t        currentGravity = jumpHoldGravity;\n\n\t        velocity.y = jumpForce;\n\t        isJumping = true;\n            hasJumped = true;\n\t\t\tSoundManager.single.PlayJumpSound();\n\n\t    }\n\n\t    if (Input.GetButtonUp(\"Jump\") && isJumping)\n\t    {\n\t        currentGravity = gravity;\n\t        isJumping = false;\n\t    }\n\n\t    if (!isJumping && velocity.y < 0)\n\t    {\n\t        currentGravity = fallingGravity;\n\t    }\n\n\t    ///\n\t    /// Horizontal movement\n\t    ///\n\n\t    float move = 0;\n\t    if (uncontrollableTimer <= 0)\n\t    {\n\t        move = Input.GetAxisRaw(\"Horizontal\");\n\t        velocity.x = move * maxSpeed;\n\t    }\n\t    else\n\t    {\n\t        uncontrollableTimer -= Time.deltaTime;\n\n\t        if (Mathf.Abs(velocity.x - drag * Time.deltaTime * Mathf.Sign(velocity.x)) > 0)\n\t        {\n\t            velocity.x -= drag * Time.deltaTime * Mathf.Sign(velocity.x);\n\t        }\n\t        else\n\t        {\n\t            velocity.x = 0;\n\t        }\n\t    }\n\n\n\t    if ( move > 0 && !facingRight\n\t         || move < 0 && facingRight )\n\t    {\n\t        Flip ();\n\t    }\n\n\t    raycast = CheckSide(velocity.x);\n\n\t    var blocked = raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime);\n\n\t    if (blocked)\n\t    {\n\t        velocity.x = raycast.distance * Mathf.Sign(velocity.x) / Time.deltaTime;\n\t    }\n\n\t    if (boostSide)\n\t    {\n\t        //velocity.y = 0;\n\t    }\n\n\t    transform.position += (Vector3)velocity * Time.deltaTime;\n\n        ///\n        /// Collisions\n        ///\n        var colliders =\n\t        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);\n\t    foreach (var collider in colliders)\n\t    {\n\t        if (collider.CompareTag(\"Pickup\"))\n\t        {\n\t            startPosition = collider.transform.position;\n\n\t            var pickup = collider.GetComponent<Pickup>();\n\t            pickup.OnPlayerCollision();\n\t        }\n\t        else if (collider.CompareTag(\"Spike\"))\n\t        {\n\t            Respawn();\n\t        }\n\n\t        if (previousColliders.Contains(collider)) continue;\n\n\t        if (collider.CompareTag(\"BoostUp\"))\n\t        {\n\t            isBall = true;\n\t            isJumping = false;\n\t            boostUp = true;\n\t            currentGravity = gravity;\n\t            velocity.y = boostUpForce;\n\t            velocity.y += collider.transform.position.y - transform.position.y;\n\t        }\n\t        else if (collider.CompareTag(\"BoostLeft\"))\n\t        {\n\t            boostSide = true;\n\n\t            isBall = true;\n\n\t            isJumping = false;\n\t            currentGravity = gravity;\n\n\t            velocity.x = -boostSideForce;\n\t            //velocity.x -= collider.transform.position.x - transform.position.x;\n\t            uncontrollableTimer = 0.5f;\n\t            velocity.y = 3f;\n\t        }\n\t        else if (collider.CompareTag(\"BoostRight\"))\n\t        {\n\t            boostSide = true;\n\n\t            isBall = true;\n\n\t            isJumping = false;\n\t            currentGravity = gravity;\n\n\t            velocity.x = boostSideForce;\n\t            //velocity.x += collider.transform.position.x - transform.position.x;\n\t            velocity.y = 3f;\n\n\t            uncontrollableTimer = 0.5f;\n\t        }\n\t\t\telse if (collider.CompareTag(\"Spring\") && velocity.y <= 0)\n\t\t\t{\n\t\t\t\tcurrentGravity = gravity;\n\t\t\t\tvar spring = collider.GetComponent<Spring>();\n\t\t\t\tspring.OnPlayerCollision();\n\t\t\t\tonSpring = true;\n\t\t\t\tvelocity.y = springForce;\n\t\t\t}\n\t    }\n\n\t    previousColliders = colliders.ToList();\n\n\t    animator.SetFloat(\"Speed\", Mathf.Abs(velocity.x / maxSpeed));\n\t\tanimator.SetBool(\"IsGrounded\", isGrounded );\n\t\tanimator.SetBool(\"IsJumping\", isBall );\n\n\t\tif (wasGrouneded && !isGrounded)\n\t\t{\n\t\t\tleftGround = true;\n\t\t\tanimator.SetTrigger(\"LeftGround\");\n\t\t}\n\t\telse if(!wasGrouneded && isGrounded) {\n\t\t\tSoundManager.single.PlayLandSound();\n\t\t}\n\n\n\t}\n\n    private RaycastHit2D CheckSide(float velocity)\n    {\n        var rays = new List<RaycastHit2D>\n        {\n            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 10,\n                1 << LayerMask.NameToLayer(\"Solid\")),\n            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 10,\n                1 << LayerMask.NameToLayer(\"Solid\")),\n        };\n\n        if (uncontrollableTimer > 0)\n        {\n            rays.Add(Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 11,\n                1 << LayerMask.NameToLayer(\"Solid\")));\n            rays.Add(Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 11,\n                1 << LayerMask.NameToLayer(\"Solid\")));\n        }\n\n        return rays.Where(ray => ray)\n            .OrderBy(ray => ray.distance)\n            .FirstOrDefault();\n    }\n\n    private RaycastHit2D CheckGround()\n    {\n        var left = Physics2D.Raycast(groundCheckLeft.position, Vector2.down, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        var right = Physics2D.Raycast(groundCheckRight.position, Vector2.down, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        if (left && right)\n        {\n            return left.distance > right.distance ? right : left;\n        }\n\n        return left ? left : right;\n    }\n\n    private RaycastHit2D CheckHead()\n    {\n        var left = Physics2D.Raycast(headCheckLeft.position, Vector2.up, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        var right = Physics2D.Raycast(headCheckRight.position, Vector2.up, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        if (left && right)\n        {\n            return left.distance > right.distance ? right : left;\n        }\n\n        return left ? left : right;\n    }\n\n\tvoid Flip ()\n\t{\n\t\tVector3 tmp = transform.localScale;\n\t\ttmp.x *= -1;\n\t\ttransform.localScale = tmp;\n\n\t\tfacingRight = !facingRight;\n\t}\n\n    private void Respawn()\n    {\n\t\tSoundManager.single.PlaySplatSound();\n\n        isJumping = false;\n        isBall = false;\n\n        if (OnDeath != null)\n            OnDeath();\n\n        Instantiate(bloodExplosion, transform.position, Quaternion.identity);\n        transform.position = new Vector3(-20, 20, 0);\n        velocity = Vector2.zero;\n\t\tisDead = true;\n\n\t\tStartCoroutine(RespawnReturn());\n    }\n\n\tprivate IEnumerator RespawnReturn() {\n\t\tyield return new WaitForSeconds(0.5f);\n\t\ttransform.position = new Vector3(startPosition.x, startPosition.y, 0);\n\t\tisDead = false;\n\t}\n\n    private void OnTriggerEnter2D(Collider2D other)\n    {\n        Debug.Log(other.tag);\n\n        if (other.CompareTag(\"BoostUp\"))\n        {\n            boostUp = true;\n\n            velocity.y = boostUpForce;\n            velocity.y += other.transform.position.y - transform.position.y;\n        }\n        else if (other.CompareTag(\"BoostLeft\"))\n        {\n            boostSide = true;\n\n            velocity.x = -boostSideForce;\n            //velocity.x -= other.transform.position.x - transform.position.x;\n        }\n        else if (other.CompareTag(\"BoostRight\"))\n        {\n            boostSide = true;\n\n            velocity.x = boostSideForce;\n            \n\t\t\t//velocity.x += other.transform.position.x - transform.position.x;\n        }\n    }\n}\n",
 			"file": "Assets/Scripts/PlayerScript.cs",
+			"file_size": 11358,
+			"file_write_time": 131261187503828872,
 			"settings":
 			{
-				"buffer_size": 12186,
+				"buffer_size": 11355,
 				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
@@ -572,12 +587,14 @@
 			"settings":
 			{
 				"buffer_size": 812,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class GameObjectPool : MonoBehaviour {\n\n    public GameObject prefab;\n    public int addAmount = 256;\n    private Queue<GameObject> poolQueue;\n    private int firstActive;\n\n    void Start() {\n        poolQueue = new Queue<GameObject>();\n        Upscale();\n    }\n\n    public GameObject Depool() {\n        if (!poolQueue.Peek()) {\n            Upscale();\n        }\n        var result =  poolQueue.Dequeue();\n        result.SetActive(true);\n        return result;\n    }\n\n    public void Repool(GameObject go) {\n        go.SetActive(false);\n        poolQueue.Enqueue(go);\n    }\n\n    void Upscale() {\n        for (int i = 0; i < addAmount; ++i) {\n            var go = Instantiate(prefab);\n\t\t\tgo.transform.parent = this.transform;\n            go.SetActive(false);\n            poolQueue.Enqueue(go);\n        }\n    }\n\n}\n",
 			"file": "Assets/Scripts/GameObjectPool.cs",
+			"file_size": 901,
+			"file_write_time": 131260096083496053,
 			"settings":
 			{
 				"buffer_size": 898,
@@ -594,7 +611,10 @@
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class SoundManager : MonoBehaviour\n{\n\tpublic static SoundManager single;\n\tpublic AudioClip advanceButtonPushSound;\n\tpublic AudioClip springBoardSound;\n\tpublic AudioClip boostSound;\n\tpublic AudioClip landSound;\n\tpublic AudioClip jumpSound;\n\tpublic AudioClip[] splatSounds;\n\tpublic AudioClip[] footStepSounds;\n\tpublic AudioSource _source;\n\tprivate AudioSource advanceButtonPushSoundSource, springBoardSoundSource, boostSoundSource, landSoundSource, jumpSoundSource, splatSoundsSource, footStepSoundsSource;\n\tprivate int avoidFootstepIndex;\n\tprivate int avoidSplatIndex;\n\n    private void Awake()\n    {\n\t\tif (single == null) {\n\t\t\tsingle = this;\n\t\t\t_source = GetComponent<AudioSource>();\n\n\t\t\tadvanceButtonPushSoundSource = gameObject.AddComponent<AudioSource>();\n\t\t\tadvanceButtonPushSoundSource.clip = advanceButtonPushSound;\n\n\t\t\tspringBoardSoundSource = gameObject.AddComponent<AudioSource>();\n\t\t\tspringBoardSoundSource.clip = springBoardSound;\n\t\t\n\t\t\tboostSoundSource = gameObject.AddComponent<AudioSource>();\n\t\t\tboostSoundSource.clip = boostSound;\n\t\t\n\t\t\tlandSoundSource = gameObject.AddComponent<AudioSource>();\n\t\t\tlandSoundSource.clip = landSound;\n\t\t\n\t\t\tjumpSoundSource = gameObject.AddComponent<AudioSource>();\n\t\t\tjumpSoundSource.clip = jumpSound;\n\n\t\t\tsplatSoundsSource = gameObject.AddComponent<AudioSource>();\n\t\t\tfootStepSoundsSource = gameObject.AddComponent<AudioSource>();\n\t\t}\n    }\n\n\tprivate int PlayRandomSound(AudioSource src, AudioClip[] clips, int avoidIndex=-1) {\n\t\tint index;\n\t\tdo {\n\t\t\tindex = Random.Range(0, clips.Length -1);\n\t\t} while (index == avoidIndex);\n\t\tsrc.clip = clips[index];\n\t\tsrc.Play();\n\t\treturn index;\n\t}\n\n\tpublic void PlayAdvanceSound() { advanceButtonPushSoundSource.Play();}\n\tpublic void PlaySpringBoardSound() { springBoardSoundSource.Play(); }\n\tpublic void PlayBoostSound() { boostSoundSource.Play(); }\n\tpublic void PlayJumpSound() { jumpSoundSource.Play(); }\n\tpublic void PlayLandSound() { landSoundSource.Play(); }\n\tpublic void PlayFootstepSound() {\n\t\tavoidFootstepIndex = PlayRandomSound(footStepSoundsSource, footStepSounds, avoidFootstepIndex);\n\t}\n\n\tpublic void PlaySplatSound() {\n\t\tavoidSplatIndex = PlayRandomSound(splatSoundsSource, splatSounds, avoidSplatIndex);\n\t}\n\n}\n",
 			"file": "Assets/Scripts/SoundManager.cs",
+			"file_size": 2301,
+			"file_write_time": 131260586533543423,
 			"settings":
 			{
 				"buffer_size": 2298,
@@ -603,7 +623,10 @@
 			}
 		},
 		{
+			"contents": "using UnityEngine;\nusing System.Collections;\nusing System.Collections.Generic;\nusing System.Linq;\nusing UnityEditor;\nusing UnityEngine.AI;\nusing UnityEngine.EventSystems;\n\n[RequireComponent(typeof(Animator))]\n\npublic class PlayerScript : MonoBehaviour {\n\n    public delegate void DeathHandler();\n\n    public static event DeathHandler OnDeath;\n\tpublic float maxSpeed = 10f;\n\tpublic float jumpForce = 700f;\n    public float springForce = 400;\n    public float boostUpForce = 400;\n    public float boostSideForce = 400;\n\n    private Vector2 velocity = new Vector2(0, 0);\n\n    public float gravity = 9.81f;\n    public float jumpHoldGravity;\n    public float fallingGravity;\n\n    private float currentGravity;\n    public float drag = 0.05f;\n\n    Animator animator;\n\n\tbool isGrounded;\n    private bool wasGrouneded;\n    private bool sideFree;\n    private bool onSpring;\n    private bool boostUp;\n    private bool boostSide;\n    private bool boostLeft;\n    private bool boostRight;\n\tbool isJumping = false;\n\tbool leftGround = false;\n\tbool facingRight = true;\n    private bool isBall;\n\n    public GameObject bloodExplosion;\n\tpublic Transform groundCheckLeft;\n    public Transform groundCheckRight;\n    private Vector3 groundCheckOffset = new Vector3(0, 0.1f, 0);\n\n    public Transform sideCheckTop;\n    public Transform sideCheckBottom;\n\n    public Transform altSideCheckTop;\n    public Transform altSideCheckBottom;\n\n    public Transform headCheckLeft;\n    public Transform headCheckRight;\n\n    public LayerMask layersToLandOn;\n\tprivate Rigidbody2D rigidbody2D;\n\n    private CapsuleCollider2D collider2D;\n\n    private Vector3 startPosition;\n\n    private float timeFromGround;\n\n    private List<Collider2D> previousColliders = new List<Collider2D>();\n\n    private float uncontrollableTimer;\n\n\t// Use this for initialization\n\tvoid Start ()\n\t{\n\t\trigidbody2D = GetComponent<Rigidbody2D>();\n\t\tanimator = GetComponent<Animator>();\n\t    collider2D = GetComponent<CapsuleCollider2D>();\n\n\t    startPosition = transform.position;\n\t    currentGravity = gravity;\n\t}\n\t\n\t// Update is called once per frame\n\tvoid Update ()\n\t{\n\t    wasGrouneded = isGrounded;\n\n\t    isBall = isBall || isJumping;\n\n\t    if (transform.position.y < -6)\n\t    {\n\t        Respawn();\n\t    }\n\n\t    RaycastHit2D raycast = CheckGround();\n\n\t    isGrounded = !(!raycast || raycast.distance > groundCheckOffset.y + 0.01f);\n\n\t    if (onSpring)\n\t    {\n\t        velocity.y = springForce;\n\t        onSpring = false;\n\t        isJumping = false;\n\t        isBall = false;\n\t    }\n\n\t    if (boostUp)\n\t    {\n\t        isJumping = false;\n\t        isBall = true;\n\t        boostUp = false;\n\t        boostSide = false;\n\t    }\n\n\t    if (boostSide)\n\t    {\n\t        isJumping = false;\n\t        isBall = true;\n\t    }\n\n\n\t    if (!isGrounded)\n\t    {\n\t        velocity.y -= currentGravity * Time.deltaTime;\n\n\t        if (raycast && raycast.distance - groundCheckOffset.y <= -(velocity.y * Time.deltaTime))\n\t        {\n\t            velocity.y = -(raycast.distance - groundCheckOffset.y) / Time.deltaTime;\n\n\t            if (raycast.collider.CompareTag(\"Spring\"))\n\t            {\n\t                currentGravity = gravity;\n\t                var spring = raycast.collider.GetComponent<Spring>();\n\t                spring.OnPlayerCollision();\n\t                onSpring = true;\n\t            }\n\t        }\n\n\t        raycast = CheckHead();\n\n\t        if (raycast && raycast.distance <= velocity.y * Time.deltaTime)\n\t        {\n\t            velocity.y = raycast.distance / Time.deltaTime;\n\t        }\n\n\n\n\t        timeFromGround += Time.deltaTime;\n\t    }\n\t    else\n\t    {\n\t        if (velocity.y <= 0)\n\t        {\n\t            isJumping = false;\n                isBall = false;\n                timeFromGround = 0;\n                currentGravity = gravity;\n\t            velocity.y = 0;\n\t        }\n\n\t        raycast = CheckGround();\n\n\t        if (raycast)\n\t        {\n\n                //if (raycast.collider.CompareTag(\"Spring\"))\n                switch(raycast.collider.tag)\n                {\n                    case \"Spring\":\n    \t            {\n\t                    currentGravity = gravity;\n\t                    var spring = raycast.collider.GetComponent<Spring>();\n    \t                spring.OnPlayerCollision();\n    \t                onSpring = true;\n    \t            } break;\n                    case \"Spike\":\n                    {\n                        // ...\n                    } break;\n                }\n\n\n\t            if (raycast.distance <= groundCheckOffset.y + Mathf.Epsilon)\n\t            {\n\t                velocity.y += (groundCheckOffset.y - raycast.distance);\n\t            }\n\t        }\n\t    }\n\n\t    if (Input.GetButtonDown(\"Jump\") && (isGrounded || (timeFromGround < 0.15f && !isJumping)))\n\t    {\n\t        currentGravity = jumpHoldGravity;\n\n\t        velocity.y += jumpForce;\n\t        isJumping = true;\n\t    }\n\n\t    if (isJumping && Input.GetButtonUp(\"Jump\"))\n\t    {\n\t        currentGravity = gravity;\n\t        isJumping = false;\n\t    }\n\n\t    if (!isJumping && velocity.y < 0)\n\t    {\n\t        currentGravity = fallingGravity;\n\t    }\n\n\t    ///\n\t    /// Horizontal movement\n\t    ///\n\n\t    float move = 0;\n\t    if (uncontrollableTimer <= 0)\n\t    {\n\t        move = Input.GetAxisRaw(\"Horizontal\");\n\n\t        velocity.x = move * maxSpeed;\n\t    }\n\t    else\n\t    {\n\t        uncontrollableTimer -= Time.deltaTime;\n\n\t        if (Mathf.Abs(velocity.x - drag * Time.deltaTime * Mathf.Sign(velocity.x)) > 0)\n\t        {\n\t            velocity.x -= drag * Time.deltaTime * Mathf.Sign(velocity.x);\n\t        }\n\t        else\n\t        {\n\t            velocity.x = 0;\n\t        }\n\t    }\n\n\n\t    if ( move > 0 && !facingRight\n\t         || move < 0 && facingRight )\n\t    {\n\t        Flip ();\n\t    }\n\n\t    raycast = CheckSide(velocity.x);\n\n\t    var blocked = raycast && raycast.distance <= Mathf.Abs(velocity.x * Time.deltaTime);\n\n\t    if (blocked)\n\t    {\n\t        velocity.x = raycast.distance * Mathf.Sign(velocity.x) / Time.deltaTime;\n\t    }\n\n\t    if (boostSide)\n\t    {\n\t        //velocity.y = 0;\n\t    }\n\n\t    transform.position += (Vector3)velocity * Time.deltaTime;\n\n\t    ///\n\t    /// Collisions\n\t    ///\n\t    var colliders =\n\t        Physics2D.OverlapCapsuleAll(transform.position + (Vector3) collider2D.offset, collider2D.size, collider2D.direction, 0);\n\t    foreach (var collider in colliders)\n\t    {\n\t        if (collider.CompareTag(\"Pickup\"))\n\t        {\n\t            startPosition = collider.transform.position;\n\n\t            var pickup = collider.GetComponent<Pickup>();\n\t            pickup.OnPlayerCollision();\n\t        }\n\t        else if (collider.CompareTag(\"Spike\"))\n\t        {\n\t            Respawn();\n\t        }\n\n\t        if (previousColliders.Contains(collider)) continue;\n\n\t        if (collider.CompareTag(\"BoostUp\"))\n\t        {\n\t            Debug.Log(\"What\");\n\n\t            isBall = true;\n\t            isJumping = false;\n\t            boostUp = true;\n\t            currentGravity = gravity;\n\t            velocity.y = boostUpForce;\n\t            velocity.y += collider.transform.position.y - transform.position.y;\n\t        }\n\t        else if (collider.CompareTag(\"BoostLeft\"))\n\t        {\n\t            boostSide = true;\n\n\t            isBall = true;\n\n\t            isJumping = false;\n\t            currentGravity = gravity;\n\n\t            velocity.x = -boostSideForce;\n\t            //velocity.x -= collider.transform.position.x - transform.position.x;\n\t            uncontrollableTimer = 0.5f;\n\t            velocity.y = 3f;\n\t        }\n\t        else if (collider.CompareTag(\"BoostRight\"))\n\t        {\n\t            boostSide = true;\n\n\t            isBall = true;\n\n\t            isJumping = false;\n\t            currentGravity = gravity;\n\n\t            velocity.x = boostSideForce;\n\t            //velocity.x += collider.transform.position.x - transform.position.x;\n\t            velocity.y = 3f;\n\n\t            uncontrollableTimer = 0.5f;\n\t        }\n\t    }\n\n\t    previousColliders = colliders.ToList();\n\n\t    animator.SetFloat(\"Speed\", Mathf.Abs(velocity.x / maxSpeed));\n\t\tanimator.SetBool(\"IsGrounded\", isGrounded );\n\t\tanimator.SetBool(\"IsJumping\", isBall );\n\n\t\tif (wasGrouneded && !isGrounded)\n\t\t{\n\t\t\tleftGround = true;\n\t\t\tanimator.SetTrigger(\"LeftGround\");\n\t\t}\n\n\n\t}\n\n    private RaycastHit2D CheckSide(float velocity)\n    {\n        var rays = new List<RaycastHit2D>\n        {\n            Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 10,\n                1 << LayerMask.NameToLayer(\"Solid\")),\n            Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 10,\n                1 << LayerMask.NameToLayer(\"Solid\")),\n        };\n\n        if (uncontrollableTimer > 0)\n        {\n            rays.Add(Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 11,\n                1 << LayerMask.NameToLayer(\"Solid\")));\n            rays.Add(Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 11,\n                1 << LayerMask.NameToLayer(\"Solid\")));\n        }\n\n        return rays.Where(ray => ray)\n            .OrderBy(ray => ray.distance)\n            .FirstOrDefault();\n    }\n\n    private RaycastHit2D CheckGround()\n    {\n        var left = Physics2D.Raycast(groundCheckLeft.position, Vector2.down, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        var right = Physics2D.Raycast(groundCheckRight.position, Vector2.down, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        if (left && right)\n        {\n            return left.distance > right.distance ? right : left;\n        }\n\n        return left ? left : right;\n    }\n\n    private RaycastHit2D CheckHead()\n    {\n        var left = Physics2D.Raycast(headCheckLeft.position, Vector2.up, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        var right = Physics2D.Raycast(headCheckRight.position, Vector2.up, 10,\n            1 << LayerMask.NameToLayer(\"Solid\"));\n\n        if (left && right)\n        {\n            return left.distance > right.distance ? right : left;\n        }\n\n        return left ? left : right;\n    }\n\n    /*private void OnCollisionEnter2D(Collision2D collision)\n    {\n        var other = collision.collider;\n\n        if (other.CompareTag(\"Spring\"))\n        {\n            if (collision.contacts[0].point.y < transform.position.y)\n            {\n                isJumping = true;\n                leftGround = false;\n                rigidbody2D.AddForce(new Vector2(0, springForce));\n            }\n        }\n        else if (other.CompareTag(\"Tile\"))\n        {\n            if (collision.contacts[0].point.y < transform.position.y)\n            {\n                isGrounded = true;\n            }\n        }\n    }*/\n\n\tvoid Flip ()\n\t{\n\t\tVector3 tmp = transform.localScale;\n\t\ttmp.x *= -1;\n\t\ttransform.localScale = tmp;\n\n\t\tfacingRight = !facingRight;\n\t}\n\n    private void Respawn()\n    {\n        isJumping = false;\n        isBall = false;\n\n        if (OnDeath != null)\n            OnDeath();\n\n        Instantiate(bloodExplosion, transform.position, Quaternion.identity);\n        transform.position = startPosition;\n        velocity = Vector2.zero;\n    }\n\n    private void OnTriggerEnter2D(Collider2D other)\n    {\n        Debug.Log(other.tag);\n\n        if (other.CompareTag(\"BoostUp\"))\n        {\n            boostUp = true;\n\n            velocity.y = boostUpForce;\n            velocity.y += other.transform.position.y - transform.position.y;\n        }\n        else if (other.CompareTag(\"BoostLeft\"))\n        {\n            boostSide = true;\n\n            velocity.x = -boostSideForce;\n            //velocity.x -= other.transform.position.x - transform.position.x;\n        }\n        else if (other.CompareTag(\"BoostRight\"))\n        {\n            boostSide = true;\n\n            velocity.x = boostSideForce;\n            //velocity.x += other.transform.position.x - transform.position.x;\n        }\n    }\n}\n",
 			"file": "/C/Files/Development/Game_Jam/LudumDare37_merger/LudumDare37/Assets/Scripts/PlayerScript.cs",
+			"file_size": 11802,
+			"file_write_time": 131260618309250596,
 			"settings":
 			{
 				"buffer_size": 11799,
@@ -612,7 +635,67 @@
 			}
 		},
 		{
+			"contents": "__________\n##########\n##########\n__________\n__________\n__________\n____##____\n__________\n__________\n__________\n\n##########\n#_______+#\n#_@_LR___#\n#________#\n#U_______#\n#######__#\n#________#\n#________#\n#______*S#\n##########\n\n##########\n#________#\n#________#\n#______*_#\n#_____####\n#________#\n###______#\n###______#\n######___#\n##########\n\n##########\n#________#\n#________#\n#________#\n#_____####\n#_*______#\n###______#\n#________#\n#________#\n#________#\n\n##########\n#________#\n#________#\n#______*_#\n#_____####\n#________#\n###______#\n#________#\n#________#\n#________#\n\n##########\n#________#\n#________#\n#________#\n#________#\n#________#\n#________#\n#________#\n#_*______#\n#####____#\n\n##########\n#________#\n#_*______#\n#________#\n########_#\n#________#\n#_______S#\n#___######\n#___######\n##########\n\n##########\n#________#\n#________#\n#________#\n#________#\n#_______*#\n#______###\n#________#\n#____S___#\n#___###__#\n\n##########\n#________#\n#________#\n#________#\n#________#\n#_*______#\n#________#\n#________#\n#________#\n#S__SS__S#\n\n__________\n__________\n_______*__\n_____###__\n_###______\n__________\n#####_____\n__________\n__________\n__________\n\n__________\n__________\n_##_______\n#____#____\n#_##_#_#__\n#_*#_#__#_\n_##___##__\n_______###\n__________\n__________\n\n##########\n#________#\n#________#\n#________#\n#________#\n#________#\n#________#\n#________#\n#____+_*_#\n##########\n\n##########\n#________#\n#________#\n#________#\n#________#\n#________#\n#________#\n#____+___#\n#_*__+___#\n##########\n\n##########\n#________#\n#________#\n#________#\n#____*___#\n#________#\n#________#\n#______+##\n#___+#++##\n##########\n\n++++++++++\n+________+\n+_____*__+\n+________+\n+_#______+\n+________+\n+______##+\n+###_____+\n+________+\n+__#######\n\n++++++++++\n+_+______+\n+_+______+\n+_+___###+\n+_#+__+__+\n+__+___+_+\n+___+___#+\n+###_+___+\n+__*_____+\n+########+\n\n++++++++++\n+________+\n+________+\n+________+\n+________+\n+__*_++__+\n+________+\n+________+\n+_____+SS+\n+########+\n\n+++______+\n+________+\n+*____+__+\n+#####+__+\n+____++__+\n+____++S_+\n+____+++_+\n+________+\n+____S__S+\n+########+\n\n++++++++++\n____+____+\n____+____+\n____+____+\n____+____+\n_____+*__+\n__+___+__+\n__+______+\n__+______+\n+S++#+S+++\n\n++++++++++\n_________+\n_________+\n____+____+\n____+____+\n_____+___+\n__+___S+++\n__+______+\n__+_*____+\n+S++#+++++\n\n#________#\n#_______*#\n#__#######\n#U_______#\n#________#\n#________#\n#######U_#\n#________#\n#________#\n##########\n\n#__*______\n#_____#___\n#U____#___\n#_____#___\n#__U__#___\n#_____#___\n#____U____\n#_________\n#_________\n##########\n\n#_________\n#_____#___\n#_____#_*_\n#_____#___\n#_____#_U_\n#_____#___\n#_______U_\n#_________\n#__U__U___\n__________\n\n#__*______\n#_____#___\n#U____#___\n#_+___#___\n#U_+__#___\n#_U___#___\n#__U______\n#_________\n#_________\n_____#####\no\n\n#*_R_R____\n#_____#___\n#U____#___\n#_+___#___\n#U_+__#___\n#_U___#___\n#__U_L____\n#_________\n#_________\n________##",
+			"file": "/C/Files/Development/Game_Jam/LudumDare37_merger/LudumDare37/Assets/all_states.txt",
+			"file_size": 3046,
+			"file_write_time": 131261205454212214,
+			"settings":
+			{
+				"buffer_size": 2775,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Assets/all_states.txt",
+			"settings":
+			{
+				"buffer_size": 3106,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "Searching 284 files for \"1 <<\" (regex, case sensitive)\n\nC:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets\\Audio\\recordings_data\\e00\\d00\\e00001b8.au:\n    <binary>\n\nC:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets\\Scripts\\Player\\PlayerRigidbody.cs:\n   91  \n   92  \t    isGrounded = Physics2D.OverlapBox(transform.position + (Vector3) groundCheckOffset, groundCheckSize, 0,\n   93: \t        1 << LayerMask.NameToLayer(\"Solid\"));\n   94  \n   95  \t    Debug.DrawLine(transform.position - (Vector3)groundCheckSize/2, transform.position + (Vector3)groundCheckSize / 2);\n   ..\n  249      {\n  250          var left = Physics2D.Raycast(groundCheckLeft.position, Vector2.down, 10,\n  251:             1 << LayerMask.NameToLayer(\"Solid\"));\n  252  \n  253          var right = Physics2D.Raycast(groundCheckRight.position, Vector2.down, 10,\n  254:             1 << LayerMask.NameToLayer(\"Solid\"));\n  255  \n  256          if (left && right)\n\nC:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets\\Scripts\\Player\\PlayerScript.cs:\n  333          {\n  334              Physics2D.Raycast(sideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 10,\n  335:                 1 << LayerMask.NameToLayer(\"Solid\")),\n  336              Physics2D.Raycast(sideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 10,\n  337:                 1 << LayerMask.NameToLayer(\"Solid\")),\n  338          };\n  339  \n  ...\n  341          {\n  342              rays.Add(Physics2D.Raycast(altSideCheckBottom.position, Vector2.right * Mathf.Sign(velocity), 11,\n  343:                 1 << LayerMask.NameToLayer(\"Solid\")));\n  344              rays.Add(Physics2D.Raycast(altSideCheckTop.position, Vector2.right * Mathf.Sign(velocity), 11,\n  345:                 1 << LayerMask.NameToLayer(\"Solid\")));\n  346          }\n  347  \n  ...\n  354      {\n  355          var left = Physics2D.Raycast(groundCheckLeft.position, Vector2.down, 10,\n  356:             1 << LayerMask.NameToLayer(\"Solid\"));\n  357  \n  358          var right = Physics2D.Raycast(groundCheckRight.position, Vector2.down, 10,\n  359:             1 << LayerMask.NameToLayer(\"Solid\"));\n  360  \n  361          if (left && right)\n  ...\n  370      {\n  371          var left = Physics2D.Raycast(headCheckLeft.position, Vector2.up, 10,\n  372:             1 << LayerMask.NameToLayer(\"Solid\"));\n  373  \n  374          var right = Physics2D.Raycast(headCheckRight.position, Vector2.up, 10,\n  375:             1 << LayerMask.NameToLayer(\"Solid\"));\n  376  \n  377          if (left && right)\n\n12 matches across 3 files\n",
+			"settings":
+			{
+				"buffer_size": 2519,
+				"line_ending": "Windows",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "Assets/Scripts/Player/PlayerRigidbody.cs",
+			"settings":
+			{
+				"buffer_size": 6347,
+				"encoding": "UTF-8 with BOM",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "for i in product((chr(x) for x in range(60, 256, 1)), (chr(x) for x in range(60, 256, 1)):\n    out(i)\n\nfor pos in product(*([range(2)] * 8)):\n    out(pos)",
+			"settings":
+			{
+				"buffer_size": 154,
+				"line_ending": "Windows",
+				"name": "for i in product((chr(x) for x in range(60, 256, 1"
+			}
+		},
+		{
+			"file": "/C/Users/jkg/Downloads/untitled.ceol",
+			"settings":
+			{
+				"buffer_size": 543,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class BloodExplosion : MonoBehaviour {\n\n    public GameObject bloodPrefab;\n    public int amount;\n    public float minLifeTime;\n    public float maxLifeTime;\n    public float force;\n    public Sprite[] sprites;\n    private GameObjectPool bloodPool;\n\n\t// Use this for initialization\n\tvoid Start () {\n\t\tbloodPool = FindObjectOfType<GameObjectPool>();\n\n\t   \tfor (int i = amount; i >= 0; --i) {\n            var go = bloodPool.Depool();\n            go.transform.position = transform.position;\n            go.GetComponent<Rigidbody2D>().velocity = (Random.insideUnitCircle + Vector2.up) * force;\n            go.GetComponent<SpriteRenderer>().sprite = sprites[Random.Range(0, sprites.Length-1)];\n            StartCoroutine(killBlood(go, Random.Range(minLifeTime, maxLifeTime)));\n        }\n\t\tkillExplosion(maxLifeTime + 0.1f);\n\t}\n\n\tprivate IEnumerator killExplosion(float seconds) {\n\t\tyield return new WaitForSeconds(seconds);\n\t\tDestroy(gameObject);\n\t}\n\n    private IEnumerator killBlood(GameObject go, float seconds) {\n        yield return new WaitForSeconds(seconds);\n        bloodPool.Repool(go);\n    }\n}\n",
 			"file": "Assets/Scripts/BloodExplosion.cs",
+			"file_size": 1190,
+			"file_write_time": 131260098910761965,
 			"settings":
 			{
 				"buffer_size": 1187,
@@ -621,10 +704,13 @@
 			}
 		},
 		{
+			"contents": "using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class Spring : MonoBehaviour\n{\n\tpublic Sprite[] anim;\n    public float interval = 0.06f;\n\n    private SpriteRenderer spriteRenderer;\n\n    public void Start()\n    {\n        spriteRenderer = GetComponent<SpriteRenderer>();\n    }\n\n    public void OnPlayerCollision()\n    {\n\t\tSoundManager.single.PlaySpringBoardSound();\n        StartCoroutine(Animation());\n    }\n\n    private IEnumerator Animation()\n    {\n\t\tforeach (var s in anim) {\n\t\t\tspriteRenderer.sprite = s;\n\t\t\tyield return new WaitForSeconds(interval);\n\t\t}\n    }\n}\n",
 			"file": "Assets/Scripts/Spring.cs",
+			"file_size": 608,
+			"file_write_time": 131261136191949997,
 			"settings":
 			{
-				"buffer_size": 632,
+				"buffer_size": 605,
 				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
@@ -637,7 +723,7 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 334.0,
+		"height": 375.0,
 		"last_filter": "",
 		"selected_items":
 		[
@@ -1154,7 +1240,7 @@
 				"Set Syntax: Jade"
 			]
 		],
-		"width": 512.0
+		"width": 418.0
 	},
 	"console":
 	{
@@ -1215,8 +1301,7 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Files/Development/Game_Jam/LudumDare37/Assets",
-		"/C/Files/Development/Game_Jam/LudumDare37/Assets/Scripts"
+		"/C/Files/Development/Game_Jam/LudumDare37/Assets"
 	],
 	"file_history":
 	[
@@ -1351,7 +1436,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 36.0
 	},
 	"find_in_files":
 	{
@@ -1367,6 +1452,8 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"1 <<",
+			"+",
 			"Play",
 			"_source",
 			" ",
@@ -1492,9 +1579,7 @@
 			"subdivs",
 			"white",
 			"last_ang",
-			"ang",
-			"dif",
-			"turn_origin"
+			"ang"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1502,6 +1587,7 @@
 		"regex": true,
 		"replace_history":
 		[
+			"X",
 			"$2/(1.417**$1)",
 			"$1",
 			".ci$1",
@@ -1577,7 +1663,7 @@
 	"groups":
 	[
 		{
-			"selected": 9,
+			"selected": 11,
 			"sheets":
 			[
 				{
@@ -1604,12 +1690,15 @@
 							"color_helper.file_palette":
 							[
 							],
+							"color_helper.preview_meta":
+							{
+							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
 								"current_syntax": "C#/C#",
 								"enabled": false,
-								"last_updated": 1481499076.44
+								"last_updated": 1481646778.12
 							},
 							"syntax": "Packages/C#/C#.sublime-syntax",
 							"tab_size": 4,
@@ -1619,7 +1708,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -1659,7 +1748,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 17,
 					"type": "text"
 				},
 				{
@@ -1699,7 +1788,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 15,
 					"type": "text"
 				},
 				{
@@ -1741,7 +1830,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 16,
 					"type": "text"
 				},
 				{
@@ -1750,15 +1839,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 12186,
+						"buffer_size": 11355,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7586,
-								7586
+								0,
+								0
 							]
 						],
 						"settings":
@@ -1778,10 +1867,10 @@
 							"syntax": "Packages/C#/C#.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 7287.0,
+						"translation.y": 5739.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
@@ -1808,9 +1897,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -1824,7 +1910,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
@@ -1851,9 +1937,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -1869,7 +1952,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -1896,9 +1979,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": null,
@@ -1913,7 +1993,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
@@ -1940,9 +2020,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -1954,10 +2031,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 609.0,
+						"translation.y": 484.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -1973,13 +2050,242 @@
 						"selection":
 						[
 							[
-								0,
-								11799
+								3869,
+								3869
 							]
 						],
 						"settings":
 						{
-							"color_helper.box_height": 22,
+							"color_helper.box_height": 21,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".cs",
+								"current_syntax": "C#/C#",
+								"enabled": false,
+								"last_updated": 1481634789.69
+							},
+							"syntax": "Packages/C#/C#.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 2686.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/C/Files/Development/Game_Jam/LudumDare37_merger/LudumDare37/Assets/all_states.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2775,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								220,
+								220
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".txt",
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481646778.12
+							},
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "Assets/all_states.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3106,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								964,
+								964
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".txt",
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481646778.12
+							},
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1207.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2519,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										386,
+										390
+									],
+									[
+										686,
+										690
+									],
+									[
+										841,
+										845
+									],
+									[
+										1148,
+										1152
+									],
+									[
+										1311,
+										1315
+									],
+									[
+										1538,
+										1542
+									],
+									[
+										1714,
+										1718
+									],
+									[
+										1904,
+										1908
+									],
+									[
+										2059,
+										2063
+									],
+									[
+										2261,
+										2265
+									],
+									[
+										2412,
+										2416
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								389,
+								389
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": null,
+								"current_syntax": "Default/Find Results",
+								"enabled": false,
+								"last_updated": 1481646778.12
+							},
+							"default_dir": "C:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets",
+							"detect_indentation": false,
+							"line_numbers": false,
+							"output_tag": 1,
+							"result_base_dir": "",
+							"result_file_regex": "^([^ \t].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "Assets/Scripts/Player/PlayerRigidbody.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6347,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2133,
+								2168
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
 							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
 							"color_helper.file_palette":
 							[
@@ -1992,19 +2298,106 @@
 								"current_ext": ".cs",
 								"current_syntax": "C#/C#",
 								"enabled": false,
-								"last_updated": 1481530452.76
+								"last_updated": 1481646778.12
 							},
 							"syntax": "Packages/C#/C#.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 3447.0,
+						"translation.y": 1178.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 14,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 154,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								154,
+								102
+							]
+						],
+						"settings":
+						{
+							"auto_name": "for i in product((chr(x) for x in range(60, 256, 1",
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": null,
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481634789.69
+							},
+							"default_dir": "C:\\Files\\Development\\Game_Jam\\LudumDare37\\Assets",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "/C/Users/jkg/Downloads/untitled.ceol",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 543,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.preview_meta":
+							{
+							},
+							"color_helper.scan":
+							{
+								"current_ext": ".ceol",
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481646778.12
+							},
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
 					"file": "Assets/Scripts/BloodExplosion.cs",
 					"semi_transient": false,
 					"settings":
@@ -2027,9 +2420,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -2043,16 +2433,16 @@
 						"translation.y": 27.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 17,
 					"file": "Assets/Scripts/Spring.cs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 632,
+						"buffer_size": 605,
 						"regions":
 						{
 						},
@@ -2085,7 +2475,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 14,
 					"type": "text"
 				}
 			]
@@ -2130,7 +2520,7 @@
 	"project": "Unity.sublime-project",
 	"replace":
 	{
-		"height": 56.0
+		"height": 64.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -2139,6 +2529,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"",
+				"C:\\Files\\Development\\Game_Jam\\LudumDare37_merger\\LudumDare37\\Assets\\all_states.txt"
+			],
 			[
 				"soundm",
 				"Scripts\\SoundManager.cs"
@@ -2149,10 +2543,6 @@
 			],
 			[
 				"level",
-				"Scripts\\LevelManager.cs"
-			],
-			[
-				"",
 				"Scripts\\LevelManager.cs"
 			],
 			[
@@ -2411,7 +2801,7 @@
 	"show_minimap": false,
 	"show_open_files": true,
 	"show_tabs": false,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 326.0,
 	"status_bar_visible": true,
 	"template_settings":
