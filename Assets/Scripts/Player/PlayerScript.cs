@@ -178,6 +178,7 @@ public class PlayerScript : MonoBehaviour {
 	        velocity.y = jumpForce;
 	        isJumping = true;
             hasJumped = true;
+			SoundManager.single.PlayLandSound();
 			SoundManager.single.PlayJumpSound();
 
 	    }
@@ -389,6 +390,11 @@ public class PlayerScript : MonoBehaviour {
 		transform.localScale = tmp;
 
 		facingRight = !facingRight;
+	}
+
+	public void LaserHit()
+	{
+		Respawn();	
 	}
 
     private void Respawn()

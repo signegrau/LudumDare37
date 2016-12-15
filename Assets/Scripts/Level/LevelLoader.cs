@@ -16,8 +16,9 @@ public class LevelLoader
         { 'l', Tile.State.BoostLeft },
         { 'r', Tile.State.BoostRight },
         { '@', Tile.State.PlayerStart },
-        { '+', Tile.State.Spike },
-        { '_', Tile.State.Wall }
+        { 'x', Tile.State.Spike },
+		{ '+', Tile.State.LaserCannon },
+		{ '_', Tile.State.Wall }
     };
 
     private static Dictionary<Tile.State, char> stateToChar;
