@@ -8,34 +8,37 @@ using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
     public delegate void PlayPressedHandler();
-
     public static PlayPressedHandler OnPlayPressed;
 
-    public GameObject playButton;
-
-    private CanvasGroup _canvasGroup;
+    public CanvasGroup titleMenu;
+    public Button quitButton;
 
     private void Start()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
-
-        EventSystem.current.SetSelectedGameObject(playButton, null);
+#if UNITY_STANDALONE
+        quitButton.gameObject.SetActive(true);
+#else
+        quitButton.gamerObject.SetActive(false);
+#endif
     }
 
     public void PlayGame()
     {
-        if (OnPlayPressed != null)
-        {
-            OnPlayPressed();
-        }
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
+    }
 
-        _canvasGroup.alpha = 0;
-        _canvasGroup.blocksRaycasts = false;
-        _canvasGroup.interactable = false;
+    public void GotoCustomLevelMenu()
+    {
+
     }
 
     public void GotoEditor()
     {
         SceneManager.LoadScene("Editor", LoadSceneMode.Single);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

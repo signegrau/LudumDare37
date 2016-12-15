@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public bool startGameAtLoad;
     public TextAsset statesFile;
     public UnityEngine.Object levelScene;
     public LevelManager levelManager;
@@ -23,6 +24,12 @@ public class GameManager : MonoBehaviour
     private Transform player;
 
     private bool gameStarting;
+
+    private void Start()
+    {
+        if (startGameAtLoad)
+            StartGame();
+    }
 
     private void LoadLevel()
     {
@@ -43,7 +50,6 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable() {
         Pickup.OnPickup += AdvanceState;
-        Menu.OnPlayPressed += StartGame;
         PlayerScript.OnDeath += OnPlayerDeath;
         EndScreen.OnPlayAgainPressed += RestartGame;
         LevelManager.OnStateChanged += OnStateChanged;
@@ -54,7 +60,6 @@ public class GameManager : MonoBehaviour
     private void OnDisable()
     {
         Pickup.OnPickup -= AdvanceState;
-        Menu.OnPlayPressed -= StartGame;
         PlayerScript.OnDeath -= OnPlayerDeath;
         EndScreen.OnPlayAgainPressed -= RestartGame;
         LevelManager.OnStateChanged -= OnStateChanged;
