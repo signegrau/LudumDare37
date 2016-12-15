@@ -14,6 +14,12 @@ public class Menu : MonoBehaviour
     public CanvasGroup customLevelMenu;
     public Button quitButton;
 
+    public RectTransform levelButtonContainer;
+    public GameObject levelButtonPrefab;
+    public GameObject noLevelText;
+
+    private List<CustomLevelButton> levelButtons = new List<CustomLevelButton>();
+
     private void Start()
     {
         titleMenu.SetVisibility(true);
@@ -35,6 +41,27 @@ public class Menu : MonoBehaviour
     {
         titleMenu.SetVisibility(false);
         customLevelMenu.SetVisibility(true);
+
+        if (levelButtons.Count > 0)
+        {
+            foreach (var button in levelButtons)
+            {
+                Destroy(button.gameObject);
+            }
+            levelButtons.Clear();
+        }
+
+        var files = LevelLoader.GetLevels();
+
+        foreach (var file in files)
+        {
+            Debug.Log(file);
+            var itemGameObject = Instantiate(levelButtonPrefab, levelButtonContainer);
+            itemGameObject.transform.localScale = Vector3.one;
+            var item = itemGameObject.GetComponent<CustomLevelButton>();
+            item.Setup(file);
+            levelButtons.Add(item);
+        }
     }
 
     public void GotoTitleMenu()
