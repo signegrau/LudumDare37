@@ -28,9 +28,11 @@ public class LaserCannon : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		shootTimer += Time.deltaTime;
+		//shootTimer += Time.deltaTime;
 
-		float percentReadyToShoot = invShootInterval*shootTimer;
+	    var time = Time.time % shootInterval;
+
+		float percentReadyToShoot = time/shootInterval;
 
 		if (percentReadyToShoot > 0.9f) {
 			lineRenderer.enabled = true;
@@ -60,18 +62,30 @@ public class LaserCannon : MonoBehaviour {
 
 	private void Shoot() {
 		hitLocations = new List<Vector3>();
-		Vector3[] cardinalDirections = new Vector3[] {Vector3.up, Vector3.right, Vector3.down, Vector3.left};
-		for (int i = 0; i < cardinalDirections.Length; ++i) {
-			Vector3 dir = cardinalDirections[i];
-			int layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
-			RaycastHit2D hit = Physics2D.Raycast(transform.position	, (Vector2)dir, Mathf.Infinity, layers);
-			if (hit.collider != null) {
-				if (hit.collider.CompareTag("Player")) {
-					hit.collider.GetComponent<PlayerScript>().LaserHit();
-				}
-				hitLocations.Add(transform.position);
-				hitLocations.Add(hit.point);
-			}
+		Vector3[] cardinalDirections = {Vector3.up, Vector3.right, Vector3.down, Vector3.left};
+
+		for (var i = 0; i < cardinalDirections.Length; ++i)
+		{
+			var dir = cardinalDirections[i];
+			var layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
+
+			RaycastHit2D hit = Physics2D.Raycast(transform.position	, dir, Mathf.Infinity, layers);
+
+		    hitLocations.Add(transform.position);
+
+		    if (hit.collider != null)
+		    {
+		        if (hit.collider.CompareTag("Player"))
+		        {
+		            hit.collider.GetComponent<PlayerScript>().LaserHit();
+		        }
+
+		        hitLocations.Add(hit.point);
+		    }
+		    else
+		    {
+		        hitLocations.Add(transform.position + dir * 100);
+		    }
 		}
 
 		lineRenderer.SetPositions(hitLocations.ToArray());
