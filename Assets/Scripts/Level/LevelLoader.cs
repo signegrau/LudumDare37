@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -102,9 +104,9 @@ public class LevelLoader
     {
         var path = Application.persistentDataPath + "/levels/" + fileName + ".mutolocus";
 
-        if (System.IO.File.Exists(path))
+        if (File.Exists(path))
         {
-            var text = System.IO.File.ReadAllText(path);
+            var text = File.ReadAllText(path);
             return ParseLevel(text);
         }
         else
@@ -120,13 +122,24 @@ public class LevelLoader
     {
         var path = Application.persistentDataPath + "/levels/";
 
-        System.IO.Directory.CreateDirectory(path);
+        Directory.CreateDirectory(path);
 
         path = path + fileName + ".mutolocus";
         var text = EncodeLevel(level);
 
         Debug.Log("Saved level to " + path);
 
-        System.IO.File.WriteAllText(path, text);
+        File.WriteAllText(path, text);
+    }
+
+    public static List<string> GetLevels()
+    {
+        var path = Application.persistentDataPath + "/levels/";
+
+        Debug.Log(path);
+
+        return Directory.GetFiles(path)
+            .Where(s => Path.GetExtension(s) == ".mutolocus")
+            .Select(Path.GetFileNameWithoutExtension).ToList();
     }
 }

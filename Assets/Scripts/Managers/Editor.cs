@@ -28,10 +28,14 @@ public class Editor : MonoBehaviour
 
     public InputField fileNameInput;
 
+    public Dialogs dialogs;
+
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
 
     private int _currentStateIndex;
+
+    private bool filePickerOpen;
 
     private int currentStateIndex
     {
@@ -98,6 +102,7 @@ public class Editor : MonoBehaviour
 
     private void OnTilePressed(int index, int mouseButton)
     {
+        if (filePickerOpen) return;
         if (currentStateIndex > 0 && currentTileStates[index] == Tile.State.PlayerStart) return;
 
         if (mouseButton == 0)
@@ -214,30 +219,6 @@ public class Editor : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        /*
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (isPlaying)
-            {
-                StopPlaying();
-            }
-            else
-            {
-                StartPlayingLevel();
-            }
-        }
-
-        for (var i = 0; i < Mathf.Min(statesToShow.Count, 10); i++)
-        {
-            if (Input.GetKeyDown((i + 1 % 10).ToString()))
-            {
-                ChangeState(statesToShow[i]);
-            }
-        }*/
-    }
-
     public void GotoNextState()
     {
         level.StatesFindSpecialIndexes();
@@ -309,44 +290,86 @@ public class Editor : MonoBehaviour
 
     public void SaveLevel()
     {
-        var fileName = fileNameInput.text;
+        dialogs.OpenFilePicker(false);
+        FilePicker.fileChoosen += OnSaveFileChoosen;
+        filePickerOpen = true;
+    }
 
-        if (string.IsNullOrEmpty(fileName))
-        {
-            Debug.Log("No file name provided");
-        }
-        else
-        {
-            var startIndex = SanitizeLevel();
-
-            LevelLoader.SaveLevelToFile(fileName, level);
-
-            if (currentStateIndex > 0)
+    public void OnSaveFileChoosen(string fileName)
+    {
+        if (fileName != null) {if (string.IsNullOrEmpty(fileName))
             {
-                currentTileStates[startIndex] = Tile.State.PlayerStart;
+                Debug.Log("No file name provided");
+            }
+            else
+            {
+                var startIndex = SanitizeLevel();
+
+                LevelLoader.SaveLevelToFile(fileName, level);
+
+                if (currentStateIndex > 0)
+                {
+                    currentTileStates[startIndex] = Tile.State.PlayerStart;
+                }
             }
         }
 
-
+        filePickerOpen = false;
+        FilePicker.fileChoosen -= OnSaveFileChoosen;
     }
 
     public void LoadLevelFromFile()
     {
-        var fileName = fileNameInput.text;
+        dialogs.OpenFilePicker(true);
+        FilePicker.fileChoosen += OnLevelFileChoosen;
+        filePickerOpen = true;
+    }
 
-        if (string.IsNullOrEmpty(fileName))
+    public void OnLevelFileChoosen(string fileName)
+    {
+        if (fileName != null)
         {
-            Debug.Log("No file name provided");
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Debug.Log("No file name provided");
+            }
+            else
+            {
+                var newLevel = LevelLoader.LoadLevelFromFile(fileName);
+
+                if (newLevel == null) return;
+
+                level = newLevel;
+                currentStateIndex = 0;
+                _levelManager.ChangeState(currentTileStates, true);
+            }
         }
-        else
+
+        filePickerOpen = false;
+        FilePicker.fileChoosen -= OnLevelFileChoosen;
+    }
+
+    public void Update()
+    {
+        /*
+        if (Input.GetKeyDown(KeyCode.P))
         {
-            var newLevel = LevelLoader.LoadLevelFromFile(fileName);
-
-            if (newLevel == null) return;
-
-            level = newLevel;
-            currentStateIndex = 0;
-            _levelManager.ChangeState(currentTileStates, true);
+            if (isPlaying)
+            {
+                StopPlaying();
+            }
+            else
+            {
+                StartPlayingLevel();
+            }
         }
+
+        for (var i = 0; i < Mathf.Min(statesToShow.Count, 10); i++)
+        {
+            if (Input.GetKeyDown((i + 1 % 10).ToString()))
+            {
+                ChangeState(statesToShow[i]);
+            }
+        }*/
     }
 }
