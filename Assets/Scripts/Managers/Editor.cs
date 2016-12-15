@@ -28,7 +28,7 @@ public class Editor : MonoBehaviour
 
     public InputField fileNameInput;
 
-    public Dialogs dialogs;
+    public FilePicker filePicker;
 
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
@@ -290,7 +290,7 @@ public class Editor : MonoBehaviour
 
     public void SaveLevel()
     {
-        dialogs.OpenFilePicker(false);
+        filePicker.Show(false);
         FilePicker.fileChoosen += OnSaveFileChoosen;
         filePickerOpen = true;
     }
@@ -320,7 +320,7 @@ public class Editor : MonoBehaviour
 
     public void LoadLevelFromFile()
     {
-        dialogs.OpenFilePicker(true);
+        filePicker.Show(true);
         FilePicker.fileChoosen += OnLevelFileChoosen;
         filePickerOpen = true;
     }

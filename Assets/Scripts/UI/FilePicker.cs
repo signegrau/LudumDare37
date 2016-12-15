@@ -15,13 +15,16 @@ public class FilePicker : MonoBehaviour
     public Button button;
     public InputField inputField;
     public RectTransform scrollViewContent;
-
     public GameObject listItemPrefab;
+    public OverwritingDialog overwritingDialog;
     private List<FilePickerItem> items = new List<FilePickerItem>();
 
     private Text buttonText;
     private CanvasGroup _canvasGroup;
     private string fileName;
+
+    private bool asLoad;
+
 
     private void OnEnable()
     {
@@ -57,6 +60,7 @@ public class FilePicker : MonoBehaviour
 
     public void Show(bool asLoad)
     {
+        this.asLoad = asLoad;
         _canvasGroup.SetVisibility(true);
 
         inputField.interactable = !asLoad;
@@ -102,6 +106,15 @@ public class FilePicker : MonoBehaviour
         {
             fileName = null;
         }
+        else
+        {
+            if (LevelLoader.LevelFileExists(fileName) && !asLoad)
+            {
+                OverwritingDialog.result += OverwritingDialogOnResult;
+                overwritingDialog.Show(fileName);
+                return;
+            }
+        }
 
         if (fileChoosen != null)
         {
@@ -109,6 +122,21 @@ public class FilePicker : MonoBehaviour
         }
 
         Hide();
+    }
+
+    private void OverwritingDialogOnResult(bool overwrite)
+    {
+        if (overwrite)
+        {
+            if (fileChoosen != null)
+            {
+                fileChoosen(fileName);
+            }
+
+            Hide();
+        }
+
+        OverwritingDialog.result -= OverwritingDialogOnResult;
     }
 
     public void ClosePressed()
