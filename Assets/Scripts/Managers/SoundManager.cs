@@ -9,11 +9,12 @@ public class SoundManager : MonoBehaviour
 	public AudioClip springBoardSound;
 	public AudioClip boostSound;
 	public AudioClip landSound;
+	public AudioClip laserSound;
 	public AudioClip jumpSound;
 	public AudioClip[] splatSounds;
 	public AudioClip[] footStepSounds;
 	public AudioSource _source;
-	private AudioSource advanceButtonPushSoundSource, springBoardSoundSource, boostSoundSource, landSoundSource, jumpSoundSource, splatSoundsSource, footStepSoundsSource;
+	private AudioSource advanceButtonPushSoundSource, springBoardSoundSource, boostSoundSource, landSoundSource, jumpSoundSource, laserSoundSource, splatSoundsSource, footStepSoundsSource;
 	private int avoidFootstepIndex;
 	private int avoidSplatIndex;
 
@@ -38,6 +39,9 @@ public class SoundManager : MonoBehaviour
 			jumpSoundSource = gameObject.AddComponent<AudioSource>();
 			jumpSoundSource.clip = jumpSound;
 
+			laserSoundSource = gameObject.AddComponent<AudioSource>();
+			laserSoundSource.clip = laserSound;
+
 			splatSoundsSource = gameObject.AddComponent<AudioSource>();
 			footStepSoundsSource = gameObject.AddComponent<AudioSource>();
 		}
@@ -58,6 +62,7 @@ public class SoundManager : MonoBehaviour
 	public void PlayBoostSound() { boostSoundSource.Play(); }
 	public void PlayJumpSound() { jumpSoundSource.Play(); }
 	public void PlayLandSound() { landSoundSource.Play(); }
+	public void PlayLaserSound() { laserSoundSource.Play(); }
 	public void PlayFootstepSound() {
 		avoidFootstepIndex = PlayRandomSound(footStepSoundsSource, footStepSounds, avoidFootstepIndex);
 	}

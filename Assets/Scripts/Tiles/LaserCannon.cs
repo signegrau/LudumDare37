@@ -12,6 +12,8 @@ public class LaserCannon : MonoBehaviour {
 	private float shootTimer;
 	private float invShootInterval;
 
+	private static bool hasPlayedSound;
+
 
 	// Use this for initialization
 	void Start () {
@@ -22,19 +24,27 @@ public class LaserCannon : MonoBehaviour {
 		lineRenderer = gameObject.GetComponent<LineRenderer>();
 		shootTimer = 0;
 		invShootInterval = 1f/shootInterval;
+		hasPlayedSound = false;
 
 		lineRenderer.SetPositions(new Vector3[8]);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		shootTimer += Time.deltaTime;
+		
+		//shootTimer += Time.deltaTime;
+//		float percentReadyToShoot = invShootInterval*shootTimer;
 
-		float percentReadyToShoot = invShootInterval*shootTimer;
+		float percentReadyToShoot = (Time.time % shootInterval) / shootInterval;
 
 		if (percentReadyToShoot > 0.9f) {
 			lineRenderer.enabled = true;
 			Shoot();
+			if(!hasPlayedSound) {
+				hasPlayedSound = true;
+				SoundManager.single.PlayLaserSound();
+				StartCoroutine(LaserSoundTimeout(SoundManager.single.laserSound.length));
+			}
 			if (spriteRenderer.sprite != anim[2]) {
 				spriteRenderer.sprite = anim[2];
 			}
@@ -50,10 +60,11 @@ public class LaserCannon : MonoBehaviour {
 				}
 			}
 		}
+	}
 
-		if (percentReadyToShoot > 1) {
-			shootTimer = 0;
-		}
+	private IEnumerator LaserSoundTimeout(float seconds) {
+		yield return new WaitForSeconds(seconds);
+		hasPlayedSound = false;
 	}
 
 	List<Vector3> hitLocations;
@@ -65,12 +76,15 @@ public class LaserCannon : MonoBehaviour {
 			Vector3 dir = cardinalDirections[i];
 			int layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
 			RaycastHit2D hit = Physics2D.Raycast(transform.position	, (Vector2)dir, Mathf.Infinity, layers);
+			hitLocations.Add(transform.position);
 			if (hit.collider != null) {
 				if (hit.collider.CompareTag("Player")) {
 					hit.collider.GetComponent<PlayerScript>().LaserHit();
 				}
-				hitLocations.Add(transform.position);
 				hitLocations.Add(hit.point);
+			}
+			else {
+				hitLocations.Add(transform.position + 1000*dir);
 			}
 		}
 
