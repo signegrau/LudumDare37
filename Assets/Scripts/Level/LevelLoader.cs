@@ -136,7 +136,11 @@ public class LevelLoader
     {
         var path = Application.persistentDataPath + "/levels/";
 
-        Debug.Log(path);
+        if (!Directory.Exists(path))
+        {
+            Debug.Log("No level folder");
+            return;
+        }
 
         return Directory.GetFiles(path)
             .Where(s => Path.GetExtension(s) == ".mutolocus")
