@@ -139,7 +139,7 @@ public class LevelLoader
         if (!Directory.Exists(path))
         {
             Debug.Log("No level folder");
-            return;
+			return new List<String>();
         }
 
         return Directory.GetFiles(path)

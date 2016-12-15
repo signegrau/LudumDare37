@@ -7,7 +7,9 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public TextAsset statesFile;
-    public UnityEngine.Object levelScene;
+//	  Does not work in build:
+//    public UnityEngine.Object levelScene;
+	public String levelSceneName;
     public LevelManager levelManager;
 
     public delegate void GameStartHandler(float time);
@@ -26,16 +28,17 @@ public class GameManager : MonoBehaviour
 
     private void LoadLevel()
     {
-        var scene = SceneManager.GetSceneByName(levelScene.name);
+		var scene = SceneManager.GetSceneByName(levelSceneName);
 
         if (scene.isLoaded) return;
 
-        SceneManager.LoadScene(levelScene.name, LoadSceneMode.Additive);
+		SceneManager.LoadScene(levelSceneName, LoadSceneMode.Additive);
+        //SceneManager.LoadScene(levelScene.name, LoadSceneMode.Additive);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        if (scene.name == levelScene.name)
+		if (scene.name == levelSceneName)
         {
             levelManager = FindObjectOfType<LevelManager>();
         }

@@ -527,7 +527,6 @@
 			"settings":
 			{
 				"buffer_size": 989,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -539,7 +538,6 @@
 			"settings":
 			{
 				"buffer_size": 953,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -551,7 +549,6 @@
 			"settings":
 			{
 				"buffer_size": 268,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -563,7 +560,6 @@
 			"settings":
 			{
 				"buffer_size": 807,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -575,7 +571,6 @@
 			"settings":
 			{
 				"buffer_size": 11355,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -598,7 +593,6 @@
 			"settings":
 			{
 				"buffer_size": 898,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -618,7 +612,6 @@
 			"settings":
 			{
 				"buffer_size": 2298,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -630,7 +623,6 @@
 			"settings":
 			{
 				"buffer_size": 11799,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -642,7 +634,6 @@
 			"settings":
 			{
 				"buffer_size": 2775,
-				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
@@ -651,6 +642,15 @@
 			"settings":
 			{
 				"buffer_size": 3106,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/jkg/AppData/LocalLow/Mads & Jakob/Muto Locus/levels/Crap.mutolocus",
+			"settings":
+			{
+				"buffer_size": 221,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -699,7 +699,6 @@
 			"settings":
 			{
 				"buffer_size": 1187,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		},
@@ -711,7 +710,6 @@
 			"settings":
 			{
 				"buffer_size": 605,
-				"encoding": "UTF-8 with BOM",
 				"line_ending": "Unix"
 			}
 		}
@@ -1663,7 +1661,7 @@
 	"groups":
 	[
 		{
-			"selected": 11,
+			"selected": 12,
 			"sheets":
 			[
 				{
@@ -1690,9 +1688,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -1708,7 +1703,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -1748,7 +1743,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 17,
+					"stack_index": 18,
 					"type": "text"
 				},
 				{
@@ -1788,7 +1783,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 15,
+					"stack_index": 16,
 					"type": "text"
 				},
 				{
@@ -1830,7 +1825,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 16,
+					"stack_index": 17,
 					"type": "text"
 				},
 				{
@@ -1870,7 +1865,7 @@
 						"translation.y": 5739.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 14,
 					"type": "text"
 				},
 				{
@@ -1910,7 +1905,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
@@ -1952,7 +1947,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
@@ -1993,7 +1988,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -2034,7 +2029,7 @@
 						"translation.y": 484.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
@@ -2074,7 +2069,7 @@
 						"translation.y": 2686.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -2101,9 +2096,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".txt",
@@ -2117,7 +2109,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -2133,8 +2125,48 @@
 						"selection":
 						[
 							[
-								964,
-								964
+								1090,
+								1090
+							]
+						],
+						"settings":
+						{
+							"color_helper.box_height": 17,
+							"color_helper.color_scheme": "Packages/User/ColorSchemes/Xcode_default.tmTheme",
+							"color_helper.file_palette":
+							[
+							],
+							"color_helper.scan":
+							{
+								"current_ext": ".txt",
+								"current_syntax": "Text/Plain text",
+								"enabled": false,
+								"last_updated": 1481803759.24
+							},
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1207.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "/C/Users/jkg/AppData/LocalLow/Mads & Jakob/Muto Locus/levels/Crap.mutolocus",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 221,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
 							]
 						],
 						"settings":
@@ -2149,22 +2181,22 @@
 							},
 							"color_helper.scan":
 							{
-								"current_ext": ".txt",
+								"current_ext": ".mutolocus",
 								"current_syntax": "Text/Plain text",
 								"enabled": false,
-								"last_updated": 1481646778.12
+								"last_updated": 1481839816.61
 							},
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1207.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 13,
 					"semi_transient": false,
 					"settings":
 					{
@@ -2238,9 +2270,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": null,
@@ -2263,11 +2292,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
+					"buffer": 14,
 					"file": "Assets/Scripts/Player/PlayerRigidbody.cs",
 					"semi_transient": false,
 					"settings":
@@ -2290,9 +2319,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".cs",
@@ -2306,11 +2332,11 @@
 						"translation.y": 1178.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 14,
+					"buffer": 15,
 					"semi_transient": false,
 					"settings":
 					{
@@ -2333,9 +2359,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": null,
@@ -2350,11 +2373,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 15,
+					"buffer": 16,
 					"file": "/C/Users/jkg/Downloads/untitled.ceol",
 					"semi_transient": false,
 					"settings":
@@ -2377,9 +2400,6 @@
 							"color_helper.file_palette":
 							[
 							],
-							"color_helper.preview_meta":
-							{
-							},
 							"color_helper.scan":
 							{
 								"current_ext": ".ceol",
@@ -2393,11 +2413,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 16,
+					"buffer": 17,
 					"file": "Assets/Scripts/BloodExplosion.cs",
 					"semi_transient": false,
 					"settings":
@@ -2433,11 +2453,11 @@
 						"translation.y": 27.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 17,
+					"buffer": 18,
 					"file": "Assets/Scripts/Spring.cs",
 					"semi_transient": false,
 					"settings":
@@ -2475,7 +2495,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 15,
 					"type": "text"
 				}
 			]
