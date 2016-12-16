@@ -20,6 +20,8 @@ public class Menu : MonoBehaviour
 
     private List<CustomLevelButton> levelButtons = new List<CustomLevelButton>();
 
+    private string levelToLoad;
+
     private void Start()
     {
         titleMenu.SetVisibility(true);
@@ -93,5 +95,12 @@ public class Menu : MonoBehaviour
     private void OnCustomLevelButtonPressed(string fileName)
     {
         Debug.Log("Start level: " + fileName);
+        var level = LevelLoader.LoadLevelFromFile(fileName);
+
+        // One of the least elegent solution in this project imo
+        GameManager.loadLevel = level;
+        // End
+
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
 }

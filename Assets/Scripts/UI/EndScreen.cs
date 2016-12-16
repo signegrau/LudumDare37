@@ -6,8 +6,9 @@ using UnityEngine.UI;
 
 public class EndScreen : MonoBehaviour
 {
-    public delegate void PlayAgainPressedHandler();
-    public static event PlayAgainPressedHandler OnPlayAgainPressed;
+    public delegate void ButtonPressedHandler();
+    public static event ButtonPressedHandler playAgainPressed;
+    public static event ButtonPressedHandler mainMenuPressed;
 
     public Text timer;
     public Text deathCounter;
@@ -60,9 +61,21 @@ public class EndScreen : MonoBehaviour
 
     public void PlayAgain()
     {
-        if (OnPlayAgainPressed != null)
+        if (playAgainPressed != null)
         {
-            OnPlayAgainPressed();
+            playAgainPressed();
+        }
+
+        _canvasGroup.alpha = 0;
+        _canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
+    }
+
+    public void MainMenu()
+    {
+        if (mainMenuPressed != null)
+        {
+            mainMenuPressed();
         }
 
         _canvasGroup.alpha = 0;

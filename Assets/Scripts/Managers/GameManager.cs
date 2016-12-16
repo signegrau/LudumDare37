@@ -27,10 +27,21 @@ public class GameManager : MonoBehaviour
 
     private bool gameStarting;
 
+    public static Level loadLevel;
+
     private void Start()
     {
         if (startGameAtLoad)
-            StartGame();
+        {
+            if (loadLevel == null)
+            {
+                StartGame();
+            }
+            else
+            {
+                StartGame(loadLevel);
+            }
+        }
     }
 
     private void LoadLevel()
@@ -54,7 +65,8 @@ public class GameManager : MonoBehaviour
     private void OnEnable() {
         Pickup.OnPickup += AdvanceState;
         PlayerScript.OnDeath += OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed += RestartGame;
+        EndScreen.playAgainPressed += RestartGame;
+        EndScreen.mainMenuPressed += EndGame;
         LevelManager.OnStateChanged += OnStateChanged;
         LevelManager.OnNoStatesLeft += OnNoStatesLeft;
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -64,7 +76,8 @@ public class GameManager : MonoBehaviour
     {
         Pickup.OnPickup -= AdvanceState;
         PlayerScript.OnDeath -= OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed -= RestartGame;
+        EndScreen.playAgainPressed -= RestartGame;
+        EndScreen.mainMenuPressed -= EndGame;
         LevelManager.OnStateChanged -= OnStateChanged;
         LevelManager.OnNoStatesLeft -= OnNoStatesLeft;
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -150,11 +163,18 @@ public class GameManager : MonoBehaviour
         Destroy(player.gameObject);
         startTime = 0;
         countDeath = 0;
+        loadLevel = null;
         return levelManager.CurrentStateIndex;
     }
 
     private void RestartGame()
     {
         SceneManager.LoadScene("Game", LoadSceneMode.Single);
+    }
+
+    private void EndGame()
+    {
+        loadLevel = null;
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 }
