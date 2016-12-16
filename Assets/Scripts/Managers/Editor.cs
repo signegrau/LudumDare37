@@ -38,7 +38,7 @@ public class Editor : MonoBehaviour
 
     private int _currentStateIndex;
 
-    private bool filePickerOpen;
+    private bool dialogOpen;
 
     private string currentFileName;
     private bool hasBeenSaved;
@@ -84,17 +84,23 @@ public class Editor : MonoBehaviour
             go.GetComponent<TileStateButton>().SetState(tileState);
         }
 
-        var state = new LevelState();
-        level.AddState(state);
-
         ChangeState(Tile.State.Platform);
 
         stateLabelTemplate = stateLabel.text;
         stateLabel.text = string.Format(stateLabelTemplate, 1);
 
+        CreateNewLevel();
+    }
+
+    private void CreateNewLevel()
+    {
+        level = new Level();
+        var state = new LevelState();
+        level.AddState(state);
+
         currentFileName = "<new level>";
         fileNameLabel.text = "<new level>";
-        SetDirty(true);
+        SetDirty(false);
     }
 
     private void SetDirty(bool dirty)
@@ -127,7 +133,7 @@ public class Editor : MonoBehaviour
 
     private void OnTilePressed(int index, int mouseButton)
     {
-        if (filePickerOpen) return;
+        if (dialogOpen) return;
         if (currentStateIndex > 0 && currentTileStates[index] == Tile.State.PlayerStart) return;
 
         if (mouseButton == 0)
@@ -334,7 +340,7 @@ public class Editor : MonoBehaviour
         {
             filePicker.Show(false);
             FilePicker.fileChoosen += OnSaveFileChoosen;
-            filePickerOpen = true;
+            dialogOpen = true;
         }
         else
         {
@@ -369,15 +375,39 @@ public class Editor : MonoBehaviour
             }
         }
 
-        filePickerOpen = false;
+        dialogOpen = false;
         FilePicker.fileChoosen -= OnSaveFileChoosen;
     }
 
     public void LoadLevelFromFile()
     {
+        if (_dirty)
+        {
+            dialogOpen = true;
+            UnsavedChangesDialog.result += UnsavedChangesDialogOnResultLoad;
+            unsavedChangesDialog.Show();
+        }
+        else
+        {
+            ShowLoadLevelPicker();
+        }
+    }
+
+    private void UnsavedChangesDialogOnResultLoad(bool overwrite)
+    {
+        dialogOpen = false;
+        if (overwrite)
+        {
+            ShowLoadLevelPicker();
+        }
+        UnsavedChangesDialog.result -= UnsavedChangesDialogOnResultLoad;
+    }
+
+    private void ShowLoadLevelPicker()
+    {
         filePicker.Show(true);
         FilePicker.fileChoosen += OnLevelFileChoosen;
-        filePickerOpen = true;
+        dialogOpen = true;
     }
 
     public void OnLevelFileChoosen(string fileName)
@@ -405,13 +435,13 @@ public class Editor : MonoBehaviour
             }
         }
 
-        filePickerOpen = false;
+        dialogOpen = false;
         FilePicker.fileChoosen -= OnLevelFileChoosen;
     }
 
     public void Update()
     {
-        if (filePickerOpen) return;
+        if (dialogOpen) return;
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
