@@ -25,10 +25,13 @@ public class Editor : MonoBehaviour
     public GameManager gameManager;
     public Text stateLabel;
     private string stateLabelTemplate;
+    public Text fileNameLabel;
 
     public InputField fileNameInput;
+    
 
     public FilePicker filePicker;
+    public UnsavedChangesDialog unsavedChangesDialog;
 
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
@@ -36,6 +39,10 @@ public class Editor : MonoBehaviour
     private int _currentStateIndex;
 
     private bool filePickerOpen;
+
+    private string currentFileName;
+    private bool hasBeenSaved;
+    private bool _dirty;
 
     private int currentStateIndex
     {
@@ -84,6 +91,24 @@ public class Editor : MonoBehaviour
 
         stateLabelTemplate = stateLabel.text;
         stateLabel.text = string.Format(stateLabelTemplate, 1);
+
+        currentFileName = "<new level>";
+        fileNameLabel.text = "<new level>";
+        SetDirty(true);
+    }
+
+    private void SetDirty(bool dirty)
+    {
+        _dirty = dirty;
+
+        if (dirty)
+        {
+            fileNameLabel.text = currentFileName + "*";
+        }
+        else
+        {
+            fileNameLabel.text = currentFileName;
+        }
     }
 
     private void OnEnable()
@@ -107,15 +132,21 @@ public class Editor : MonoBehaviour
 
         if (mouseButton == 0)
         {
+            if (currentTileStates[index] == selectedState) return;
+
             currentTileStates[index] = selectedState;
             var tile = _levelManager.Tiles[index];
             tile.GotoState(selectedState, true);
+            SetDirty(true);
         }
         else
         {
+            if (currentTileStates[index] == Tile.State.Wall) return;
+
             currentTileStates[index] = Tile.State.Wall;
             var tile = _levelManager.Tiles[index];
             tile.GotoState(Tile.State.Wall, true);
+            SetDirty(true);
         }
 
     }
@@ -145,12 +176,19 @@ public class Editor : MonoBehaviour
         {
             _levelManager = FindObjectOfType<LevelManager>();
             StartCoroutine(_levelManager.Setup());
+
+            Camera.main.orthographicSize = 7;
         }
     }
 
     public void StartPlayingLevel()
     {
         StartPlaying(0);
+    }
+
+    public void StartPlayingFromCurrentState()
+    {
+        StartPlaying(currentStateIndex);
     }
 
     public void StartPlaying(int index)
@@ -177,6 +215,8 @@ public class Editor : MonoBehaviour
 
     public void StopPlaying()
     {
+        if (!isPlaying) return;
+
         isPlaying = false;
         currentStateIndex = gameManager.StopGame();
         Debug.Log(currentStateIndex);
@@ -290,19 +330,34 @@ public class Editor : MonoBehaviour
 
     public void SaveLevel()
     {
-        filePicker.Show(false);
-        FilePicker.fileChoosen += OnSaveFileChoosen;
-        filePickerOpen = true;
+        if (string.IsNullOrEmpty(currentFileName) || !hasBeenSaved)
+        {
+            filePicker.Show(false);
+            FilePicker.fileChoosen += OnSaveFileChoosen;
+            filePickerOpen = true;
+        }
+        else
+        {
+            SetDirty(false);
+            LevelLoader.SaveLevelToFile(currentFileName, level);
+        }
     }
 
     public void OnSaveFileChoosen(string fileName)
     {
-        if (fileName != null) {if (string.IsNullOrEmpty(fileName))
+        if (fileName != null)
+        {
+            if (string.IsNullOrEmpty(fileName))
             {
                 Debug.Log("No file name provided");
             }
             else
             {
+                SetDirty(false);
+                hasBeenSaved = true;
+                fileNameLabel.text = fileName;
+
+                currentFileName = fileName;
                 var startIndex = SanitizeLevel();
 
                 LevelLoader.SaveLevelToFile(fileName, level);
@@ -335,6 +390,11 @@ public class Editor : MonoBehaviour
             }
             else
             {
+                SetDirty(false);
+                hasBeenSaved = true;
+                fileNameLabel.text = fileName;
+                currentFileName = fileName;
+
                 var newLevel = LevelLoader.LoadLevelFromFile(fileName);
 
                 if (newLevel == null) return;
