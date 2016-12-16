@@ -79,4 +79,19 @@ public class Menu : MonoBehaviour
     {
         Application.Quit();
     }
+
+    private void OnEnable()
+    {
+        CustomLevelButton.buttonPressed += OnCustomLevelButtonPressed;
+    }
+
+    private void OnDisable()
+    {
+        CustomLevelButton.buttonPressed -= OnCustomLevelButtonPressed;
+    }
+
+    private void OnCustomLevelButtonPressed(string fileName)
+    {
+        Debug.Log("Start level: " + fileName);
+    }
 }
