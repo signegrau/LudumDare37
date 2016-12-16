@@ -19,7 +19,7 @@ public class Editor : MonoBehaviour
     public delegate void PlayingStopHandler();
     public static event PlayingStopHandler playingStop;
 
-    public delegate void StateChanged(int index);
+    public delegate void StateChanged(int index, int statesCount);
     public static event StateChanged stateChanged;
 
     public GameManager gameManager;
@@ -52,14 +52,14 @@ public class Editor : MonoBehaviour
             _currentStateIndex = value;
             if (stateChanged != null)
             {
-                stateChanged(value);
+                stateChanged(value, level.StatesCount);
             }
 
             stateLabel.text = string.Format(stateLabelTemplate, value + 1);
         }
     }
 
-    private Level level = new Level();
+    private Level level;
 
     private Tile.State[] currentTileStates
     {
@@ -89,14 +89,40 @@ public class Editor : MonoBehaviour
         stateLabelTemplate = stateLabel.text;
         stateLabel.text = string.Format(stateLabelTemplate, 1);
 
-        CreateNewLevel();
+        
+    }
+
+    public void ButtonCreateNewLevel()
+    {
+        if (_dirty)
+        {
+            UnsavedChangesDialog.result += UnsavedChangesDialogOnResultNewLevel;
+            unsavedChangesDialog.Show();
+        }
+        else
+        {
+            CreateNewLevel();
+        }
+    }
+
+    private void UnsavedChangesDialogOnResultNewLevel(bool overwrite)
+    {
+        if (overwrite)
+        {
+            CreateNewLevel();
+        }
+
+        UnsavedChangesDialog.result -= UnsavedChangesDialogOnResultNewLevel;
     }
 
     private void CreateNewLevel()
     {
         level = new Level();
-        var state = new LevelState();
+        var state = LevelState.Empty;
         level.AddState(state);
+
+        _levelManager.ChangeState(state, true);
+        currentStateIndex = 0;
 
         currentFileName = "<new level>";
         fileNameLabel.text = "<new level>";
@@ -133,7 +159,7 @@ public class Editor : MonoBehaviour
 
     private void OnTilePressed(int index, int mouseButton)
     {
-        if (dialogOpen) return;
+        if (dialogOpen || level == null) return;
         if (currentStateIndex > 0 && currentTileStates[index] == Tile.State.PlayerStart) return;
 
         if (mouseButton == 0)
@@ -180,10 +206,20 @@ public class Editor : MonoBehaviour
     {
         if (scene.name == "Level")
         {
-            _levelManager = FindObjectOfType<LevelManager>();
-            StartCoroutine(_levelManager.Setup());
+            StartCoroutine(OnLevelSceneLoaded());
+        }
+    }
 
-            Camera.main.orthographicSize = 7;
+    public IEnumerator OnLevelSceneLoaded()
+    {
+        _levelManager = FindObjectOfType<LevelManager>();
+        yield return StartCoroutine(_levelManager.Setup());
+
+        Camera.main.orthographicSize = 7;
+
+        if (level == null)
+        {
+            CreateNewLevel();
         }
     }
 
@@ -267,42 +303,28 @@ public class Editor : MonoBehaviour
 
     public void GotoNextState()
     {
-        level.StatesFindSpecialIndexes();
-        var playerStartIndex = level.GetState(currentStateIndex).PickupPosition;
-
-        if (playerStartIndex == -1)
-        {
-            Debug.Log("State must have a pickup");
-            return;
-        }
-
-        SanitizeLevel();
-
         if (!level.HasState(currentStateIndex + 1))
         {
             var newState = new LevelState();
             level.AddState(newState);
         }
 
-        currentPlayerStartIndex = playerStartIndex;
-        currentStateIndex += 1;
-
-        currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
-        
-        _levelManager.ChangeState(currentTileStates, true);
-
-        
+        GotoState(currentStateIndex + 1);
     }
 
     public void GotoPreviousState()
     {
         if (currentStateIndex < 1) return;
 
+        GotoState(currentStateIndex - 1);
+    }
+
+    private void GotoState(int index)
+    {
         level.StatesFindSpecialIndexes();
+        int playerStartIndex = SanitizeCurrentState();
 
-        int playerStartIndex = SanitizeLevel();
-
-        currentStateIndex -= 1;
+        currentStateIndex = index;
 
         if (currentStateIndex > 0)
         {
@@ -315,19 +337,29 @@ public class Editor : MonoBehaviour
         _levelManager.ChangeState(currentTileStates, true);
     }
 
-    private int SanitizeLevel()
+    private int SanitizeCurrentState()
+    {
+        return SanitizeState(level.GetState(currentStateIndex), currentStateIndex == 0);
+    }
+
+    private int SanitizeState(LevelState state, bool isFirst)
     {
         var startIndex = 0;
-        
-        for (var i = 0; i < currentTileStates.Length; i++)
+        var tileStates = state.tileStates;
+
+        for (var i = 0; i < tileStates.Length; i++)
         {
-            if (currentTileStates[i] == Tile.State.PlayerStart)
+            if (tileStates[i] == Tile.State.PlayerStart)
             {
-                if (currentStateIndex > 0)
+                if (isFirst)
                 {
-                    currentTileStates[i] = Tile.State.Wall;
+                    startIndex = i;
                 }
-                startIndex = i;
+                else
+                {
+                    tileStates[i] = Tile.State.Wall;
+                    startIndex = i;
+                }
             }
         }
 
@@ -364,7 +396,7 @@ public class Editor : MonoBehaviour
                 fileNameLabel.text = fileName;
 
                 currentFileName = fileName;
-                var startIndex = SanitizeLevel();
+                var startIndex = SanitizeCurrentState();
 
                 LevelLoader.SaveLevelToFile(fileName, level);
 
@@ -469,5 +501,23 @@ public class Editor : MonoBehaviour
                 ChangeState(statesToShow[i]);
             }
         }
+    }
+
+    public void GotoFirstState()
+    {
+        GotoState(0);
+    }
+
+    public void GotoLastState()
+    {
+        if (currentStateIndex + 1 == level.StatesCount)
+        {
+            var newState = new LevelState(currentTileStates);
+            SanitizeState(newState, false);
+            level.AddState(newState);
+        }
+
+        GotoState(level.StatesCount - 1);
+
     }
 }

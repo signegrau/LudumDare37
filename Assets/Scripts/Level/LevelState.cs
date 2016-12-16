@@ -7,6 +7,10 @@ public class LevelState
     public Tile.State[] tileStates;
     private int playerStartIndex = -1;
     private int pickupIndex = -1;
+    public static LevelState Empty
+    {
+        get { return new LevelState(100); }
+    }
 
     public bool HasStartPosition
     {

@@ -43,7 +43,7 @@ public class TileStateButton : MonoBehaviour
         Editor.stateChanged += EditorOnStateChanged;
     }
 
-    private void EditorOnStateChanged(int index)
+    private void EditorOnStateChanged(int index, int statesCount)
     {
         if (state == Tile.State.PlayerStart)
         {

@@ -53,7 +53,7 @@ public class LevelManager : MonoBehaviour
             hasGenerated = true;
         }
 
-    currentStateIndex = 0;
+        currentStateIndex = 0;
 
         this.level = level;
 
@@ -82,7 +82,7 @@ public class LevelManager : MonoBehaviour
 
     public void ChangeState(Tile.State[] tileStates, bool asEditor = false)
     {
-        for (var i = 0; i < tileStates.Length; ++i)
+        for (var i = 0; i < tileStates.Length; i++)
         {
             var tileState = tileStates[i];
             var tile = tiles[i];
