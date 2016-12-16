@@ -42,7 +42,7 @@ public class Editor : MonoBehaviour
 
     private string currentFileName;
     private bool hasBeenSaved;
-    private bool _dirty;
+    private bool isDirty;
 
     private int currentStateIndex
     {
@@ -94,8 +94,9 @@ public class Editor : MonoBehaviour
 
     public void ButtonCreateNewLevel()
     {
-        if (_dirty)
+        if (isDirty)
         {
+            dialogOpen = true;
             UnsavedChangesDialog.result += UnsavedChangesDialogOnResultNewLevel;
             unsavedChangesDialog.Show();
         }
@@ -131,7 +132,7 @@ public class Editor : MonoBehaviour
 
     private void SetDirty(bool dirty)
     {
-        _dirty = dirty;
+        isDirty = dirty;
 
         if (dirty)
         {
@@ -413,7 +414,7 @@ public class Editor : MonoBehaviour
 
     public void LoadLevelFromFile()
     {
-        if (_dirty)
+        if (isDirty)
         {
             dialogOpen = true;
             UnsavedChangesDialog.result += UnsavedChangesDialogOnResultLoad;
@@ -519,5 +520,30 @@ public class Editor : MonoBehaviour
 
         GotoState(level.StatesCount - 1);
 
+    }
+
+    public void GotoMainMenu()
+    {
+        if (isDirty)
+        {
+            dialogOpen = true;
+            UnsavedChangesDialog.result += UnsavedChangesDialogOnResultExit;
+            unsavedChangesDialog.Show();
+        }
+        else
+        {
+            SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        }
+    }
+
+    private void UnsavedChangesDialogOnResultExit(bool overwrite)
+    {
+        if (overwrite)
+        {
+            SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        }
+
+        UnsavedChangesDialog.result -= UnsavedChangesDialogOnResultExit;
+        dialogOpen = false;
     }
 }
