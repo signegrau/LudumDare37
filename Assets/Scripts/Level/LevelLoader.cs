@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 
 public class LevelLoader
@@ -24,6 +25,14 @@ public class LevelLoader
     };
 
     private static Dictionary<Tile.State, char> stateToChar;
+
+    private static string levelSubFolder = "/levels/";
+    private static string levelFileExtension = ".mutolocus";
+
+    private static string levelFolderPath
+    {
+        get { return Application.persistentDataPath + levelSubFolder;  }
+    }
 
     public static Level ParseLevel(string levelText)
     {
@@ -95,6 +104,18 @@ public class LevelLoader
         return encodedLevel;
     }
 
+    public static string GetFullPath(string fileName)
+    {
+        var path = levelFolderPath + fileName;
+
+        if (Path.GetExtension(path) == levelFileExtension)
+        {
+            return path;
+        }
+
+        return path + levelFileExtension;
+    }
+
     /// <summary>
     /// Load level from persistent data
     /// </summary>
@@ -102,29 +123,27 @@ public class LevelLoader
     /// <returns></returns>
     public static Level LoadLevelFromFile(string fileName)
     {
-        var path = Application.persistentDataPath + "/levels/" + fileName + ".mutolocus";
+        var path = GetFullPath(fileName);
 
         if (File.Exists(path))
         {
             var text = File.ReadAllText(path);
             return ParseLevel(text);
         }
-        else
-        {
-            Debug.Log("file doesn't exsist");
-        }
 
+
+        Debug.Log("file doesn't exsist");
         return null;
 
     }
 
     public static void SaveLevelToFile(string fileName, Level level)
     {
-        var path = Application.persistentDataPath + "/levels/";
+        var path = levelFolderPath;
 
         Directory.CreateDirectory(path);
 
-        path = path + fileName + ".mutolocus";
+        path = GetFullPath(fileName);
         var text = EncodeLevel(level);
 
         Debug.Log("Saved level to " + path);
@@ -134,7 +153,7 @@ public class LevelLoader
 
     public static List<string> GetLevels()
     {
-        var path = Application.persistentDataPath + "/levels/";
+        var path = levelFolderPath;
 
         if (!Directory.Exists(path))
         {
@@ -143,7 +162,14 @@ public class LevelLoader
         }
 
         return Directory.GetFiles(path)
-            .Where(s => Path.GetExtension(s) == ".mutolocus")
+            .Where(s => Path.GetExtension(s) == levelFileExtension)
             .Select(Path.GetFileNameWithoutExtension).ToList();
+    }
+
+    public static bool LevelFileExists(string fileName)
+    {
+        var path = GetFullPath(fileName);
+
+        return File.Exists(path);
     }
 }

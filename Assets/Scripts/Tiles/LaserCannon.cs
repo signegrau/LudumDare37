@@ -31,22 +31,18 @@ public class LaserCannon : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-		//shootTimer += Time.deltaTime;
-//		float percentReadyToShoot = invShootInterval*shootTimer;
-
 		float percentReadyToShoot = (Time.time % shootInterval) / shootInterval;
 
 		if (percentReadyToShoot > 0.9f) {
 			lineRenderer.enabled = true;
 			Shoot();
+			if (spriteRenderer.sprite != anim[2]) {
+				spriteRenderer.sprite = anim[2];
+			}
 			if(!hasPlayedSound) {
 				hasPlayedSound = true;
 				SoundManager.single.PlayLaserSound();
 				StartCoroutine(LaserSoundTimeout(SoundManager.single.laserSound.length));
-			}
-			if (spriteRenderer.sprite != anim[2]) {
-				spriteRenderer.sprite = anim[2];
 			}
 		}
 		else {
@@ -71,21 +67,31 @@ public class LaserCannon : MonoBehaviour {
 
 	private void Shoot() {
 		hitLocations = new List<Vector3>();
-		Vector3[] cardinalDirections = new Vector3[] {Vector3.up, Vector3.right, Vector3.down, Vector3.left};
-		for (int i = 0; i < cardinalDirections.Length; ++i) {
-			Vector3 dir = cardinalDirections[i];
-			int layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
-			RaycastHit2D hit = Physics2D.Raycast(transform.position	, (Vector2)dir, Mathf.Infinity, layers);
-			hitLocations.Add(transform.position);
-			if (hit.collider != null) {
-				if (hit.collider.CompareTag("Player")) {
-					hit.collider.GetComponent<PlayerScript>().LaserHit();
-				}
-				hitLocations.Add(hit.point);
-			}
-			else {
-				hitLocations.Add(transform.position + 1000*dir);
-			}
+
+		Vector3[] cardinalDirections = {Vector3.up, Vector3.right, Vector3.down, Vector3.left};
+
+		for (var i = 0; i < cardinalDirections.Length; ++i)
+		{
+			var dir = cardinalDirections[i];
+			var layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
+
+			RaycastHit2D hit = Physics2D.Raycast(transform.position	, dir, Mathf.Infinity, layers);
+
+		    hitLocations.Add(transform.position);
+
+		    if (hit.collider != null)
+		    {
+		        if (hit.collider.CompareTag("Player"))
+		        {
+		            hit.collider.GetComponent<PlayerScript>().LaserHit();
+		        }
+
+		        hitLocations.Add(hit.point);
+		    }
+		    else
+		    {
+		        hitLocations.Add(transform.position + dir * 100);
+		    }
 		}
 
 		lineRenderer.SetPositions(hitLocations.ToArray());
