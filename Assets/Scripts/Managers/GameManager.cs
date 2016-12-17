@@ -6,8 +6,11 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public bool startGameAtLoad;
     public TextAsset statesFile;
-    public UnityEngine.Object levelScene;
+//	  Does not work in build:
+//    public UnityEngine.Object levelScene;
+	public String levelSceneName;
     public LevelManager levelManager;
 
     public delegate void GameStartHandler(float time);
@@ -24,23 +27,36 @@ public class GameManager : MonoBehaviour
 
     private bool gameStarting;
 
+    public static Level loadLevel;
+
     private void Start()
     {
-        LoadLevel();
+        if (startGameAtLoad)
+        {
+            if (loadLevel == null)
+            {
+                StartGame();
+            }
+            else
+            {
+                StartGame(loadLevel);
+            }
+        }
     }
 
     private void LoadLevel()
     {
-        var scene = SceneManager.GetSceneByName(levelScene.name);
+		var scene = SceneManager.GetSceneByName(levelSceneName);
 
         if (scene.isLoaded) return;
 
-        SceneManager.LoadScene(levelScene.name, LoadSceneMode.Additive);
+		SceneManager.LoadScene(levelSceneName, LoadSceneMode.Additive);
+        //SceneManager.LoadScene(levelScene.name, LoadSceneMode.Additive);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        if (scene.name == levelScene.name)
+		if (scene.name == levelSceneName)
         {
             levelManager = FindObjectOfType<LevelManager>();
         }
@@ -48,9 +64,9 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable() {
         Pickup.OnPickup += AdvanceState;
-        Menu.OnPlayPressed += StartGame;
         PlayerScript.OnDeath += OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed += RestartGame;
+        EndScreen.playAgainPressed += RestartGame;
+        EndScreen.mainMenuPressed += EndGame;
         LevelManager.OnStateChanged += OnStateChanged;
         LevelManager.OnNoStatesLeft += OnNoStatesLeft;
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -59,9 +75,9 @@ public class GameManager : MonoBehaviour
     private void OnDisable()
     {
         Pickup.OnPickup -= AdvanceState;
-        Menu.OnPlayPressed -= StartGame;
         PlayerScript.OnDeath -= OnPlayerDeath;
-        EndScreen.OnPlayAgainPressed -= RestartGame;
+        EndScreen.playAgainPressed -= RestartGame;
+        EndScreen.mainMenuPressed -= EndGame;
         LevelManager.OnStateChanged -= OnStateChanged;
         LevelManager.OnNoStatesLeft -= OnNoStatesLeft;
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -79,9 +95,7 @@ public class GameManager : MonoBehaviour
     {
         if (gameStarting)
         {
-            player.transform.position = (Vector2)levelManager.PlayerStartPosition();
-            player.gameObject.SetActive(true);
-            gameStarting = false;
+            
         }
     }
 
@@ -97,17 +111,70 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        LoadLevel();
-        gameStarting = true;
-        player = Instantiate(playerPrefab).transform;
-        player.gameObject.SetActive(false);
-        player.transform.position = new Vector3(20, -20, 0);
+        StartGame(null);
+    }
+    public void StartGame(Level level = null, int index = 0)
+    {
+        StartCoroutine(StartGameAsync(level, index));
+    }
 
-        StartCoroutine(levelManager.Setup(statesFile.text, true));
+    public IEnumerator StartGameAsync(Level level = null, int index = 0)
+    {
+        if (level == null)
+        {
+            level = LevelLoader.ParseLevel(statesFile.text);
+        }
+
+        gameStarting = true;
+        if (levelManager == null)
+        {
+            LoadLevel();
+        }
+
+        while (levelManager == null)
+        {
+            yield return null;
+        }
+
+        if (player == null)
+        {
+            player = Instantiate(playerPrefab).transform;
+            player.gameObject.SetActive(false);
+            player.transform.position = new Vector3(20, -20, 0);
+        }
+
+        yield return StartCoroutine(levelManager.Setup(level, index));
+
+        gameStarting = false;
+        player.transform.position = (Vector2)levelManager.PlayerStartPosition();
+        player.gameObject.SetActive(true);
+
+        startTime = Time.time;
+        countDeath = 0;
+
+        if (OnGameStart != null)
+        {
+            OnGameStart(startTime);
+        }
+    }
+
+    public int StopGame()
+    {
+        Destroy(player.gameObject);
+        startTime = 0;
+        countDeath = 0;
+        loadLevel = null;
+        return levelManager.CurrentStateIndex;
     }
 
     private void RestartGame()
     {
         SceneManager.LoadScene("Game", LoadSceneMode.Single);
+    }
+
+    private void EndGame()
+    {
+        loadLevel = null;
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 }

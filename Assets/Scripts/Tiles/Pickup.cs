@@ -11,7 +11,7 @@ public class Pickup : MonoBehaviour
 
 	private SpriteRenderer sr;
 
-	void Start() {
+	private void Awake() {
 		sr = GetComponent<SpriteRenderer>();
 		sr.sprite = buttonUp;
 	}

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-
+//using UnityEditor;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -18,12 +18,20 @@ public class LevelManager : MonoBehaviour
     Level level;
     private int currentStateIndex;
 
+    public int CurrentStateIndex
+    {
+        get { return currentStateIndex; }
+    }
+
+    
+
     TileGenerator tileGenerator;
     private Tile[] tiles;
 
     private bool isChanging;
 
     private int countDeath;
+    private bool hasGenerated;
 
     public Tile[] Tiles
     {
@@ -35,58 +43,70 @@ public class LevelManager : MonoBehaviour
         tileGenerator = GetComponent<TileGenerator>();
     }
 
-    public IEnumerator Setup(string levelText = null, bool gotoFirstState = false)
+    public IEnumerator Setup(Level level = null, int firstState = -1)
     {
         yield return null;
-        tiles = tileGenerator.GenerateTiles();
+
+        if (!hasGenerated)
+        {
+            tiles = tileGenerator.GenerateTiles();
+            hasGenerated = true;
+        }
+
         currentStateIndex = 0;
 
-        if (levelText != null)
-        {
-            level = LevelLoader.LoadLevel(levelText);
-        }
+        this.level = level;
 
         yield return null;
 
-        if (gotoFirstState)
+        if (firstState > -1)
         {
-            AdvanceState();
+            currentStateIndex = firstState;
+            ChangeState(firstState);
         }
     }
     
     public void AdvanceState()
     {
-        if (ChangeState(currentStateIndex, !isEditor))
+        ++currentStateIndex;
+        if (!ChangeState(currentStateIndex))
         {
-            if (OnStateChanged != null)
-            {
-                OnStateChanged(currentStateIndex);
-            }
+            currentStateIndex--;
 
-            ++currentStateIndex;
-        }
-        else if (OnNoStatesLeft != null)
-        {
-            OnNoStatesLeft();
+            if (OnNoStatesLeft != null)
+                OnNoStatesLeft();
+
+            Debug.Log("No states left!");
         }
     }
 
-    public void ChangeState(LevelState state)
+    public void ChangeState(Tile.State[] tileStates, bool asEditor = false)
     {
-        for(var i = 0; i < state.tileStates.Length; ++i) {
-            var tileState = state.tileStates[i];
+        for (var i = 0; i < tileStates.Length; i++)
+        {
+            var tileState = tileStates[i];
             var tile = tiles[i];
 
-            tile.GotoState(tileState);
+            tile.GotoState(tileState, asEditor);
         }
         SoundManager.single.PlayAdvanceSound();
+
+        if (OnStateChanged != null)
+        {
+            OnStateChanged(currentStateIndex);
+        }
     }
 
-    public bool ChangeState(int stateIndex, bool movePlayer)
+    public void ChangeState(LevelState state, bool asEditor = false)
+    {
+        ChangeState(state.tileStates, asEditor);
+    }
+
+    public bool ChangeState(int stateIndex, bool asEditor = false)
     {
         if (stateIndex < level.StatesCount)
         {
-            ChangeState(level.GetState(stateIndex));
+            ChangeState(level.GetState(stateIndex), asEditor);
             currentStateIndex = stateIndex;
             return true;
         }

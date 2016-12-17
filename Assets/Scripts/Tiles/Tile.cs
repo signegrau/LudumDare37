@@ -23,12 +23,18 @@ public class Tile : MonoBehaviour
         BoostUp,
         BoostLeft,
         BoostRight,
+		LaserCannon,
         PlayerStart
     }
 
     private readonly List<State> objectStates = new List<State>
     {
-        State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight
+		State.Pickup, State.Spring, State.Spike, State.BoostUp, State.BoostLeft, State.BoostRight, State.LaserCannon
+    };
+
+    private readonly List<State> objectStatesEditor = new List<State>
+    {
+        State.PlayerStart
     };
 
     public enum TransisionState
@@ -51,6 +57,8 @@ public class Tile : MonoBehaviour
     public GameObject boostUpPrefab;
     public GameObject boostLeftPrefab;
     public GameObject boostRightPrefab;
+	public GameObject laserCannonPrefab;
+	public GameObject playerStartPrefab;
 
     private State state = State.Wall;
     private State previousState;
@@ -65,6 +73,8 @@ public class Tile : MonoBehaviour
     private Vector3 basePosition;
 
     private bool movingToForeground;
+
+    private bool isEditor;
 
     private float lerpTime;
     private float lerpValue;
@@ -160,37 +170,41 @@ public class Tile : MonoBehaviour
 	                ? stateTransistionState[state]
 	                : TransisionState.Wall);
 
-	            if (objectStates.Contains(state))
+	            switch (state)
 	            {
-	                switch (state)
-	                {
-	                    case State.Pickup:
-	                        AttachObject(pickupPrefab);
-	                        break;
-	                    case State.Spring:
-	                        AttachObject(springPrefab);
-	                        break;
-	                    case State.Wall:
-	                        break;
-	                    case State.Platform:
-	                        break;
-	                    case State.Spike:
-	                        AttachObject(spikePrefab);
-	                        break;
-	                    case State.PlayerStart:
-	                        break;
-	                    case State.BoostUp:
-	                        AttachObject(boostUpPrefab);
-	                        break;
-	                    case State.BoostLeft:
-	                        AttachObject(boostLeftPrefab);
-	                        break;
-	                    case State.BoostRight:
-	                        AttachObject(boostRightPrefab);
-	                        break;
-	                    default:
-	                        throw new ArgumentOutOfRangeException();
-	                }
+	                case State.Pickup:
+	                    AttachObject(pickupPrefab);
+	                    break;
+	                case State.Spring:
+	                    AttachObject(springPrefab);
+	                    break;
+	                case State.Wall:
+	                    break;
+	                case State.Platform:
+	                    break;
+	                case State.Spike:
+	                    AttachObject(spikePrefab);
+	                    break;
+					case State.LaserCannon:
+						AttachObject(laserCannonPrefab);
+						break;    
+					case State.PlayerStart:
+	                    if (isEditor)
+	                    {
+	                        AttachObject(playerStartPrefab);
+	                    }
+	                    break;
+	                case State.BoostUp:
+	                    AttachObject(boostUpPrefab);
+	                    break;
+	                case State.BoostLeft:
+	                    AttachObject(boostLeftPrefab);
+	                    break;
+	                case State.BoostRight:
+	                    AttachObject(boostRightPrefab);
+	                    break;
+	                default:
+	                    throw new ArgumentOutOfRangeException();
 	            }
 	        }
 	        else
@@ -235,17 +249,22 @@ public class Tile : MonoBehaviour
 
     }
 
-    public void GotoState(State newState)
+    public void GotoState(State newState, bool isEditor = false)
     {
-        if (state == newState) return;
+        if (state == newState && !objectStatesEditor.Contains(newState)) return;
+        this.isEditor = isEditor;
 
-        if (objectStates.Contains(state))
+        if (isEditor && objectStatesEditor.Contains(newState))
+        {
+            BeginTransision(TransisionState.Background);
+        }
+        else if (objectStates.Contains(newState))
         {
             BeginTransision(TransisionState.Background);
         }
         else
         {
-            if (objectStates.Contains(newState))
+            if (attachment != null)
             {
                 BeginTransision(TransisionState.Background);
             }

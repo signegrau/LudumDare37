@@ -5,8 +5,12 @@ using UnityEngine;
 public class LevelState
 {
     public Tile.State[] tileStates;
-    private int playerStartIndex;
-    private int pickupIndex;
+    private int playerStartIndex = -1;
+    private int pickupIndex = -1;
+    public static LevelState Empty
+    {
+        get { return new LevelState(100); }
+    }
 
     public bool HasStartPosition
     {
@@ -23,7 +27,39 @@ public class LevelState
         get { return pickupIndex; }
     }
 
-    public LevelState(Tile.State[] tileStates, int pickupIndex, int playerStartIndex = -1)
+    public LevelState(int size = 100)
+    {
+        tileStates = new Tile.State[size];
+        for (var i = 0; i < size; i++)
+        {
+            tileStates[i] = Tile.State.Wall;
+        }
+    }
+
+    public LevelState(Tile.State[] tileStates)
+    {
+        this.tileStates = tileStates;
+        FindSpecialIndexes();
+    }
+
+    public void FindSpecialIndexes()
+    {
+        pickupIndex = -1;
+        playerStartIndex = -1;
+        for (var i = 0; i < tileStates.Length; i++)
+        {
+            if (tileStates[i] == Tile.State.Pickup)
+            {
+                pickupIndex = i;
+            }
+            else if (tileStates[i] == Tile.State.PlayerStart)
+            {
+                playerStartIndex = i;
+            }
+        }
+    }
+
+    public LevelState(Tile.State[] tileStates, int pickupIndex = -1, int playerStartIndex = -1)
     {
         this.tileStates = tileStates;
         this.pickupIndex = pickupIndex;

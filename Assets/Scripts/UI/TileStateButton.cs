@@ -12,6 +12,7 @@ public class TileStateButton : MonoBehaviour
 
     public Image icon;
     public Image background;
+    private Button button;
 
     [Serializable]
     public struct StateSprite
@@ -31,16 +32,43 @@ public class TileStateButton : MonoBehaviour
         {
             stateToSprite.Add(stateSprite.state, stateSprite.sprite);
         }
+
+        button = GetComponent<Button>();
     }
 
     private void OnEnable()
     {
         tileStateButtonPressed += OnTileStateButtonPressed;
+        Editor.selectedStateChanged += EditorOnSelectedStateChanged;
+        Editor.stateChanged += EditorOnStateChanged;
+    }
+
+    private void EditorOnStateChanged(int index, int statesCount)
+    {
+        if (state == Tile.State.PlayerStart)
+        {
+            button.interactable = index == 0;
+            icon.color = index == 0 ? Color.white : Color.gray;
+        }
+    }
+
+    private void EditorOnSelectedStateChanged(Tile.State state)
+    {
+        if (state == this.state)
+        {
+            background.enabled = true;
+        }
+        else
+        {
+            background.enabled = false;
+        }
     }
 
     private void OnDisable()
     {
         tileStateButtonPressed -= OnTileStateButtonPressed;
+        Editor.selectedStateChanged -= EditorOnSelectedStateChanged;
+        Editor.stateChanged -= EditorOnStateChanged;
     }
 
     private void OnTileStateButtonPressed(Tile.State state)
