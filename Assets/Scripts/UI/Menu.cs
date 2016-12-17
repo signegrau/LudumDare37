@@ -30,7 +30,7 @@ public class Menu : MonoBehaviour
 #if UNITY_STANDALONE
         quitButton.gameObject.SetActive(true);
 #else
-        quitButton.gamerObject.SetActive(false);
+        quitButton.gameObject.SetActive(false);
 #endif
     }
 
