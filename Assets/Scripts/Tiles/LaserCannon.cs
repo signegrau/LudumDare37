@@ -75,7 +75,7 @@ public class LaserCannon : MonoBehaviour {
 			var dir = cardinalDirections[i];
 			var layers = 1 << LayerMask.NameToLayer("Solid") | 1 << LayerMask.NameToLayer("Player");
 
-			RaycastHit2D hit = Physics2D.Raycast(transform.position	, dir, Mathf.Infinity, layers);
+			RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one*0.2f, 0, dir, 100, layers);
 
 		    hitLocations.Add(transform.position);
 
