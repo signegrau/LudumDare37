@@ -73,6 +73,14 @@ public class Editor : MonoBehaviour
     private int currentPlayerStartIndex;
 
     private bool isPlaying;
+    private bool startMissing;
+
+    private List<int> indexesMissingPickups = new List<int>();
+    private bool noStartPosition;
+
+    public RectTransform missingStatesPanel;
+    public Text missingStateLabel;
+    public Text noSpawnLabel;
 
     private void Start()
     {
@@ -128,6 +136,7 @@ public class Editor : MonoBehaviour
         currentFileName = "<new level>";
         fileNameLabel.text = "<new level>";
         SetDirty(false);
+        CheckForErrors();
     }
 
     private void SetDirty(bool dirty)
@@ -182,6 +191,40 @@ public class Editor : MonoBehaviour
             SetDirty(true);
         }
 
+        CheckForErrors();
+    }
+
+    private void CheckForErrors()
+    {
+        indexesMissingPickups.Clear();
+        level.StatesFindSpecialIndexes();
+        for (var i = 0; i < level.StatesCount; i++)
+        {
+            var state = level.GetState(i);
+            if (state.PickupPosition == -1)
+            {
+                indexesMissingPickups.Add(i);
+            }
+        }
+
+        noStartPosition = !level.GetState(0).HasStartPosition;
+
+        if (indexesMissingPickups.Count > 0)
+        {
+            missingStatesPanel.gameObject.SetActive(true);
+
+            missingStateLabel.text = "";
+            foreach(var index in indexesMissingPickups)
+            {
+                missingStateLabel.text += string.Format("{0}, ", index+1);
+            }
+        }
+        else
+        {
+            missingStatesPanel.gameObject.SetActive(false);
+        }
+
+        noSpawnLabel.enabled = noStartPosition;
     }
 
     private void ChangeState(Tile.State state)
@@ -322,17 +365,26 @@ public class Editor : MonoBehaviour
 
     private void GotoState(int index)
     {
-        level.StatesFindSpecialIndexes();
-        int playerStartIndex = SanitizeCurrentState();
+        int playerStartIndex = -1;
+        if (currentStateIndex < level.StatesCount)
+        {
+            playerStartIndex = SanitizeCurrentState();
+        }
+
+        CheckForErrors();
 
         currentStateIndex = index;
 
-        if (currentStateIndex > 0)
+        if (index > 0)
         {
-            playerStartIndex = level.GetState(currentStateIndex - 1).PickupPosition;
+            playerStartIndex = level.GetState(index - 1).PickupPosition;
 
-            currentPlayerStartIndex = playerStartIndex;
-            currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
+            if (playerStartIndex >= 0)
+            {
+                currentPlayerStartIndex = playerStartIndex;
+                currentTileStates[playerStartIndex] = Tile.State.PlayerStart;
+            }
+            
         }
 
         _levelManager.ChangeState(currentTileStates, true);
@@ -465,9 +517,11 @@ public class Editor : MonoBehaviour
                 level = newLevel;
                 currentStateIndex = 0;
                 _levelManager.ChangeState(currentTileStates, true);
+                
             }
         }
 
+        CheckForErrors();
         dialogOpen = false;
         FilePicker.fileChoosen -= OnLevelFileChoosen;
     }
@@ -545,5 +599,16 @@ public class Editor : MonoBehaviour
 
         UnsavedChangesDialog.result -= UnsavedChangesDialogOnResultExit;
         dialogOpen = false;
+    }
+
+    public void DeleteCurrentState()
+    {
+        if (currentStateIndex <= 0) return;
+
+        level.RemoveState(currentStateIndex);
+
+        GotoState(currentStateIndex - 1);
+        // Side effects making currentStateIndex = currentStateIndex - 1
+        
     }
 }

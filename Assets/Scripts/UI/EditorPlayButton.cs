@@ -12,7 +12,7 @@ public class EditorPlayButton : MonoBehaviour
 
     private void Start()
     {
-        label.text = playStartText;
+        //label.text = playStartText;
     }
 
     private void OnEnable()
@@ -23,7 +23,7 @@ public class EditorPlayButton : MonoBehaviour
 
     private void EditorOnPlayingStop()
     {
-        label.text = playStartText;
+        //label.text = playStartText;
     }
 
     private void OnDisable()
@@ -34,6 +34,6 @@ public class EditorPlayButton : MonoBehaviour
 
     private void EditorOnPlayingStart()
     {
-        label.text = playStopText;
+        //label.text = playStopText;
     }
 }

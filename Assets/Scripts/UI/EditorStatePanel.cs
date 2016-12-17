@@ -42,8 +42,6 @@ public class EditorStatePanel : MonoBehaviour
 
     private void OnStateChanged(int index, int statesCount)
     {
-        Debug.Log(index);
-
         if (index + 1 < statesCount)
         {
             nextStateButtonImage.sprite = rightArrow;

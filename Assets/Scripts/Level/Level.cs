@@ -31,6 +31,11 @@ public class Level
         return states[index];
     }
 
+    public void RemoveState(int index)
+    {
+        states.RemoveAt(index);
+    }
+
     public void StatesFindSpecialIndexes()
     {
         foreach (var state in states)
