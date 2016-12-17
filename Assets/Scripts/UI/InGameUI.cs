@@ -64,7 +64,7 @@ public class InGameUI : MonoBehaviour
 
         time = Time.time - startTime;
 
-        minutes = time / 60;
+        minutes = Mathf.FloorToInt(time) / 60;
         seconds = Mathf.Floor(time) % 60;
         miliseconds = time * 1000 % 1000;
 
