@@ -430,6 +430,13 @@ public class Editor : MonoBehaviour
         }
     }
 
+    public void SaveLevelAs()
+    {
+        filePicker.Show(false);
+        FilePicker.fileChoosen += OnSaveFileChoosen;
+        dialogOpen = true;
+    }
+
     public void OnSaveFileChoosen(string fileName)
     {
         if (fileName != null)
