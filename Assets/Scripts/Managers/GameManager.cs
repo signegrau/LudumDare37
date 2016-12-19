@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -59,6 +60,9 @@ public class GameManager : MonoBehaviour
     private bool isPaused;
 
     public static Level loadLevel;
+
+    public float restartTimer;
+    public Image restartIndicator;
 
     public static float StartTime
     {
@@ -230,16 +234,36 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (gameStarted && Input.GetKeyDown(KeyCode.Escape))
+        if (gameStarted)
         {
-            if (isPaused)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Resume();
+                if (isPaused)
+                {
+                    Resume();
+                }
+                else
+                {
+                    Pause();
+                }
+            }
+
+            if (Input.GetKey(KeyCode.R))
+            {
+                if (restartTimer >= 0.5f)
+                {
+                    RestartGame();
+                }
+
+                restartTimer += Time.deltaTime;
+                restartIndicator.fillAmount = restartTimer / 0.5f;
             }
             else
             {
-                Pause();
+                restartTimer = 0;
+                restartIndicator.fillAmount = 0;
             }
+
         }
     }
 
