@@ -1,11 +1,32 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager instance;
+
+    private class TimeInterval
+    {
+        public float startTime;
+        public float endTime;
+
+        public float ElapsedTime
+        {
+            get { return endTime - startTime; }
+        }
+
+        public TimeInterval(float startTime, float endTime)
+        {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+    }
+
     public bool startGameAtLoad;
     public TextAsset statesFile;
 //	  Does not work in build:
@@ -19,15 +40,40 @@ public class GameManager : MonoBehaviour
     public delegate void GameEndHandler(float time, int deaths);
     public static event GameEndHandler OnGameEnd;
 
-    private float startTime;
+    public delegate void PauseHandler();
+    public static event PauseHandler paused;
+
+    public delegate void ResumeHandler(float timeStart, float timeAdd);
+    public static event ResumeHandler resume;
+
+    private float timeStart;
     private int countDeath;
+
+    private List<TimeInterval> timeIntervals = new List<TimeInterval>();
 
     public GameObject playerPrefab;
     private Transform player;
 
     private bool gameStarting;
+    private bool gameStarted;
+    private bool isPaused;
 
     public static Level loadLevel;
+
+    public static float StartTime
+    {
+        get { return instance.timeStart; }
+    }
+
+    public static float TimeElapsed
+    {
+        get { return instance.timeIntervals.Sum(t => t.ElapsedTime); }
+    }
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
@@ -87,7 +133,7 @@ public class GameManager : MonoBehaviour
     {
         if (OnGameEnd != null)
         {
-            OnGameEnd(Time.time - startTime, countDeath);
+            OnGameEnd((Time.time - timeStart) + TimeElapsed, countDeath);
         }
     }
 
@@ -149,21 +195,25 @@ public class GameManager : MonoBehaviour
         player.transform.position = (Vector2)levelManager.PlayerStartPosition();
         player.gameObject.SetActive(true);
 
-        startTime = Time.time;
+        timeStart = Time.time;
         countDeath = 0;
+
+        gameStarted = true;
+        isPaused = false;
 
         if (OnGameStart != null)
         {
-            OnGameStart(startTime);
+            OnGameStart(timeStart);
         }
     }
 
     public int StopGame()
     {
         Destroy(player.gameObject);
-        startTime = 0;
+        timeStart = 0;
         countDeath = 0;
         loadLevel = null;
+        gameStarted = false;
         return levelManager.CurrentStateIndex;
     }
 
@@ -176,5 +226,58 @@ public class GameManager : MonoBehaviour
     {
         loadLevel = null;
         SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+    }
+
+    private void Update()
+    {
+        if (gameStarted && Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+    }
+
+    private void Pause()
+    {
+        isPaused = true;
+        var timeInterval = new TimeInterval(timeStart, Time.time);
+        timeIntervals.Add(timeInterval);
+
+        if (paused != null)
+        {
+            paused();
+        }
+    }
+
+    private void Resume()
+    {
+        isPaused = false;
+        timeStart = Time.time;
+
+        if (resume != null)
+        {
+            resume(timeStart, TimeElapsed);
+        }
+    }
+
+    public static void InstanceResume()
+    {
+        instance.Resume();
+    }
+
+    public static void InstanceRestart()
+    {
+        instance.RestartGame();
+    }
+
+    public static void InstanceQuit()
+    {
+        instance.EndGame();
     }
 }

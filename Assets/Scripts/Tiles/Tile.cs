@@ -87,6 +87,7 @@ public class Tile : MonoBehaviour
     public AnimationCurve curve;
 
     public bool isPlayerStart = false;
+    private bool paused;
 
     private readonly Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
     {
@@ -113,6 +114,28 @@ public class Tile : MonoBehaviour
 
     public int index;
 
+    private void OnEnable()
+    {
+        GameManager.paused += GameManagerOnPaused;
+        GameManager.resume += GameManagerOnResume;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.paused -= GameManagerOnPaused;
+        GameManager.resume -= GameManagerOnResume;
+    }
+
+    private void GameManagerOnResume(float timeStart, float timeAdd)
+    {
+        paused = false;
+    }
+
+    private void GameManagerOnPaused()
+    {
+        paused = true;
+    }
+
     // Use this for initialization
 	public void Start ()
 	{
@@ -130,7 +153,7 @@ public class Tile : MonoBehaviour
     private bool transisionFinished;
 	public void Update ()
 	{
-	    if (transisionState == TransisionState.None) return;
+	    if (transisionState == TransisionState.None || paused) return;
 
 	    if (transisionState != TransisionState.Background)
 	    {

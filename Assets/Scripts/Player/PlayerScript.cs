@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,13 +70,38 @@ public class PlayerScript : MonoBehaviour {
     private float uncontrollableTimer;
 
 	private bool isDead = false;
+    private bool paused;
 
 	private int FootStepAnimationEvent() {
 		SoundManager.single.PlayFootstepSound();
 		return 0;
 	}
 
-	// Use this for initialization
+    private void OnEnable()
+    {
+        GameManager.paused += GameManagerOnPaused;
+        GameManager.resume += GameManagerOnResume;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.paused -= GameManagerOnPaused;
+        GameManager.resume -= GameManagerOnResume;
+    }
+
+    private void GameManagerOnResume(float timeStart, float timeAdd)
+    {
+        paused = false;
+        animator.enabled = true;
+    }
+
+    private void GameManagerOnPaused()
+    {
+        paused = true;
+        animator.enabled = false;
+    }
+
+    // Use this for initialization
 	void Start ()
 	{
 		rigidbody2D = GetComponent<Rigidbody2D>();
@@ -90,6 +116,8 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+	    if (paused) return;
+
 		if (isDead) {
 			velocity = Vector2.zero;
 			return;

@@ -14,8 +14,7 @@ public class LaserCannon : MonoBehaviour {
 
 	private static bool hasPlayedSound;
 
-
-	// Use this for initialization
+    // Use this for initialization
 	void Start () {
 		if (anim.Length != 3) {
 			Debug.LogError("Laser cannon sprite animation array must have excactly 3 elements.");
@@ -31,7 +30,7 @@ public class LaserCannon : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float percentReadyToShoot = (Time.time % shootInterval) / shootInterval;
+		float percentReadyToShoot = ((GameManager.StartTime + GameManager.TimeElapsed) % shootInterval) / shootInterval;
 
 		if (percentReadyToShoot > 0.9f) {
 			lineRenderer.enabled = true;

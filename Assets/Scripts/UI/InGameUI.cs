@@ -13,6 +13,7 @@ public class InGameUI : MonoBehaviour
     private string deathCounterTemplate;
 
     private float startTime;
+    private float elapsedTime;
     private bool gameStarted;
 
     private int countDeath;
@@ -21,12 +22,29 @@ public class InGameUI : MonoBehaviour
 
     private CanvasGroup _canvasGroup;
 
+    private bool paused;
+
     private void OnEnable()
     {
         GameManager.OnGameStart += OnGameStart;
         PlayerScript.OnDeath += OnPlayerDeath;
         PlayerRigidbody.OnDeath += OnPlayerDeath;
         GameManager.OnGameEnd += OnGameEnd;
+
+        GameManager.paused += GameManagerOnPaused;
+        GameManager.resume += GameManagerOnResume;
+    }
+
+    private void GameManagerOnResume(float timeStart, float timeAdd)
+    {
+        paused = false;
+        startTime = timeStart;
+        elapsedTime = timeAdd;
+    }
+
+    private void GameManagerOnPaused()
+    {
+        paused = true;
     }
 
     private void OnPlayerDeath()
@@ -42,6 +60,9 @@ public class InGameUI : MonoBehaviour
         PlayerScript.OnDeath -= OnPlayerDeath;
         PlayerRigidbody.OnDeath -= OnPlayerDeath;
         GameManager.OnGameEnd -= OnGameEnd;
+
+        GameManager.paused -= GameManagerOnPaused;
+        GameManager.resume -= GameManagerOnResume;
     }
 
     private void Start()
@@ -60,9 +81,9 @@ public class InGameUI : MonoBehaviour
 
     private void Update()
     {
-        if (!gameStarted) return;
+        if (!gameStarted || paused) return;
 
-        time = Time.time - startTime;
+        time = Time.time - startTime + elapsedTime;
 
         minutes = Mathf.FloorToInt(time) / 60;
         seconds = Mathf.Floor(time) % 60;

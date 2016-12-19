@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spike : MonoBehaviour
+public class PauseScreen : MonoBehaviour
 {
-    private Animator _animator;
+    private CanvasGroup _canvasGroup;
 
     private void Start()
     {
-        _animator = GetComponent<Animator>();
+        _canvasGroup = GetComponent<CanvasGroup>();
+        _canvasGroup.SetVisibility(false);
     }
 
     private void OnEnable()
@@ -25,11 +26,26 @@ public class Spike : MonoBehaviour
 
     private void GameManagerOnResume(float timeStart, float timeAdd)
     {
-        _animator.enabled = true;
+        _canvasGroup.SetVisibility(false);
     }
 
     private void GameManagerOnPaused()
     {
-        _animator.enabled = false;
+        _canvasGroup.SetVisibility(true);
+    }
+
+    public void ResumeGame()
+    {
+        GameManager.InstanceResume();
+    }
+
+    public void RestartGame()
+    {
+        GameManager.InstanceRestart();
+    }
+
+    public void QuitGame()
+    {
+        GameManager.InstanceQuit();
     }
 }
