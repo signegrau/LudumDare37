@@ -404,14 +404,12 @@ public class Editor : MonoBehaviour
         {
             if (tileStates[i] == Tile.State.PlayerStart)
             {
-                if (isFirst)
-                {
-                    startIndex = i;
-                }
-                else
+                startIndex = i;
+
+                if (!isFirst)
                 {
                     tileStates[i] = Tile.State.Wall;
-                    startIndex = i;
+                    
                 }
             }
         }
@@ -567,7 +565,7 @@ public class Editor : MonoBehaviour
     {
         if (currentStateIndex + 1 == level.StatesCount)
         {
-            var newState = new LevelState(currentTileStates);
+            var newState = level.GetState(currentStateIndex).Duplicate();
             SanitizeState(newState, false);
             level.AddState(newState);
         }

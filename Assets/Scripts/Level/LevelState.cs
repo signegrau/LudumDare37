@@ -65,4 +65,10 @@ public class LevelState
         this.pickupIndex = pickupIndex;
         this.playerStartIndex = playerStartIndex;
     }
+
+    public LevelState Duplicate()
+    {
+        var newTileStates = tileStates.Clone() as Tile.State[];
+        return new LevelState(newTileStates);
+    }
 }
