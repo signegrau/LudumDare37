@@ -23,7 +23,6 @@ public class Editor : MonoBehaviour
     public static event StateChanged stateChanged;
 
     public GameManager gameManager;
-    public Text stateLabel;
     private string stateLabelTemplate;
     public Text fileNameLabel;
 
@@ -44,6 +43,11 @@ public class Editor : MonoBehaviour
     private bool hasBeenSaved;
     private bool isDirty;
 
+    private LevelState currentLevelState
+    {
+        get { return level.GetState(currentStateIndex); }
+    }
+
     private int currentStateIndex
     {
         get { return _currentStateIndex; }
@@ -54,8 +58,6 @@ public class Editor : MonoBehaviour
             {
                 stateChanged(value, level.StatesCount);
             }
-
-            stateLabel.text = string.Format(stateLabelTemplate, value + 1);
         }
     }
 
@@ -63,7 +65,7 @@ public class Editor : MonoBehaviour
 
     private Tile.State[] currentTileStates
     {
-        get { return level.GetState(currentStateIndex).tileStates; }
+        get { return currentLevelState.tileStates; }
     }
 
     public List<Tile.State> statesToShow = new List<Tile.State>();
@@ -93,11 +95,6 @@ public class Editor : MonoBehaviour
         }
 
         ChangeState(Tile.State.Platform);
-
-        stateLabelTemplate = stateLabel.text;
-        stateLabel.text = string.Format(stateLabelTemplate, 1);
-
-        
     }
 
     public void ButtonCreateNewLevel()
@@ -347,12 +344,13 @@ public class Editor : MonoBehaviour
 
     public void GotoNextState()
     {
-        if (!level.HasState(currentStateIndex + 1))
-        {
-            var newState = new LevelState();
-            level.AddState(newState);
-        }
+        GotoState(currentStateIndex + 1);
+    }
 
+    public void AddNewState()
+    {
+        var newState = new LevelState();
+        level.states.Insert(currentStateIndex + 1, newState);
         GotoState(currentStateIndex + 1);
     }
 
@@ -392,7 +390,7 @@ public class Editor : MonoBehaviour
 
     private int SanitizeCurrentState()
     {
-        return SanitizeState(level.GetState(currentStateIndex), currentStateIndex == 0);
+        return SanitizeState(currentLevelState, currentStateIndex == 0);
     }
 
     private int SanitizeState(LevelState state, bool isFirst)
@@ -563,15 +561,15 @@ public class Editor : MonoBehaviour
 
     public void GotoLastState()
     {
-        if (currentStateIndex + 1 == level.StatesCount)
-        {
-            var newState = level.GetState(currentStateIndex).Duplicate();
-            SanitizeState(newState, false);
-            level.AddState(newState);
-        }
-
         GotoState(level.StatesCount - 1);
+    }
 
+    public void DuplicateCurrentState()
+    {
+        var newState = currentLevelState.Duplicate();
+        SanitizeState(newState, false);
+        level.states.Insert(currentStateIndex + 1, newState);
+        GotoState(currentStateIndex + 1);
     }
 
     public void GotoMainMenu()
@@ -601,11 +599,11 @@ public class Editor : MonoBehaviour
 
     public void DeleteCurrentState()
     {
-        if (currentStateIndex <= 0) return;
+        if (level.StatesCount < 2) return;
 
         level.RemoveState(currentStateIndex);
 
-        GotoState(currentStateIndex - 1);
+        GotoState(currentStateIndex);
         // Side effects making currentStateIndex = currentStateIndex - 1
         
     }

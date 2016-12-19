@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Level
 {
-    private List<LevelState> states = new List<LevelState>();
+    public List<LevelState> states = new List<LevelState>();
 
     public int StatesCount
     {
