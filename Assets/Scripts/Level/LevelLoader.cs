@@ -28,7 +28,7 @@ public class LevelLoader
     private static string levelSubFolder = "/levels/";
     private static string levelFileExtension = ".mutolocus";
 
-    private static string levelFolderPath
+    public static string levelFolderPath
     {
         get { return Application.persistentDataPath + levelSubFolder;  }
     }
