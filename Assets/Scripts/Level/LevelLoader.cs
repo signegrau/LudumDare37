@@ -5,7 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 public class LevelLoader
 {
@@ -23,6 +26,13 @@ public class LevelLoader
 		{ '_', Tile.State.Wall }
     };
 
+    public class LevelStruct
+    {
+        public string name { get; set; }
+        public string author { get; set; }
+        public string levelData { get; set; }
+    }
+
     private static Dictionary<Tile.State, char> stateToChar;
 
     private static string levelSubFolder = "/levels/";
@@ -34,6 +44,29 @@ public class LevelLoader
     }
 
     public static Level ParseLevel(string levelText)
+    {
+        Level level;
+
+        if (levelText.StartsWith("name"))
+        {
+            var input = new StringReader(levelText);
+            var deserializer = new Deserializer(namingConvention: new HyphenatedNamingConvention());
+
+            var levelStruct = deserializer.Deserialize<LevelStruct>(input);
+
+            level = ParseLevelData(levelStruct.levelData);
+            level.name = levelStruct.name;
+            level.author = levelStruct.author;
+        }
+        else
+        {
+            level = ParseLevelData(levelText);
+        }
+
+        return level;
+    }
+
+    public static Level ParseLevelData(string levelText)
     {
         var tileIndex = 0;
         var pickupIndex = 0;
@@ -98,9 +131,22 @@ public class LevelLoader
             {
                 encodedLevel += stateToChar[tileState];
             }
+
+            encodedLevel += "\n";
         }
 
-        return encodedLevel;
+        var levelStruct = new LevelStruct{
+            name = level.name,
+            author = level.author,
+            levelData = encodedLevel
+        };
+
+        var serializer = new Serializer(SerializationOptions.None, new HyphenatedNamingConvention());
+        var stringBuilder = new StringBuilder();
+        var stringWriter = new StringWriter(stringBuilder);
+        serializer.Serialize(stringWriter, levelStruct);
+
+        return stringBuilder.ToString();
     }
 
     public static string GetFullPath(string fileName)

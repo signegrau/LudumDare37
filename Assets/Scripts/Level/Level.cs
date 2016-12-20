@@ -5,6 +5,8 @@ using UnityEngine;
 public class Level
 {
     public List<LevelState> states = new List<LevelState>();
+    public string name = "";
+    public string author = "";
 
     public int StatesCount
     {
