@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
     public float restartTimer;
     public Image restartIndicator;
 
+    public bool inEditor;
+
     public static float StartTime
     {
         get { return instance.timeStart; }
@@ -234,7 +236,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (gameStarted)
+        if (gameStarted && !inEditor)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
