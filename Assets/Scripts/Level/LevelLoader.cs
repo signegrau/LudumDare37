@@ -196,6 +196,25 @@ public class LevelLoader
         File.WriteAllText(path, text);
     }
 
+    public static void ImportLevel(string levelText)
+    {
+        var level = ParseLevel(levelText);
+
+        var fileName = string.Format("{0}_{1}", level.name, "{0:000}");
+        var testPath = GetFullPath(fileName);
+
+        for (var i = 0; i < 999; i++)
+        {
+            if (!File.Exists(string.Format(testPath, i)))
+            {
+                fileName = string.Format(fileName, i);
+                break;
+            }
+        }
+
+        SaveLevelToFile(fileName, level);
+    }
+
     public static List<string> GetLevels()
     {
         var path = levelFolderPath;
