@@ -57,11 +57,11 @@ public class Menu : MonoBehaviour
 
         foreach (var file in files)
         {
-            Debug.Log(file);
             var itemGameObject = Instantiate(levelButtonPrefab, levelButtonContainer);
             itemGameObject.transform.localScale = Vector3.one;
             var item = itemGameObject.GetComponent<CustomLevelButton>();
-            item.Setup(file);
+            var level = LevelLoader.LoadLevelFromFile(file);
+            item.Setup(file, level);
             levelButtons.Add(item);
         }
     }
@@ -85,11 +85,13 @@ public class Menu : MonoBehaviour
     private void OnEnable()
     {
         CustomLevelButton.buttonPressed += OnCustomLevelButtonPressed;
+        ImportDialog.closed += GotoCustomLevelMenu;
     }
 
     private void OnDisable()
     {
         CustomLevelButton.buttonPressed -= OnCustomLevelButtonPressed;
+        ImportDialog.closed -= GotoCustomLevelMenu;
     }
 
     private void OnCustomLevelButtonPressed(string fileName)

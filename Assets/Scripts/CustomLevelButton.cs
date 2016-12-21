@@ -9,15 +9,18 @@ public class CustomLevelButton : MonoBehaviour
 
     public static event PressedHandler buttonPressed;
 
-    public Text label;
+    public Text nameLabel;
+    public Text authorLabel;
+
     private FilePicker filePicker;
     private string fileName;
 
     private List<CustomLevelButton> levelButtons = new List<CustomLevelButton>();
 
-    public void Setup(string fileName)
+    public void Setup(string fileName, Level level)
     {
-        label.text = fileName;
+        nameLabel.text = string.IsNullOrEmpty(level.name) ? fileName : level.name;
+        authorLabel.text = string.IsNullOrEmpty(level.author) ? "Unknown" : level.author;
         this.fileName = fileName;
     }
 
