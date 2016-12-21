@@ -29,8 +29,11 @@ public class LaserCannon : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		float percentReadyToShoot = ((GameManager.StartTime + GameManager.TimeElapsed) % shootInterval) / shootInterval;
+	void Update ()
+	{
+	    if (GameManager.IsPaused) return;
+
+		float percentReadyToShoot = (Time.time - GameManager.StartTime + GameManager.TimeElapsed) % shootInterval / shootInterval;
 
 		if (percentReadyToShoot > 0.9f) {
 			lineRenderer.enabled = true;

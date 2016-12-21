@@ -59,6 +59,11 @@ public class GameManager : MonoBehaviour
     private bool gameStarted;
     private bool isPaused;
 
+    public static bool IsPaused
+    {
+        get { return instance.isPaused; }
+    }
+
     public static Level loadLevel;
 
     public float restartTimer;
