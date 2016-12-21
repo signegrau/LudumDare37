@@ -84,6 +84,9 @@ public class Editor : MonoBehaviour
     public Text missingStateLabel;
     public Text noSpawnLabel;
 
+    public InputField nameField;
+    public InputField authorField;
+
     private void Start()
     {
         LoadLevelScene();
@@ -417,6 +420,9 @@ public class Editor : MonoBehaviour
 
     public void SaveLevel()
     {
+        level.name = nameField.text;
+        level.author = authorField.text;
+
         if (string.IsNullOrEmpty(currentFileName) || !hasBeenSaved)
         {
             filePicker.Show(false);
@@ -516,6 +522,9 @@ public class Editor : MonoBehaviour
                 var newLevel = LevelLoader.LoadLevelFromFile(fileName);
 
                 if (newLevel == null) return;
+
+                nameField.text = newLevel.name;
+                authorField.text = newLevel.author;
 
                 level = newLevel;
                 currentStateIndex = 0;

@@ -191,7 +191,7 @@ public class LevelLoader
         path = GetFullPath(fileName);
         var text = EncodeLevel(level);
 
-        Debug.Log("Saved level to " + path);
+        Debug.Log("Saved level to " + path + "\n" + text);
 
         File.WriteAllText(path, text);
     }
