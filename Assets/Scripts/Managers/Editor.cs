@@ -31,6 +31,7 @@ public class Editor : MonoBehaviour
 
     public FilePicker filePicker;
     public UnsavedChangesDialog unsavedChangesDialog;
+    public ShareDialog shareDialog;
 
     private LevelManager _levelManager;
     private Tile.State selectedState = Tile.State.Platform;
@@ -622,5 +623,20 @@ public class Editor : MonoBehaviour
         GotoState(currentStateIndex);
         // Side effects making currentStateIndex = currentStateIndex - 1
         
+    }
+
+    public void ShareLevel()
+    {
+        var levelText = LevelLoader.EncodeLevel(level);
+        shareDialog.Show(levelText);
+
+        dialogOpen = true;
+
+        ShareDialog.closed += ShareDialogOnClosed;
+    }
+
+    private void ShareDialogOnClosed()
+    {
+        dialogOpen = false;
     }
 }
