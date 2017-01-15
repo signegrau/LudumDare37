@@ -12,6 +12,12 @@ public class Menu : MonoBehaviour
 
     public CanvasGroup titleMenu;
     public CanvasGroup customLevelMenu;
+
+    public Button customLevelButton;
+    public Button editorButton;
+
+    public Text customEditorWebExplainer;
+
     public Button quitButton;
 
     public RectTransform levelButtonContainer;
@@ -29,8 +35,14 @@ public class Menu : MonoBehaviour
 
 #if UNITY_STANDALONE
         quitButton.gameObject.SetActive(true);
+        customLevelButton.interactable = false;
+        editorButton.interactable = false;
+        customEditorWebExplainer.gameObject.SetActive(false);
 #else
         quitButton.gameObject.SetActive(false);
+        customLevelButton.interactable = false;
+        editorButton.interactable = false;
+        customEditorWebExplainer.gameObject.SetActive(true);
 #endif
     }
 
