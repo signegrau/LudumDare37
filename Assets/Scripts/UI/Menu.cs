@@ -105,4 +105,14 @@ public class Menu : MonoBehaviour
 
         SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
+
+    public void OpenSubreddit()
+    {
+        Application.OpenURL("https://reddit.com/r/MutoLocus");
+    }
+
+    public void OpenItchIo()
+    {
+        Application.OpenURL("https://mechagk.itch.io/muto-locus");
+    }
 }
