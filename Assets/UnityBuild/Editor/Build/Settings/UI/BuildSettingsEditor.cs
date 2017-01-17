@@ -7,7 +7,7 @@ namespace SuperSystems.UnityBuild
 [CustomEditor(typeof(BuildSettings))]
 public class BuildSettingsEditor : Editor
 {
-    public override void OnInspectorGUI()
+    public void OnInspectorGUI()
     {
         Color defaultBackgroundColor = GUI.backgroundColor;
         GUI.backgroundColor = Color.green;
