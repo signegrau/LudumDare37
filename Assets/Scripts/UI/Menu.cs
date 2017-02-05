@@ -35,14 +35,8 @@ public class Menu : MonoBehaviour
 
 #if UNITY_STANDALONE
         quitButton.gameObject.SetActive(true);
-        customLevelButton.interactable = false;
-        editorButton.interactable = false;
-        customEditorWebExplainer.gameObject.SetActive(false);
 #else
         quitButton.gameObject.SetActive(false);
-        customLevelButton.interactable = false;
-        editorButton.interactable = false;
-        customEditorWebExplainer.gameObject.SetActive(true);
 #endif
     }
 
