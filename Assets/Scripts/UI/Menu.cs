@@ -58,7 +58,6 @@ public class Menu : MonoBehaviour
             }
             levelButtons.Clear();
         }
-
         var files = LevelLoader.GetLevels();
 
         foreach (var file in files)
