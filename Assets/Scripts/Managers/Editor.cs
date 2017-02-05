@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -170,7 +171,7 @@ public class Editor : MonoBehaviour
 
     private void OnTilePressed(int index, int mouseButton)
     {
-        if (dialogOpen || level == null) return;
+        if (level == null) return;
         if (currentStateIndex > 0 && currentTileStates[index] == Tile.State.PlayerStart) return;
 
         if (mouseButton == 0)
@@ -541,7 +542,7 @@ public class Editor : MonoBehaviour
 
     public void Update()
     {
-        if (dialogOpen) return;
+        if (dialogOpen || EventSystem.current.currentSelectedGameObject != null) return;
 
         if (Input.GetKeyDown(KeyCode.Return))
         {

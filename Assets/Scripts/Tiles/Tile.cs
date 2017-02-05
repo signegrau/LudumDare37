@@ -1,13 +1,10 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
-using System.Net.Mail;
-using System.Threading;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using UnityEngine.EventSystems;
 
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public delegate void PressedHandler(int index, int mouseButton);
 
@@ -89,6 +86,8 @@ public class Tile : MonoBehaviour
     public bool isPlayerStart = false;
     private bool paused;
 
+    private bool mouseOver = false;
+
     private readonly Dictionary<TransisionState, Vector3> targetPositions = new Dictionary<TransisionState, Vector3>
     {
         {TransisionState.Background, new Vector3(0, 0, 1)},
@@ -153,6 +152,8 @@ public class Tile : MonoBehaviour
     private bool transisionFinished;
 	public void Update ()
 	{
+        HandleMouseInput();
+
 	    if (transisionState == TransisionState.None || paused) return;
 
 	    if (transisionState != TransisionState.Background)
@@ -257,9 +258,9 @@ public class Tile : MonoBehaviour
         this.transisionState = transisionState;
     }
 
-    private void OnMouseOver()
+    private void HandleMouseInput()
     {
-        if (tilePressed == null) return;
+        if (tilePressed == null || !mouseOver) return;
         if (Input.GetMouseButton(0))
         {
             tilePressed(index, 0);
@@ -309,5 +310,15 @@ public class Tile : MonoBehaviour
         }
 
         state = newState;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        mouseOver = false;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        mouseOver = true;
     }
 }
