@@ -168,6 +168,12 @@ public class LevelLoader
     /// <returns></returns>
     public static Level LoadLevelFromFile(string fileName)
     {
+        #if UNITY_WEBGL
+        if (PlayerPrefs.HasKey("lvl_" + fileName)) {
+            var text = PlayerPrefs.GetString("lvl_" + fileName);
+            return ParseLevel(text);
+        }
+        #else
         var path = GetFullPath(fileName);
 
         if (File.Exists(path))
@@ -175,25 +181,41 @@ public class LevelLoader
             var text = File.ReadAllText(path);
             return ParseLevel(text);
         }
+        #endif
 
-
-        Debug.Log("file doesn't exsist");
+        Debug.Log("file doesn't exist");
         return null;
-
     }
 
     public static void SaveLevelToFile(string fileName, Level level)
     {
-        var path = levelFolderPath;
+        var text = EncodeLevel(level);
 
+        #if UNITY_WEBGL
+        PlayerPrefs.SetString("lvl_" + fileName, text);
+
+        if (PlayerPrefs.HasKey("levelsList")) {
+            var levelsList = PlayerPrefs.GetString("levels");
+            if (!levelsList.Contains(fileName)) {
+                levelsList += fileName + ',';
+            }
+        }
+        else {
+            PlayerPrefs.SetString("levels", fileName + ',');
+        }
+        
+
+        #else
+        var path = levelFolderPath;
         Directory.CreateDirectory(path);
 
         path = GetFullPath(fileName);
-        var text = EncodeLevel(level);
+        
 
         Debug.Log("Saved level to " + path + "\n" + text);
 
         File.WriteAllText(path, text);
+        #endif
     }
 
     public static void ImportLevel(string levelText)
@@ -217,6 +239,18 @@ public class LevelLoader
 
     public static List<string> GetLevels()
     {
+        #if UNITY_WEBGL
+        var levels = new List<String>();
+
+        if (PlayerPrefs.HasKey("levels")) {
+            var levelsString = PlayerPrefs.GetString("levels");
+            levels = levelsString.Split(',').ToList();
+            levels.RemoveAt(levels.Count - 1);
+        }
+
+        return levels;
+
+        #else
         var path = levelFolderPath;
 
         if (!Directory.Exists(path))
@@ -228,12 +262,17 @@ public class LevelLoader
         return Directory.GetFiles(path)
             .Where(s => Path.GetExtension(s) == levelFileExtension)
             .Select(Path.GetFileNameWithoutExtension).ToList();
+        #endif
     }
 
     public static bool LevelFileExists(string fileName)
     {
+        #if UNITY_WEBGL
+        return PlayerPrefs.HasKey("lvl_" + fileName);
+        #else
         var path = GetFullPath(fileName);
 
         return File.Exists(path);
+        #endif
     }
 }
