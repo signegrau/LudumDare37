@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PauseScreen : MonoBehaviour
 {
     private CanvasGroup _canvasGroup;
+    public GameObject firstSelected;
 
     private void Start()
     {
@@ -32,6 +32,7 @@ public class PauseScreen : MonoBehaviour
     private void GameManagerOnPaused()
     {
         _canvasGroup.SetVisibility(true);
+        EventSystem.current.SetSelectedGameObject(firstSelected);
     }
 
     public void ResumeGame()

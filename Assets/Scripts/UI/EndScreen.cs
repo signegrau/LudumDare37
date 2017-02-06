@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EndScreen : MonoBehaviour
@@ -19,6 +20,8 @@ public class EndScreen : MonoBehaviour
     private float miliseconds, seconds, minutes;
 
     private CanvasGroup _canvasGroup;
+
+    public GameObject firstSelected;
 
     private void OnEnable()
     {
@@ -38,6 +41,8 @@ public class EndScreen : MonoBehaviour
         _canvasGroup.alpha = 1;
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.interactable = true;
+
+        EventSystem.current.SetSelectedGameObject(firstSelected);
     }
 
     private void OnDisable()

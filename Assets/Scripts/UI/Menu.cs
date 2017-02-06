@@ -28,6 +28,9 @@ public class Menu : MonoBehaviour
 
     private string levelToLoad;
 
+    public GameObject titleMenuSelected;
+    public GameObject playMenuSelected;
+
     private void Start()
     {
         titleMenu.SetVisibility(true);
@@ -49,6 +52,8 @@ public class Menu : MonoBehaviour
     {
         titleMenu.SetVisibility(false);
         customLevelMenu.SetVisibility(true);
+
+        EventSystem.current.SetSelectedGameObject(playMenuSelected);
 
         if (levelButtons.Count > 0)
         {
@@ -75,6 +80,8 @@ public class Menu : MonoBehaviour
     {
         titleMenu.SetVisibility(true);
         customLevelMenu.SetVisibility(false);
+
+        EventSystem.current.SetSelectedGameObject(titleMenuSelected);
     }
 
     public void GotoEditor()
