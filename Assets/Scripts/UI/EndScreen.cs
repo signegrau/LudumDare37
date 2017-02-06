@@ -17,7 +17,7 @@ public class EndScreen : MonoBehaviour
     private string timerTemplate;
     private string deathCounterTemplate;
 
-    private float miliseconds, seconds, minutes;
+    private float milliseconds, seconds, minutes;
 
     private CanvasGroup _canvasGroup;
 
@@ -32,9 +32,9 @@ public class EndScreen : MonoBehaviour
     {
         minutes = Mathf.FloorToInt(time) / 60;
         seconds = Mathf.Floor(time) % 60;
-        miliseconds = time * 1000 % 1000;
+        milliseconds = time * 1000 % 1000;
 
-        timer.text = string.Format(timerTemplate, minutes, seconds, miliseconds);
+        timer.text = string.Format(timerTemplate, minutes, seconds, milliseconds);
 
         deathCounter.text = string.Format(deathCounterTemplate, deaths);
 
