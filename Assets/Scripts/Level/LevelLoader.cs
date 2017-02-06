@@ -194,17 +194,19 @@ public class LevelLoader
         #if UNITY_WEBGL
         PlayerPrefs.SetString("lvl_" + fileName, text);
 
-        if (PlayerPrefs.HasKey("levelsList")) {
+        if (PlayerPrefs.HasKey("levels")) {
             var levelsList = PlayerPrefs.GetString("levels");
             if (!levelsList.Contains(fileName)) {
                 levelsList += fileName + ',';
             }
+
+            PlayerPrefs.SetString("levels", levelsList);
         }
         else {
             PlayerPrefs.SetString("levels", fileName + ',');
         }
         
-
+        PlayerPrefs.Save();
         #else
         var path = levelFolderPath;
         Directory.CreateDirectory(path);
